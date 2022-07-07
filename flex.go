@@ -2,7 +2,6 @@ package etk
 
 import (
 	"image"
-	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -11,8 +10,6 @@ type Flex struct {
 	*Box
 
 	vertical bool
-
-	lastRect image.Rectangle
 }
 
 func NewFlex() *Flex {
@@ -26,11 +23,7 @@ func (f *Flex) SetRect(r image.Rectangle) {
 	defer f.Unlock()
 
 	f.Box.rect = r
-
-	// TODO
-	for _, child := range f.children {
-		child.SetRect(r)
-	}
+	f.reposition()
 }
 
 func (f *Flex) SetVertical(v bool) {
@@ -45,7 +38,7 @@ func (f *Flex) SetVertical(v bool) {
 	f.reposition()
 }
 
-func (f *Flex) HandleMouse() (handled bool, err error) {
+func (f *Flex) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
 	return false, nil
 }
 
@@ -56,11 +49,6 @@ func (f *Flex) HandleKeyboard() (handled bool, err error) {
 func (f *Flex) Draw(screen *ebiten.Image) error {
 	f.Lock()
 	defer f.Unlock()
-
-	if !f.rect.Eq(f.lastRect) {
-		f.reposition()
-		f.lastRect = f.rect
-	}
 
 	for _, child := range f.children {
 		err := child.Draw(screen)
@@ -85,7 +73,6 @@ func (f *Flex) reposition() {
 			if i == l-1 {
 				maxY = r.Max.Y
 			}
-			log.Println(i, maxY, image.Rect(r.Min.X, minY, r.Max.X, maxY))
 			child.SetRect(image.Rect(r.Min.X, minY, r.Max.X, maxY))
 
 			minY = maxY
@@ -102,7 +89,6 @@ func (f *Flex) reposition() {
 		if i == l-1 {
 			maxX = r.Max.X
 		}
-		log.Println(i, maxX, image.Rect(minX, r.Min.Y, maxX, r.Max.Y))
 		child.SetRect(image.Rect(minX, r.Min.Y, maxX, r.Max.Y))
 
 		minX = maxX

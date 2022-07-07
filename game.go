@@ -3,6 +3,9 @@ package etk
 import (
 	"fmt"
 	"image"
+	"math"
+
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -11,6 +14,8 @@ var root Widget
 
 var (
 	lastWidth, lastHeight int
+
+	lastX, lastY = -math.MaxInt, -math.MaxInt
 )
 
 func SetRoot(w Widget) {
@@ -33,41 +38,59 @@ func Update() error {
 		panic("no root widget specified")
 	}
 
-	var mouseHandled bool
-	var keyboardHandled bool
-	var err error
+	x, y := ebiten.CursorPosition()
+	cursor := image.Point{x, y}
 
-	children := root.Children()
-	for _, child := range children {
-		if !mouseHandled {
-			mouseHandled, err = child.HandleMouse()
-			if err != nil {
-				return fmt.Errorf("failed to handle widget mouse input: %s", err)
-			}
-		}
-		if !keyboardHandled {
-			keyboardHandled, err = child.HandleKeyboard()
-			if err != nil {
-				return fmt.Errorf("failed to handle widget keyboard input: %s", err)
-			}
-		}
-		if mouseHandled && keyboardHandled {
-			return nil
+	if lastX == -math.MaxInt && lastY == -math.MaxInt {
+		lastX, lastY = x, y
+	}
+
+	// TODO handle touch input
+
+	var pressed bool
+	for _, binding := range Bindings.ConfirmMouse {
+		pressed = ebiten.IsMouseButtonPressed(binding)
+		if pressed {
+			break
 		}
 	}
-	if !mouseHandled {
-		_, err = root.HandleMouse()
+
+	var clicked bool
+	for _, binding := range Bindings.ConfirmMouse {
+		clicked = inpututil.IsMouseButtonJustReleased(binding)
+		if clicked {
+			break
+		}
+	}
+
+	_, _, err := update(root, cursor, pressed, clicked, false, false)
+	return err
+}
+
+func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandled bool, keyboardHandled bool) (bool, bool, error) {
+	var err error
+	children := w.Children()
+	for _, child := range children {
+		mouseHandled, keyboardHandled, err = update(child, cursor, pressed, clicked, mouseHandled, keyboardHandled)
 		if err != nil {
-			return fmt.Errorf("failed to handle widget mouse input: %s", err)
+			return false, false, err
+		} else if mouseHandled && keyboardHandled {
+			return true, true, nil
+		}
+	}
+	if !mouseHandled && cursor.In(w.Rect()) {
+		_, err = w.HandleMouse(cursor, pressed, clicked)
+		if err != nil {
+			return false, false, fmt.Errorf("failed to handle widget mouse input: %s", err)
 		}
 	}
 	if !keyboardHandled {
-		_, err = root.HandleKeyboard()
+		_, err = w.HandleKeyboard()
 		if err != nil {
-			return fmt.Errorf("failed to handle widget keyboard input: %s", err)
+			return false, false, fmt.Errorf("failed to handle widget keyboard input: %s", err)
 		}
 	}
-	return nil
+	return mouseHandled, keyboardHandled, nil
 }
 
 func Draw(screen *ebiten.Image) error {
@@ -75,17 +98,22 @@ func Draw(screen *ebiten.Image) error {
 		panic("no root widget specified")
 	}
 
-	err := root.Draw(screen)
+	return draw(root, screen)
+}
+
+func draw(w Widget, screen *ebiten.Image) error {
+	err := w.Draw(screen)
 	if err != nil {
 		return fmt.Errorf("failed to draw widget: %s", err)
 	}
 
-	children := root.Children()
+	children := w.Children()
 	for _, child := range children {
-		err = child.Draw(screen)
+		err = draw(child, screen)
 		if err != nil {
 			return fmt.Errorf("failed to draw widget: %s", err)
 		}
 	}
+
 	return nil
 }

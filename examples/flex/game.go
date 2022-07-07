@@ -30,4 +30,5 @@ func (g *game) Draw(screen *ebiten.Image) {
 	if err != nil {
 		panic(err)
 	}
+
 }

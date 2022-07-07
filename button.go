@@ -2,58 +2,36 @@ package etk
 
 import (
 	"image"
-	"image/color"
-	"log"
 
 	"code.rocketnine.space/tslocum/messeji"
-	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
-
 	"github.com/hajimehoshi/ebiten/v2"
 )
-
-// TODO
-var mplusNormalFont font.Face
-
-func init() {
-	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
-	if err != nil {
-		log.Fatal(err)
-	}
-	const dpi = 72
-	mplusNormalFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    32,
-		DPI:     dpi,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
 type Button struct {
 	*Box
 
 	label *messeji.TextField
+
+	onSelected func() error
 }
 
-func NewButton(label string, onSelected func()) *Button {
+func NewButton(label string, onSelected func() error) *Button {
 	textColor := Style.ButtonTextColor
 	if textColor == nil {
-		textColor = Style.TextColor
+		textColor = Style.TextColorDark
 	}
 
-	l := messeji.NewTextField(mplusNormalFont)
+	l := messeji.NewTextField(Style.TextFont)
 	l.SetText(label)
 	l.SetForegroundColor(textColor)
-	l.SetBackgroundColor(color.RGBA{0, 0, 0, 0})
+	l.SetBackgroundColor(transparent)
 	l.SetHorizontal(messeji.AlignCenter)
 	l.SetVertical(messeji.AlignCenter)
 
 	return &Button{
-		Box:   NewBox(),
-		label: l, // TODO
+		Box:        NewBox(),
+		label:      l,
+		onSelected: onSelected,
 	}
 }
 
@@ -63,8 +41,20 @@ func (b *Button) SetRect(r image.Rectangle) {
 	b.label.SetRect(r)
 }
 
-func (b *Button) HandleMouse() (handled bool, err error) {
-	return false, nil
+func (b *Button) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
+	if !clicked {
+		return true, nil
+	}
+
+	b.Lock()
+	onSelected := b.onSelected
+	if onSelected == nil {
+		b.Unlock()
+		return true, nil
+	}
+	b.Unlock()
+
+	return true, onSelected()
 }
 
 func (b *Button) HandleKeyboard() (handled bool, err error) {

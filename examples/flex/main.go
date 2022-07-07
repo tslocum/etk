@@ -4,24 +4,34 @@
 package main
 
 import (
+	"fmt"
+	"log"
+
 	"code.rocketnine.space/tslocum/etk"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 func main() {
-	ebiten.SetWindowTitle("etk showcase")
+	ebiten.SetWindowTitle("etk flex example")
+
+	newButton := func(i int) *etk.Button {
+		return etk.NewButton(fmt.Sprintf("Button %d", i), func() error {
+			log.Printf("Pressed button %d", i)
+			return nil
+		})
+	}
 
 	g := newGame()
 
-	b1 := etk.NewButton("Button 1", nil)
-	b2 := etk.NewButton("Button 2", nil)
+	b1 := newButton(1)
+	b2 := newButton(2)
 
 	topFlex := etk.NewFlex()
 	topFlex.AddChild(b1, b2)
 
-	b3 := etk.NewButton("Button 3", nil)
-	b4 := etk.NewButton("Button 4", nil)
-	b5 := etk.NewButton("Button 5", nil)
+	b3 := newButton(3)
+	b4 := newButton(4)
+	b5 := newButton(5)
 
 	bottomFlex := etk.NewFlex()
 	bottomFlex.AddChild(b3, b4, b5)

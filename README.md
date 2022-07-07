@@ -5,7 +5,6 @@
 
 [Ebitengine](https://github.com/hajimehoshi/ebiten) tool kit for creating graphical user interfaces
 
-
 **Note:** This library is still in development. Breaking changes may be made until v1.0 is released.
 [IME](https://en.wikipedia.org/wiki/Input_method) is not yet supported.
 
