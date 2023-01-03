@@ -35,6 +35,11 @@ func NewInput(prefix string, text string, onSelected func(text string) (handled 
 	}
 }
 
+// Clear clears the field's buffer.
+func (i *Input) Clear() {
+	i.field.SetText("")
+}
+
 // Write writes to the field's buffer.
 func (i *Input) Write(p []byte) (n int, err error) {
 	return i.field.Write(p)

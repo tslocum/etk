@@ -29,6 +29,11 @@ func NewText(text string) *Text {
 	}
 }
 
+// Clear clears the field's buffer.
+func (t *Text) Clear() {
+	t.field.SetText("")
+}
+
 // Write writes to the field's buffer.
 func (t *Text) Write(p []byte) (n int, err error) {
 	return t.field.Write(p)
