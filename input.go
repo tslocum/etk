@@ -10,7 +10,7 @@ import (
 
 type Input struct {
 	*Box
-	field *messeji.InputField
+	Field *messeji.InputField
 }
 
 func NewInput(prefix string, text string, onSelected func(text string) (handled bool)) *Input {
@@ -31,28 +31,28 @@ func NewInput(prefix string, text string, onSelected func(text string) (handled 
 
 	return &Input{
 		Box:   NewBox(),
-		field: i,
+		Field: i,
 	}
 }
 
 // Clear clears the field's buffer.
 func (i *Input) Clear() {
-	i.field.SetText("")
+	i.Field.SetText("")
 }
 
 // Write writes to the field's buffer.
 func (i *Input) Write(p []byte) (n int, err error) {
-	return i.field.Write(p)
+	return i.Field.Write(p)
 }
 
 func (i *Input) Text() string {
-	return i.field.Text()
+	return i.Field.Text()
 }
 
 func (i *Input) SetRect(r image.Rectangle) {
 	i.Box.rect = r
 
-	i.field.SetRect(r)
+	i.Field.SetRect(r)
 }
 
 func (i *Input) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
@@ -60,13 +60,13 @@ func (i *Input) HandleMouse(cursor image.Point, pressed bool, clicked bool) (han
 }
 
 func (i *Input) HandleKeyboard() (handled bool, err error) {
-	err = i.field.Update()
+	err = i.Field.Update()
 
 	return false, err
 }
 
 func (i *Input) Draw(screen *ebiten.Image) error {
 	// Draw label.
-	i.field.Draw(screen)
+	i.Field.Draw(screen)
 	return nil
 }

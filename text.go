@@ -10,7 +10,7 @@ import (
 
 type Text struct {
 	*Box
-	field *messeji.TextField
+	Field *messeji.TextField
 }
 
 func NewText(text string) *Text {
@@ -25,28 +25,28 @@ func NewText(text string) *Text {
 
 	return &Text{
 		Box:   NewBox(),
-		field: l,
+		Field: l,
 	}
 }
 
 // Clear clears the field's buffer.
 func (t *Text) Clear() {
-	t.field.SetText("")
+	t.Field.SetText("")
 }
 
 // Write writes to the field's buffer.
 func (t *Text) Write(p []byte) (n int, err error) {
-	return t.field.Write(p)
+	return t.Field.Write(p)
 }
 
 func (t *Text) Text() string {
-	return t.field.Text()
+	return t.Field.Text()
 }
 
 func (t *Text) SetRect(r image.Rectangle) {
 	t.Box.rect = r
 
-	t.field.SetRect(r)
+	t.Field.SetRect(r)
 }
 
 func (t *Text) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
@@ -59,6 +59,6 @@ func (t *Text) HandleKeyboard() (handled bool, err error) {
 
 func (t *Text) Draw(screen *ebiten.Image) error {
 	// Draw label.
-	t.field.Draw(screen)
+	t.Field.Draw(screen)
 	return nil
 }
