@@ -45,6 +45,10 @@ func (i *Input) Write(p []byte) (n int, err error) {
 	return i.field.Write(p)
 }
 
+func (i *Input) Text() string {
+	return i.field.Text()
+}
+
 func (i *Input) SetRect(r image.Rectangle) {
 	i.Box.rect = r
 

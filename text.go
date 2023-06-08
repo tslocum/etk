@@ -39,6 +39,10 @@ func (t *Text) Write(p []byte) (n int, err error) {
 	return t.field.Write(p)
 }
 
+func (t *Text) Text() string {
+	return t.field.Text()
+}
+
 func (t *Text) SetRect(r image.Rectangle) {
 	t.Box.rect = r
 
