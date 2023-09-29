@@ -9,8 +9,11 @@ import (
 type Grid struct {
 	*Box
 
-	rowSizes    []int
 	columnSizes []int
+	rowSizes    []int
+
+	columnPadding int
+	rowPadding    int
 
 	cellPositions [][2]int
 	cellSpans     [][2]int
@@ -32,6 +35,22 @@ func (g *Grid) SetRect(r image.Rectangle) {
 	g.reposition()
 }
 
+func (g *Grid) SetColumnSizes(size ...int) {
+	g.Lock()
+	defer g.Unlock()
+
+	g.columnSizes = size
+	g.reposition()
+}
+
+func (g *Grid) SetColumnPadding(padding int) {
+	g.Lock()
+	defer g.Unlock()
+
+	g.columnPadding = padding
+	g.reposition()
+}
+
 func (g *Grid) SetRowSizes(size ...int) {
 	g.Lock()
 	defer g.Unlock()
@@ -40,11 +59,11 @@ func (g *Grid) SetRowSizes(size ...int) {
 	g.reposition()
 }
 
-func (g *Grid) SetColumnSizes(size ...int) {
+func (g *Grid) SetRowPadding(padding int) {
 	g.Lock()
 	defer g.Unlock()
 
-	g.columnSizes = size
+	g.rowPadding = padding
 	g.reposition()
 }
 
@@ -147,7 +166,7 @@ func (g *Grid) reposition() {
 			numColumnProportions[-columnWidths[i]]++
 		}
 	}
-	remainingWidth := gridW - usedWidth
+	remainingWidth := gridW - usedWidth - (g.columnPadding * (numColumns + 1))
 	columnProportions := make([]int, maxColumnProportion)
 	for i := 0; i < maxColumnProportion; i++ {
 		columnProportions[i] = remainingWidth / (i + 1)
@@ -175,7 +194,7 @@ func (g *Grid) reposition() {
 			numRowProportions[-rowHeights[i]]++
 		}
 	}
-	remainingHeight := gridH - usedHeight
+	remainingHeight := gridH - usedHeight - (g.rowPadding * (numRows + 1))
 	rowProportions := make([]int, maxRowProportion)
 	for i := 0; i < maxRowProportion; i++ {
 		rowProportions[i] = remainingHeight / (i + 1)
@@ -188,19 +207,19 @@ func (g *Grid) reposition() {
 
 	columnPositions := make([]int, numColumns)
 	{
-		var x int
+		x := g.columnPadding
 		for i := 0; i < numColumns; i++ {
 			columnPositions[i] = x
-			x += columnWidths[i]
+			x += columnWidths[i] + g.columnPadding
 		}
 	}
 
 	rowPositions := make([]int, numRows)
 	{
-		var y int
+		y := g.rowPadding
 		for i := 0; i < numRows; i++ {
 			rowPositions[i] = y
-			y += rowHeights[i]
+			y += rowHeights[i] + g.rowPadding
 		}
 	}
 
@@ -214,9 +233,15 @@ func (g *Grid) reposition() {
 
 		var w, h int
 		for j := 0; j < span[0]; j++ {
+			if j > 0 {
+				w += g.columnPadding
+			}
 			w += columnWidths[position[0]+j]
 		}
 		for j := 0; j < span[1]; j++ {
+			if j > 0 {
+				h += g.rowPadding
+			}
 			h += rowHeights[position[1]+j]
 		}
 
