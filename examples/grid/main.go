@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 
+	"code.rocketnine.space/tslocum/messeji"
+
 	"code.rocketnine.space/tslocum/etk"
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -21,7 +23,10 @@ func main() {
 	}
 
 	newText := func(size int) *etk.Text {
-		return etk.NewText(fmt.Sprintf("%dpx Text", size))
+		t := etk.NewText(fmt.Sprintf("%dpx Text", size))
+		t.SetHorizontal(messeji.AlignCenter)
+		t.SetVertical(messeji.AlignCenter)
+		return t
 	}
 
 	g := newGame()

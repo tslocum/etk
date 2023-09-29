@@ -10,7 +10,7 @@ import (
 type Button struct {
 	*Box
 
-	label *messeji.TextField
+	Label *messeji.TextField
 
 	onSelected func() error
 }
@@ -30,7 +30,7 @@ func NewButton(label string, onSelected func() error) *Button {
 
 	return &Button{
 		Box:        NewBox(),
-		label:      l,
+		Label:      l,
 		onSelected: onSelected,
 	}
 }
@@ -38,7 +38,7 @@ func NewButton(label string, onSelected func() error) *Button {
 func (b *Button) SetRect(r image.Rectangle) {
 	b.Box.rect = r
 
-	b.label.SetRect(r)
+	b.Label.SetRect(r)
 }
 
 func (b *Button) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
@@ -67,7 +67,7 @@ func (b *Button) Draw(screen *ebiten.Image) error {
 	screen.SubImage(b.rect).(*ebiten.Image).Fill(Style.ButtonBgColor)
 
 	// Draw label.
-	b.label.Draw(screen)
+	b.Label.Draw(screen)
 
 	// Draw border.
 	const borderSize = 4

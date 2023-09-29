@@ -9,8 +9,9 @@ import (
 )
 
 type Text struct {
-	*Box
-	Field *messeji.TextField
+	*messeji.TextField
+
+	children []Widget
 }
 
 func NewText(text string) *Text {
@@ -20,33 +21,38 @@ func NewText(text string) *Text {
 	l.SetText(text)
 	l.SetForegroundColor(textColor)
 	l.SetBackgroundColor(Style.TextBgColor)
-	l.SetHorizontal(messeji.AlignCenter)
-	l.SetVertical(messeji.AlignCenter)
 
 	return &Text{
-		Box:   NewBox(),
-		Field: l,
+		TextField: l,
 	}
+}
+
+func (t *Text) Children() []Widget {
+	t.Lock()
+	defer t.Unlock()
+
+	return t.children
+}
+
+func (t *Text) AddChild(w ...Widget) {
+	t.Lock()
+	defer t.Unlock()
+
+	t.children = append(t.children, w...)
 }
 
 // Clear clears the field's buffer.
 func (t *Text) Clear() {
-	t.Field.SetText("")
+	t.SetText("")
 }
 
 // Write writes to the field's buffer.
 func (t *Text) Write(p []byte) (n int, err error) {
-	return t.Field.Write(p)
+	return t.Write(p)
 }
 
 func (t *Text) Text() string {
-	return t.Field.Text()
-}
-
-func (t *Text) SetRect(r image.Rectangle) {
-	t.Box.rect = r
-
-	t.Field.SetRect(r)
+	return t.Text()
 }
 
 func (t *Text) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
@@ -59,6 +65,6 @@ func (t *Text) HandleKeyboard() (handled bool, err error) {
 
 func (t *Text) Draw(screen *ebiten.Image) error {
 	// Draw label.
-	t.Field.Draw(screen)
+	t.TextField.Draw(screen)
 	return nil
 }
