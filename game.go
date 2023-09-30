@@ -20,6 +20,9 @@ var (
 
 func SetRoot(w Widget) {
 	root = w
+	if lastWidth != 0 || lastHeight != 0 {
+		root.SetRect(image.Rect(0, 0, lastWidth, lastHeight))
+	}
 }
 
 func Layout(outsideWidth, outsideHeight int) {
@@ -79,13 +82,13 @@ func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandl
 		}
 	}
 	if !mouseHandled && cursor.In(w.Rect()) {
-		_, err = w.HandleMouse(cursor, pressed, clicked)
+		mouseHandled, err = w.HandleMouse(cursor, pressed, clicked)
 		if err != nil {
 			return false, false, fmt.Errorf("failed to handle widget mouse input: %s", err)
 		}
 	}
 	if !keyboardHandled {
-		_, err = w.HandleKeyboard()
+		keyboardHandled, err = w.HandleKeyboard()
 		if err != nil {
 			return false, false, fmt.Errorf("failed to handle widget keyboard input: %s", err)
 		}
