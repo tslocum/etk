@@ -21,6 +21,7 @@ func NewInput(prefix string, text string, onSelected func(text string) (handled 
 
 	i := messeji.NewInputField(Style.TextFont)
 	i.SetPrefix(prefix)
+	i.SetSuffix("NONE")
 	i.SetText(text)
 	i.SetForegroundColor(textColor)
 	i.SetBackgroundColor(Style.InputBgColor)
@@ -59,9 +60,9 @@ func (i *Input) SetRect(r image.Rectangle) {
 func (i *Input) SetFocus(focus bool) {
 	i.focus = focus
 
-	cursor := i.Cursor
-	if !focus {
-		cursor = ""
+	var cursor string
+	if focus {
+		cursor = i.Cursor
 	}
 	i.Field.SetSuffix(cursor)
 }
@@ -71,9 +72,12 @@ func (i *Input) HandleMouse(cursor image.Point, pressed bool, clicked bool) (han
 }
 
 func (i *Input) HandleKeyboard() (handled bool, err error) {
-	err = i.Field.Update()
+	if !i.focus {
+		return false, nil
+	}
 
-	return false, err
+	err = i.Field.Update()
+	return true, err
 }
 
 func (i *Input) Draw(screen *ebiten.Image) error {
