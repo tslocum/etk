@@ -6,9 +6,8 @@ import (
 	"fmt"
 	"log"
 
+	"code.rocket9labs.com/tslocum/etk"
 	"code.rocketnine.space/tslocum/messeji"
-
-	"code.rocketnine.space/tslocum/etk"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 

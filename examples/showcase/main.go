@@ -9,7 +9,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
-	"code.rocketnine.space/tslocum/etk"
+	"code.rocket9labs.com/tslocum/etk"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 

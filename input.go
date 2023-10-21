@@ -21,7 +21,7 @@ func NewInput(prefix string, text string, onSelected func(text string) (handled 
 
 	i := messeji.NewInputField(Style.TextFont)
 	i.SetPrefix(prefix)
-	i.SetSuffix("NONE")
+	i.SetSuffix("")
 	i.SetText(text)
 	i.SetForegroundColor(textColor)
 	i.SetBackgroundColor(Style.InputBgColor)

@@ -3,9 +3,8 @@ package etk
 import (
 	"image"
 
-	"github.com/hajimehoshi/ebiten/v2"
-
 	"code.rocketnine.space/tslocum/messeji"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Text struct {
