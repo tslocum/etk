@@ -5,9 +5,8 @@ import (
 	"image"
 	"math"
 
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
-
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 var root Widget
@@ -16,6 +15,8 @@ var (
 	lastWidth, lastHeight int
 
 	lastX, lastY = -math.MaxInt, -math.MaxInt
+
+	touchIDs []ebiten.TouchID
 )
 
 func SetRoot(w Widget) {
@@ -41,28 +42,45 @@ func Update() error {
 		panic("no root widget specified")
 	}
 
-	x, y := ebiten.CursorPosition()
-	cursor := image.Point{x, y}
+	var cursor image.Point
 
-	if lastX == -math.MaxInt && lastY == -math.MaxInt {
-		lastX, lastY = x, y
-	}
+	// Handle touch input.
 
-	// TODO handle touch input
+	var touchInput bool
 
-	var pressed bool
-	for _, binding := range Bindings.ConfirmMouse {
-		pressed = ebiten.IsMouseButtonPressed(binding)
-		if pressed {
-			break
+	var clicked bool
+	touchIDs = inpututil.AppendJustPressedTouchIDs(touchIDs[:0])
+	for _, id := range touchIDs {
+		x, y := ebiten.TouchPosition(id)
+		if x != 0 || y != 0 {
+			cursor = image.Point{x, y}
+			clicked = true
+			touchInput = true
 		}
 	}
 
-	var clicked bool
-	for _, binding := range Bindings.ConfirmMouse {
-		clicked = inpututil.IsMouseButtonJustReleased(binding)
-		if clicked {
-			break
+	// Handle mouse input.
+
+	var pressed bool
+	if !touchInput {
+		x, y := ebiten.CursorPosition()
+		cursor = image.Point{x, y}
+
+		if lastX == -math.MaxInt && lastY == -math.MaxInt {
+			lastX, lastY = x, y
+		}
+		for _, binding := range Bindings.ConfirmMouse {
+			pressed = ebiten.IsMouseButtonPressed(binding)
+			if pressed {
+				break
+			}
+		}
+
+		for _, binding := range Bindings.ConfirmMouse {
+			clicked = inpututil.IsMouseButtonJustReleased(binding)
+			if clicked {
+				break
+			}
 		}
 	}
 
