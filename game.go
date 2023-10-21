@@ -17,12 +17,25 @@ var (
 	lastX, lastY = -math.MaxInt, -math.MaxInt
 
 	touchIDs []ebiten.TouchID
+
+	focusedWidget Widget
 )
 
 func SetRoot(w Widget) {
 	root = w
 	if lastWidth != 0 || lastHeight != 0 {
 		root.SetRect(image.Rect(0, 0, lastWidth, lastHeight))
+	}
+	SetFocus(root)
+}
+
+func SetFocus(w Widget) {
+	if focusedWidget != nil {
+		focusedWidget.SetFocus(false)
+	}
+	focusedWidget = w
+	if w != nil {
+		w.SetFocus(true)
 	}
 }
 
@@ -88,6 +101,21 @@ func Update() error {
 	return err
 }
 
+func getWidgetAt(w Widget, cursor image.Point) Widget {
+	if !cursor.In(w.Rect()) {
+		return nil
+	}
+	for _, child := range w.Children() {
+		if cursor.In(child.Rect()) {
+			result := getWidgetAt(child, cursor)
+			if result != nil {
+				return result
+			}
+		}
+	}
+	return w
+}
+
 func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandled bool, keyboardHandled bool) (bool, bool, error) {
 	var err error
 	children := w.Children()
@@ -105,7 +133,7 @@ func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandl
 			return false, false, fmt.Errorf("failed to handle widget mouse input: %s", err)
 		}
 	}
-	if !keyboardHandled {
+	if !keyboardHandled && w == focusedWidget {
 		keyboardHandled, err = w.HandleKeyboard()
 		if err != nil {
 			return false, false, fmt.Errorf("failed to handle widget keyboard input: %s", err)

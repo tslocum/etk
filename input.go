@@ -3,14 +3,14 @@ package etk
 import (
 	"image"
 
-	"github.com/hajimehoshi/ebiten/v2"
-
 	"code.rocketnine.space/tslocum/messeji"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Input struct {
 	*Box
-	Field *messeji.InputField
+	Field  *messeji.InputField
+	Cursor string
 }
 
 func NewInput(prefix string, text string, onSelected func(text string) (handled bool)) *Input {
@@ -30,8 +30,9 @@ func NewInput(prefix string, text string, onSelected func(text string) (handled 
 	})
 
 	return &Input{
-		Box:   NewBox(),
-		Field: i,
+		Box:    NewBox(),
+		Field:  i,
+		Cursor: "_",
 	}
 }
 
@@ -53,6 +54,16 @@ func (i *Input) SetRect(r image.Rectangle) {
 	i.Box.rect = r
 
 	i.Field.SetRect(r)
+}
+
+func (i *Input) SetFocus(focus bool) {
+	i.focus = focus
+
+	cursor := i.Cursor
+	if !focus {
+		cursor = ""
+	}
+	i.Field.SetSuffix(cursor)
 }
 
 func (i *Input) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {

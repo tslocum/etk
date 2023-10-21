@@ -27,6 +27,10 @@ func NewText(text string) *Text {
 	}
 }
 
+func (t *Text) SetFocus(focus bool) {
+	// Do nothing.
+}
+
 func (t *Text) Children() []Widget {
 	t.Lock()
 	defer t.Unlock()

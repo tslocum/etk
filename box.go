@@ -10,6 +10,8 @@ type Box struct {
 
 	children []Widget
 
+	focus bool
+
 	sync.Mutex
 }
 
@@ -29,6 +31,14 @@ func (b *Box) SetRect(r image.Rectangle) {
 	defer b.Unlock()
 
 	b.rect = r
+}
+
+func (b *Box) SetFocus(focus bool) {
+	b.focus = focus
+}
+
+func (b *Box) Focus() bool {
+	return b.focus
 }
 
 func (b *Box) Children() []Widget {

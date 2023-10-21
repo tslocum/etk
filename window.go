@@ -66,7 +66,7 @@ func (w *Window) AddChildWithLabel(wgt Widget, label string) {
 	if label != "" {
 		w.hasLabel = true
 	}
-	
+
 	w.childrenUpdated()
 }
 

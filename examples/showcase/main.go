@@ -34,16 +34,13 @@ func main() {
 	w := etk.NewWindow()
 
 	// Input demo.
+	buffer := etk.NewText("Press enter to append input below to this buffer.")
+	onselected := func(text string) (handled bool) {
+		buffer.Write([]byte("\nInput: " + text))
+		return true
+	}
+	input := etk.NewInput(">", "", onselected)
 	{
-		buffer := etk.NewText("Press enter to append input below to this buffer.")
-
-		onselected := func(text string) (handled bool) {
-			buffer.Write([]byte("\nInput: " + text))
-			return true
-		}
-
-		input := etk.NewInput(">", "", onselected)
-
 		inputDemo := etk.NewFlex()
 		inputDemo.SetVertical(true)
 
@@ -85,6 +82,7 @@ func main() {
 	}
 
 	etk.SetRoot(w)
+	etk.SetFocus(input)
 
 	err := ebiten.RunGame(g)
 	if err != nil {
