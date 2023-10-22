@@ -39,6 +39,10 @@ func SetFocus(w Widget) {
 	}
 }
 
+func Focused() Widget {
+	return focusedWidget
+}
+
 func Layout(outsideWidth, outsideHeight int) {
 	if root == nil {
 		panic("no root widget specified")
