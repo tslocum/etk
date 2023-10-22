@@ -80,6 +80,11 @@ func (i *Input) HandleKeyboard() (handled bool, err error) {
 	return true, err
 }
 
+func (i *Input) HandleKeyboardEvent(key ebiten.Key, r rune) (handled bool, err error) {
+	i.Field.HandleKeyboardEvent(key, r)
+	return true, nil
+}
+
 func (i *Input) Draw(screen *ebiten.Image) error {
 	// Draw label.
 	i.Field.Draw(screen)

@@ -3,6 +3,8 @@ package etk
 import (
 	"image"
 	"sync"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Box struct {
@@ -39,6 +41,10 @@ func (b *Box) SetFocus(focus bool) {
 
 func (b *Box) Focus() bool {
 	return b.focus
+}
+
+func (b *Box) HandleKeyboardEvent(key ebiten.Key, r rune) (handled bool, err error) {
+	return false, nil
 }
 
 func (b *Box) Children() []Widget {

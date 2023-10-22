@@ -66,6 +66,10 @@ func (t *Text) HandleKeyboard() (handled bool, err error) {
 	return false, nil
 }
 
+func (f *Text) HandleKeyboardEvent(key ebiten.Key, r rune) (handled bool, err error) {
+	return false, nil
+}
+
 func (t *Text) Draw(screen *ebiten.Image) error {
 	// Draw label.
 	t.TextField.Draw(screen)
