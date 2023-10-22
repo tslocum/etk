@@ -132,6 +132,9 @@ func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandl
 		if err != nil {
 			return false, false, fmt.Errorf("failed to handle widget mouse input: %s", err)
 		}
+		if clicked && mouseHandled {
+			SetFocus(w)
+		}
 	}
 	if !keyboardHandled && w == focusedWidget {
 		keyboardHandled, err = w.HandleKeyboard()
