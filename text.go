@@ -26,8 +26,12 @@ func NewText(text string) *Text {
 	}
 }
 
-func (t *Text) SetFocus(focus bool) {
-	// Do nothing.
+func (t *Text) SetFocus(focus bool) bool {
+	return false
+}
+
+func (t *Text) Focus() bool {
+	return false
 }
 
 func (t *Text) Children() []Widget {

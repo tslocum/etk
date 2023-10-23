@@ -11,6 +11,7 @@ type Input struct {
 	*Box
 	Field  *messeji.InputField
 	Cursor string
+	focus  bool
 }
 
 func NewInput(prefix string, text string, onSelected func(text string) (handled bool)) *Input {
@@ -57,7 +58,7 @@ func (i *Input) SetRect(r image.Rectangle) {
 	i.Field.SetRect(r)
 }
 
-func (i *Input) SetFocus(focus bool) {
+func (i *Input) SetFocus(focus bool) bool {
 	i.focus = focus
 
 	var cursor string
@@ -65,6 +66,11 @@ func (i *Input) SetFocus(focus bool) {
 		cursor = i.Cursor
 	}
 	i.Field.SetSuffix(cursor)
+	return true
+}
+
+func (i *Input) Focused() bool {
+	return i.focus
 }
 
 func (i *Input) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {

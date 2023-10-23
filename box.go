@@ -12,8 +12,6 @@ type Box struct {
 
 	children []Widget
 
-	focus bool
-
 	sync.Mutex
 }
 
@@ -35,12 +33,12 @@ func (b *Box) SetRect(r image.Rectangle) {
 	b.rect = r
 }
 
-func (b *Box) SetFocus(focus bool) {
-	b.focus = focus
+func (b *Box) SetFocus(focus bool) bool {
+	return false
 }
 
 func (b *Box) Focus() bool {
-	return b.focus
+	return false
 }
 
 func (b *Box) HandleKeyboardEvent(key ebiten.Key, r rune) (handled bool, err error) {

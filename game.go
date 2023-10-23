@@ -30,13 +30,14 @@ func SetRoot(w Widget) {
 }
 
 func SetFocus(w Widget) {
-	if focusedWidget != nil {
-		focusedWidget.SetFocus(false)
+	lastFocused := focusedWidget
+	if w != nil && !w.SetFocus(true) {
+		return
+	}
+	if lastFocused != nil && lastFocused != w {
+		lastFocused.SetFocus(false)
 	}
 	focusedWidget = w
-	if w != nil {
-		w.SetFocus(true)
-	}
 }
 
 func Focused() Widget {
