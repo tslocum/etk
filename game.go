@@ -23,7 +23,7 @@ var (
 
 func SetRoot(w Widget) {
 	root = w
-	if lastWidth != 0 || lastHeight != 0 {
+	if root != nil && (lastWidth != 0 || lastHeight != 0) {
 		root.SetRect(image.Rect(0, 0, lastWidth, lastHeight))
 	}
 	SetFocus(root)
@@ -45,19 +45,19 @@ func Focused() Widget {
 }
 
 func Layout(outsideWidth, outsideHeight int) {
-	if root == nil {
-		panic("no root widget specified")
-	}
-
 	if outsideWidth != lastWidth || outsideHeight != lastHeight {
-		root.SetRect(image.Rect(0, 0, outsideWidth, outsideHeight))
 		lastWidth, lastHeight = outsideWidth, outsideHeight
 	}
+
+	if root == nil {
+		return
+	}
+	root.SetRect(image.Rect(0, 0, outsideWidth, outsideHeight))
 }
 
 func Update() error {
 	if root == nil {
-		panic("no root widget specified")
+		return nil
 	}
 
 	var cursor image.Point
@@ -152,7 +152,7 @@ func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandl
 
 func Draw(screen *ebiten.Image) error {
 	if root == nil {
-		panic("no root widget specified")
+		return nil
 	}
 
 	return draw(root, screen)
