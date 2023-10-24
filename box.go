@@ -58,3 +58,7 @@ func (b *Box) AddChild(w ...Widget) {
 
 	b.children = append(b.children, w...)
 }
+
+func (b *Box) Draw(screen *ebiten.Image) error {
+	return nil
+}
