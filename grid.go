@@ -110,6 +110,7 @@ func (g *Grid) Draw(screen *ebiten.Image) error {
 }
 
 func (g *Grid) reposition() {
+	gridX, gridY := g.rect.Min.X, g.rect.Min.Y
 	gridW, gridH := g.rect.Dx(), g.rect.Dy()
 
 	// Determine max column and row sizes and proportions.
@@ -245,6 +246,6 @@ func (g *Grid) reposition() {
 			h += rowHeights[position[1]+j]
 		}
 
-		child.SetRect(image.Rect(x, y, x+w, y+h))
+		child.SetRect(image.Rect(gridX+x, gridY+y, gridX+x+w, gridY+y+h))
 	}
 }
