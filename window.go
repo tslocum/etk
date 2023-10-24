@@ -12,14 +12,29 @@ type Window struct {
 
 	allChildren []Widget
 
-	active   int
+	reposition bool
+	active     int
+
 	labels   []string
 	hasLabel bool
 }
 
 func NewWindow() *Window {
 	return &Window{
-		Box: NewBox(),
+		Box:        NewBox(),
+		reposition: true,
+	}
+}
+
+// SetRepositionChildren sets a flag that controls whether or not child widgets
+// are repositioned when the Window is repositioned. This is enabled by default.
+func (w *Window) SetRepositionChildren(reposition bool) {
+	w.Lock()
+	w.reposition = reposition
+	w.Unlock()
+
+	if reposition {
+		w.SetRect(w.rect)
 	}
 }
 
@@ -36,6 +51,10 @@ func (w *Window) SetRect(r image.Rectangle) {
 	defer w.Unlock()
 
 	w.rect = r
+
+	if !w.reposition {
+		return
+	}
 	for _, wgt := range w.children {
 		wgt.SetRect(r)
 	}
@@ -44,8 +63,10 @@ func (w *Window) SetRect(r image.Rectangle) {
 func (w *Window) AddChild(wgt ...Widget) {
 	w.allChildren = append(w.allChildren, wgt...)
 
-	for _, widget := range wgt {
-		widget.SetRect(w.rect)
+	if w.reposition {
+		for _, widget := range wgt {
+			widget.SetRect(w.rect)
+		}
 	}
 
 	blankLabels := make([]string, len(wgt))
@@ -58,7 +79,9 @@ func (w *Window) AddChildWithLabel(wgt Widget, label string) {
 	w.Lock()
 	defer w.Unlock()
 
-	wgt.SetRect(w.rect)
+	if w.reposition {
+		wgt.SetRect(w.rect)
+	}
 
 	w.allChildren = append(w.allChildren, wgt)
 	w.labels = append(w.labels, label)
