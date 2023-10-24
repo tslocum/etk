@@ -6,7 +6,21 @@
 [Ebitengine](https://github.com/hajimehoshi/ebiten) tool kit for creating graphical user interfaces
 
 **Note:** This library is still in development. Breaking changes may be made until v1.0 is released.
-[IME](https://en.wikipedia.org/wiki/Input_method) is not yet supported.
+
+## Widgets
+
+Custom widgets may be created entirely from scratch or may be
+based on official widgets.
+
+The following official widgets are available:
+
+- Box - Building block for creating custom widgets.
+- Button - Clickable button.
+- Flex - Flexible stack-based layout. Each Flex widget may be oriented horizontally or vertically.
+- Grid - Highly customizable cell-based layout. Each widget added to the Grid may span multiple cells.
+- Input - Text input widget. The Input widget is simply a Text widget that also accepts user input.
+- Text - Text display widget.
+- Window - Widget paging mechanism. Only one widget added to a window is displayed at a time.
 
 ## Documentation
 
@@ -15,3 +29,4 @@ Documentation is available via [godoc](https://docs.rocket9labs.com/code.rocket9
 ## Support
 
 Please share issues and suggestions [here](https://code.rocket9labs.com/tslocum/etk/issues).
+
