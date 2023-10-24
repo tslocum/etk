@@ -41,6 +41,14 @@ func (b *Box) Focus() bool {
 	return false
 }
 
+func (b *Box) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
+	return true, nil
+}
+
+func (b *Box) HandleKeyboard() (handled bool, err error) {
+	return false, nil
+}
+
 func (b *Box) HandleKeyboardEvent(key ebiten.Key, r rune) (handled bool, err error) {
 	return false, nil
 }
@@ -62,3 +70,5 @@ func (b *Box) AddChild(w ...Widget) {
 func (b *Box) Draw(screen *ebiten.Image) error {
 	return nil
 }
+
+var _ Widget = &Box{}
