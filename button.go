@@ -27,6 +27,7 @@ func NewButton(label string, onSelected func() error) *Button {
 	l.SetBackgroundColor(transparent)
 	l.SetHorizontal(messeji.AlignCenter)
 	l.SetVertical(messeji.AlignCenter)
+	l.SetScrollBarVisible(false)
 
 	return &Button{
 		Box:        NewBox(),
