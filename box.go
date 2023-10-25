@@ -8,15 +8,17 @@ import (
 )
 
 type Box struct {
-	rect image.Rectangle
-
+	rect     image.Rectangle
 	children []Widget
+	visible  bool
 
 	sync.Mutex
 }
 
 func NewBox() *Box {
-	return &Box{}
+	return &Box{
+		visible: true,
+	}
 }
 
 func (b *Box) Rect() image.Rectangle {
@@ -35,6 +37,13 @@ func (b *Box) SetRect(r image.Rectangle) {
 
 func (b *Box) SetFocus(focus bool) bool {
 	return false
+}
+
+func (b *Box) SetVisible(visible bool) {
+	b.visible = visible
+}
+func (b *Box) Visible() bool {
+	return b.visible
 }
 
 func (b *Box) Focus() bool {

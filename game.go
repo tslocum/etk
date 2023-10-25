@@ -110,7 +110,12 @@ func getWidgetAt(w Widget, cursor image.Point) Widget {
 	if !cursor.In(w.Rect()) {
 		return nil
 	}
+
 	for _, child := range w.Children() {
+		if !child.Visible() {
+			continue
+		}
+
 		if cursor.In(child.Rect()) {
 			result := getWidgetAt(child, cursor)
 			if result != nil {
@@ -118,13 +123,22 @@ func getWidgetAt(w Widget, cursor image.Point) Widget {
 			}
 		}
 	}
+
 	return w
 }
 
 func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandled bool, keyboardHandled bool) (bool, bool, error) {
+	if !w.Visible() {
+		return mouseHandled, keyboardHandled, nil
+	}
+
 	var err error
 	children := w.Children()
 	for _, child := range children {
+		if !child.Visible() {
+			continue
+		}
+
 		mouseHandled, keyboardHandled, err = update(child, cursor, pressed, clicked, mouseHandled, keyboardHandled)
 		if err != nil {
 			return false, false, err
@@ -159,6 +173,10 @@ func Draw(screen *ebiten.Image) error {
 }
 
 func draw(w Widget, screen *ebiten.Image) error {
+	if !w.Visible() {
+		return nil
+	}
+
 	err := w.Draw(screen)
 	if err != nil {
 		return fmt.Errorf("failed to draw widget: %s", err)
@@ -166,6 +184,10 @@ func draw(w Widget, screen *ebiten.Image) error {
 
 	children := w.Children()
 	for _, child := range children {
+		if !child.Visible() {
+			continue
+		}
+
 		err = draw(child, screen)
 		if err != nil {
 			return fmt.Errorf("failed to draw widget: %s", err)
