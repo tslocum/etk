@@ -135,10 +135,6 @@ func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandl
 	var err error
 	children := w.Children()
 	for _, child := range children {
-		if !child.Visible() {
-			continue
-		}
-
 		mouseHandled, keyboardHandled, err = update(child, cursor, pressed, clicked, mouseHandled, keyboardHandled)
 		if err != nil {
 			return false, false, err
@@ -177,6 +173,11 @@ func draw(w Widget, screen *ebiten.Image) error {
 		return nil
 	}
 
+	background := w.Background()
+	if background.A > 0 {
+		screen.SubImage(w.Rect()).(*ebiten.Image).Fill(background)
+	}
+
 	err := w.Draw(screen)
 	if err != nil {
 		return fmt.Errorf("failed to draw widget: %s", err)
@@ -184,10 +185,6 @@ func draw(w Widget, screen *ebiten.Image) error {
 
 	children := w.Children()
 	for _, child := range children {
-		if !child.Visible() {
-			continue
-		}
-
 		err = draw(child, screen)
 		if err != nil {
 			return fmt.Errorf("failed to draw widget: %s", err)

@@ -2,6 +2,7 @@ package etk
 
 import (
 	"image"
+	"image/color"
 
 	"code.rocketnine.space/tslocum/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -10,7 +11,8 @@ import (
 type Text struct {
 	*messeji.TextField
 
-	children []Widget
+	background color.RGBA
+	children   []Widget
 }
 
 func NewText(text string) *Text {
@@ -24,6 +26,20 @@ func NewText(text string) *Text {
 	return &Text{
 		TextField: l,
 	}
+}
+
+func (t *Text) Background() color.RGBA {
+	t.Lock()
+	defer t.Unlock()
+
+	return t.background
+}
+
+func (t *Text) SetBackground(background color.RGBA) {
+	t.Lock()
+	defer t.Unlock()
+
+	t.background = background
 }
 
 func (t *Text) SetFocus(focus bool) bool {
@@ -79,3 +95,5 @@ func (t *Text) Draw(screen *ebiten.Image) error {
 	t.TextField.Draw(screen)
 	return nil
 }
+
+var _ Widget = &Text{}

@@ -2,6 +2,7 @@ package etk
 
 import (
 	"image"
+	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -9,6 +10,8 @@ import (
 type Widget interface {
 	Rect() image.Rectangle
 	SetRect(r image.Rectangle)
+	Background() color.RGBA
+	SetBackground(background color.RGBA)
 	SetFocus(focus bool) (accept bool)
 	SetVisible(visible bool)
 	Visible() bool

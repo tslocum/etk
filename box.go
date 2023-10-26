@@ -2,15 +2,17 @@ package etk
 
 import (
 	"image"
+	"image/color"
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Box struct {
-	rect     image.Rectangle
-	children []Widget
-	visible  bool
+	rect       image.Rectangle
+	children   []Widget
+	background color.RGBA
+	visible    bool
 
 	sync.Mutex
 }
@@ -33,6 +35,20 @@ func (b *Box) SetRect(r image.Rectangle) {
 	defer b.Unlock()
 
 	b.rect = r
+}
+
+func (b *Box) Background() color.RGBA {
+	b.Lock()
+	defer b.Unlock()
+
+	return b.background
+}
+
+func (b *Box) SetBackground(background color.RGBA) {
+	b.Lock()
+	defer b.Unlock()
+
+	b.background = background
 }
 
 func (b *Box) SetFocus(focus bool) bool {
