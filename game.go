@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"math"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -19,6 +20,13 @@ var (
 	touchIDs []ebiten.TouchID
 
 	focusedWidget Widget
+
+	lastBackspaceRepeat time.Time
+)
+
+const (
+	backspaceRepeatWait = 500 * time.Millisecond
+	backspaceRepeatTime = 75 * time.Millisecond
 )
 
 func SetRoot(w Widget) {
@@ -98,6 +106,21 @@ func Update() error {
 			clicked = inpututil.IsMouseButtonJustReleased(binding)
 			if clicked {
 				break
+			}
+		}
+	}
+
+	// Handle keyboard input.
+
+	if focusedWidget != nil && ebiten.IsKeyPressed(ebiten.KeyBackspace) {
+		if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
+			lastBackspaceRepeat = time.Now().Add(backspaceRepeatWait)
+		} else if time.Since(lastBackspaceRepeat) >= backspaceRepeatTime {
+			lastBackspaceRepeat = time.Now()
+
+			_, err := focusedWidget.HandleKeyboardEvent(ebiten.KeyBackspace, 0)
+			if err != nil {
+				return err
 			}
 		}
 	}
