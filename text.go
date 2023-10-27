@@ -66,16 +66,16 @@ func (t *Text) AddChild(w ...Widget) {
 
 // Clear clears the field's buffer.
 func (t *Text) Clear() {
-	t.SetText("")
+	t.TextField.SetText("")
 }
 
 // Write writes to the field's buffer.
 func (t *Text) Write(p []byte) (n int, err error) {
-	return t.Write(p)
+	return t.TextField.Write(p)
 }
 
 func (t *Text) Text() string {
-	return t.Text()
+	return t.TextField.Text()
 }
 
 func (t *Text) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
