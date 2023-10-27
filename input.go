@@ -74,7 +74,7 @@ func (i *Input) Focused() bool {
 }
 
 func (i *Input) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
-	return true, nil
+	return true, i.Field.Update()
 }
 
 func (i *Input) HandleKeyboard() (handled bool, err error) {

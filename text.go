@@ -79,15 +79,15 @@ func (t *Text) Text() string {
 }
 
 func (t *Text) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
-	return false, nil
+	return t.TextField.HandleMouseEvent(cursor, pressed, clicked)
 }
 
 func (t *Text) HandleKeyboard() (handled bool, err error) {
 	return false, nil
 }
 
-func (f *Text) HandleKeyboardEvent(key ebiten.Key, r rune) (handled bool, err error) {
-	return false, nil
+func (t *Text) HandleKeyboardEvent(key ebiten.Key, r rune) (handled bool, err error) {
+	return t.TextField.HandleKeyboardEvent(key, r)
 }
 
 func (t *Text) Draw(screen *ebiten.Image) error {
