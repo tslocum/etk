@@ -18,7 +18,7 @@ type Grid struct {
 	cellPositions [][2]int
 	cellSpans     [][2]int
 
-	childrenUpdated bool
+	updated bool
 }
 
 func NewGrid() *Grid {
@@ -32,7 +32,7 @@ func (g *Grid) SetRect(r image.Rectangle) {
 	defer g.Unlock()
 
 	g.Box.rect = r
-	g.reposition()
+	g.updated = true
 }
 
 func (g *Grid) SetColumnSizes(size ...int) {
@@ -40,7 +40,7 @@ func (g *Grid) SetColumnSizes(size ...int) {
 	defer g.Unlock()
 
 	g.columnSizes = size
-	g.reposition()
+	g.updated = true
 }
 
 func (g *Grid) SetColumnPadding(padding int) {
@@ -48,7 +48,7 @@ func (g *Grid) SetColumnPadding(padding int) {
 	defer g.Unlock()
 
 	g.columnPadding = padding
-	g.reposition()
+	g.updated = true
 }
 
 func (g *Grid) SetRowSizes(size ...int) {
@@ -56,7 +56,7 @@ func (g *Grid) SetRowSizes(size ...int) {
 	defer g.Unlock()
 
 	g.rowSizes = size
-	g.reposition()
+	g.updated = true
 }
 
 func (g *Grid) SetRowPadding(padding int) {
@@ -64,7 +64,7 @@ func (g *Grid) SetRowPadding(padding int) {
 	defer g.Unlock()
 
 	g.rowPadding = padding
-	g.reposition()
+	g.updated = true
 }
 
 func (g *Grid) AddChild(wgt ...Widget) {
@@ -75,7 +75,7 @@ func (g *Grid) AddChild(wgt ...Widget) {
 		g.cellSpans = append(g.cellSpans, [2]int{1, 1})
 	}
 
-	g.childrenUpdated = true
+	g.updated = true
 }
 
 func (g *Grid) AddChildAt(wgt Widget, x int, y int, columns int, rows int) {
@@ -84,20 +84,35 @@ func (g *Grid) AddChildAt(wgt Widget, x int, y int, columns int, rows int) {
 	g.cellPositions = append(g.cellPositions, [2]int{x, y})
 	g.cellSpans = append(g.cellSpans, [2]int{columns, rows})
 
-	g.childrenUpdated = true
+	g.updated = true
 }
 
 func (g *Grid) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
+	if g.updated {
+		g.reposition()
+		g.updated = false
+	}
+
 	return false, nil
 }
 
 func (g *Grid) HandleKeyboard() (handled bool, err error) {
+	if g.updated {
+		g.reposition()
+		g.updated = false
+	}
+
 	return false, nil
 }
 
 func (g *Grid) Draw(screen *ebiten.Image) error {
 	g.Lock()
 	defer g.Unlock()
+
+	if g.updated {
+		g.reposition()
+		g.updated = false
+	}
 
 	for _, child := range g.children {
 		err := child.Draw(screen)
@@ -110,6 +125,10 @@ func (g *Grid) Draw(screen *ebiten.Image) error {
 }
 
 func (g *Grid) reposition() {
+	if g.rect.Min.X == 0 && g.rect.Min.Y == 0 && g.rect.Max.X == 0 && g.rect.Max.Y == 0 {
+		return
+	}
+
 	gridX, gridY := g.rect.Min.X, g.rect.Min.Y
 	gridW, gridH := g.rect.Dx(), g.rect.Dy()
 
