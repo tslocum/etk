@@ -183,8 +183,8 @@ func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandl
 
 	var err error
 	children := w.Children()
-	for _, child := range children {
-		mouseHandled, err = update(child, cursor, pressed, clicked, mouseHandled)
+	for i := len(children) - 1; i >= 0; i-- {
+		mouseHandled, err = update(children[i], cursor, pressed, clicked, mouseHandled)
 		if err != nil {
 			return false, err
 		} else if mouseHandled {

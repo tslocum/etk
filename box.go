@@ -67,7 +67,7 @@ func (b *Box) Focus() bool {
 }
 
 func (b *Box) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
-	return true, nil
+	return false, nil
 }
 
 func (b *Box) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) {
