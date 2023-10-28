@@ -22,6 +22,9 @@ var (
 	focusedWidget Widget
 
 	lastBackspaceRepeat time.Time
+
+	keyBuffer  []ebiten.Key
+	runeBuffer []rune
 )
 
 const (
@@ -72,14 +75,17 @@ func Update() error {
 
 	// Handle touch input.
 
+	var pressed bool
+	var clicked bool
 	var touchInput bool
 
-	var clicked bool
 	touchIDs = inpututil.AppendJustPressedTouchIDs(touchIDs[:0])
 	for _, id := range touchIDs {
 		x, y := ebiten.TouchPosition(id)
 		if x != 0 || y != 0 {
 			cursor = image.Point{x, y}
+
+			pressed = true
 			clicked = true
 			touchInput = true
 		}
@@ -87,7 +93,6 @@ func Update() error {
 
 	// Handle mouse input.
 
-	var pressed bool
 	if !touchInput {
 		x, y := ebiten.CursorPosition()
 		cursor = image.Point{x, y}
@@ -110,23 +115,44 @@ func Update() error {
 		}
 	}
 
+	_, err := update(root, cursor, pressed, clicked, false)
+	if err != nil {
+		return fmt.Errorf("failed to handle widget mouse input: %s", err)
+	}
+
 	// Handle keyboard input.
 
-	if focusedWidget != nil && ebiten.IsKeyPressed(ebiten.KeyBackspace) {
-		if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-			lastBackspaceRepeat = time.Now().Add(backspaceRepeatWait)
-		} else if time.Since(lastBackspaceRepeat) >= backspaceRepeatTime {
-			lastBackspaceRepeat = time.Now()
+	if focusedWidget != nil {
+		if ebiten.IsKeyPressed(ebiten.KeyBackspace) {
+			if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
+				lastBackspaceRepeat = time.Now().Add(backspaceRepeatWait)
+			} else if time.Since(lastBackspaceRepeat) >= backspaceRepeatTime {
+				lastBackspaceRepeat = time.Now()
 
-			_, err := focusedWidget.HandleKeyboardEvent(ebiten.KeyBackspace, 0)
+				_, err := focusedWidget.HandleKeyboard(ebiten.KeyBackspace, 0)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		keyBuffer = inpututil.AppendJustPressedKeys(keyBuffer[:0])
+		for _, key := range keyBuffer {
+			_, err := focusedWidget.HandleKeyboard(key, 0)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to handle widget keyboard input: %s", err)
+			}
+		}
+
+		runeBuffer = ebiten.AppendInputChars(runeBuffer[:0])
+		for _, r := range runeBuffer {
+			_, err := focusedWidget.HandleKeyboard(-1, r)
+			if err != nil {
+				return fmt.Errorf("failed to handle widget keyboard input: %s", err)
 			}
 		}
 	}
-
-	_, _, err := update(root, cursor, pressed, clicked, false, false)
-	return err
+	return nil
 }
 
 func getWidgetAt(w Widget, cursor image.Point) Widget {
@@ -150,37 +176,31 @@ func getWidgetAt(w Widget, cursor image.Point) Widget {
 	return w
 }
 
-func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandled bool, keyboardHandled bool) (bool, bool, error) {
+func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandled bool) (bool, error) {
 	if !w.Visible() {
-		return mouseHandled, keyboardHandled, nil
+		return mouseHandled, nil
 	}
 
 	var err error
 	children := w.Children()
 	for _, child := range children {
-		mouseHandled, keyboardHandled, err = update(child, cursor, pressed, clicked, mouseHandled, keyboardHandled)
+		mouseHandled, err = update(child, cursor, pressed, clicked, mouseHandled)
 		if err != nil {
-			return false, false, err
-		} else if mouseHandled && keyboardHandled {
-			return true, true, nil
+			return false, err
+		} else if mouseHandled {
+			return true, nil
 		}
 	}
 	if !mouseHandled && cursor.In(w.Rect()) {
 		mouseHandled, err = w.HandleMouse(cursor, pressed, clicked)
 		if err != nil {
-			return false, false, fmt.Errorf("failed to handle widget mouse input: %s", err)
+			return false, fmt.Errorf("failed to handle widget mouse input: %s", err)
 		}
 		if clicked && mouseHandled {
 			SetFocus(w)
 		}
 	}
-	if !keyboardHandled && w == focusedWidget {
-		keyboardHandled, err = w.HandleKeyboard()
-		if err != nil {
-			return false, false, fmt.Errorf("failed to handle widget keyboard input: %s", err)
-		}
-	}
-	return mouseHandled, keyboardHandled, nil
+	return mouseHandled, nil
 }
 
 func Draw(screen *ebiten.Image) error {

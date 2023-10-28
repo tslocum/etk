@@ -96,7 +96,7 @@ func (g *Grid) HandleMouse(cursor image.Point, pressed bool, clicked bool) (hand
 	return false, nil
 }
 
-func (g *Grid) HandleKeyboard() (handled bool, err error) {
+func (g *Grid) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
 	if g.updated {
 		g.reposition()
 		g.updated = false

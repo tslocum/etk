@@ -42,7 +42,7 @@ func (f *Flex) HandleMouse(cursor image.Point, pressed bool, clicked bool) (hand
 	return false, nil
 }
 
-func (f *Flex) HandleKeyboard() (handled bool, err error) {
+func (f *Flex) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
 	return false, nil
 }
 

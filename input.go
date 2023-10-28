@@ -73,22 +73,16 @@ func (i *Input) Focused() bool {
 	return i.focus
 }
 
-func (i *Input) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
-	return true, i.Field.Update()
-}
-
-func (i *Input) HandleKeyboard() (handled bool, err error) {
+func (i *Input) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) {
 	if !i.focus {
 		return false, nil
 	}
 
-	err = i.Field.Update()
-	return true, err
+	return i.Field.HandleKeyboardEvent(key, r)
 }
 
-func (i *Input) HandleKeyboardEvent(key ebiten.Key, r rune) (handled bool, err error) {
-	i.Field.HandleKeyboardEvent(key, r)
-	return true, nil
+func (i *Input) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
+	return i.Field.HandleMouseEvent(cursor, pressed, clicked)
 }
 
 func (i *Input) Draw(screen *ebiten.Image) error {

@@ -70,11 +70,7 @@ func (b *Box) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handl
 	return true, nil
 }
 
-func (b *Box) HandleKeyboard() (handled bool, err error) {
-	return false, nil
-}
-
-func (b *Box) HandleKeyboardEvent(key ebiten.Key, r rune) (handled bool, err error) {
+func (b *Box) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) {
 	return false, nil
 }
 

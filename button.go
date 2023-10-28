@@ -58,7 +58,7 @@ func (b *Button) HandleMouse(cursor image.Point, pressed bool, clicked bool) (ha
 	return true, onSelected()
 }
 
-func (b *Button) HandleKeyboard() (handled bool, err error) {
+func (b *Button) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
 	return false, nil
 }
 

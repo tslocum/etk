@@ -22,6 +22,7 @@ func NewText(text string) *Text {
 	l.SetText(text)
 	l.SetForegroundColor(textColor)
 	l.SetBackgroundColor(Style.TextBgColor)
+	l.SetHandleKeyboard(true)
 
 	return &Text{
 		TextField: l,
@@ -78,16 +79,12 @@ func (t *Text) Text() string {
 	return t.TextField.Text()
 }
 
+func (t *Text) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) {
+	return t.TextField.HandleKeyboardEvent(key, r)
+}
+
 func (t *Text) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
 	return t.TextField.HandleMouseEvent(cursor, pressed, clicked)
-}
-
-func (t *Text) HandleKeyboard() (handled bool, err error) {
-	return false, nil
-}
-
-func (t *Text) HandleKeyboardEvent(key ebiten.Key, r rune) (handled bool, err error) {
-	return t.TextField.HandleKeyboardEvent(key, r)
 }
 
 func (t *Text) Draw(screen *ebiten.Image) error {
