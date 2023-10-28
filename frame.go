@@ -2,8 +2,8 @@ package etk
 
 import "image"
 
-// Frame is an absolute-positioned container. Children must be positioned manually
-// by default. Automatic positioning may be enabled via SetPositionChildren.
+// Frame is a widget container. All children are displayed at once. Children are
+// not repositioned by default. Repositioning may be enabled via SetPositionChildren.
 type Frame struct {
 	*Box
 	positionChildren bool

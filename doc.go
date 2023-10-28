@@ -11,6 +11,7 @@ The following official widgets are available:
 	Box - Building block for creating custom widgets.
 	Button - Clickable button.
 	Flex - Flexible stack-based layout. Each Flex widget may be oriented horizontally or vertically.
+	Frame - Widget container. All child widgets are displayed at once. Child widgets are not repositioned by default.
 	Grid - Highly customizable cell-based layout. Each widget added to the Grid may span multiple cells.
 	Input - Text input widget. The Input widget is simply a Text widget that also accepts user input.
 	Text - Text display widget.
