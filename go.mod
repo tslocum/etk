@@ -3,7 +3,7 @@ module code.rocket9labs.com/tslocum/etk
 go 1.18
 
 require (
-	code.rocketnine.space/tslocum/messeji v1.0.5-0.20231028071036-9bb769038e79
+	code.rocketnine.space/tslocum/messeji v1.0.5-0.20231028192343-ebfed687fb71
 	github.com/hajimehoshi/ebiten/v2 v2.6.2
 	golang.org/x/image v0.13.0
 )
