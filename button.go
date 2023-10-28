@@ -17,7 +17,7 @@ type Button struct {
 
 func NewButton(label string, onSelected func() error) *Button {
 	textColor := Style.ButtonTextColor
-	if textColor == nil {
+	if textColor.A == 0 {
 		textColor = Style.TextColorDark
 	}
 

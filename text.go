@@ -22,6 +22,7 @@ func NewText(text string) *Text {
 	l.SetText(text)
 	l.SetForegroundColor(textColor)
 	l.SetBackgroundColor(Style.TextBgColor)
+	l.SetScrollBarColors(Style.ScrollAreaColor, Style.ScrollHandleColor)
 	l.SetHandleKeyboard(true)
 
 	return &Text{

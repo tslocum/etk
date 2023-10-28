@@ -31,18 +31,21 @@ func defaultFont() font.Face {
 type Attributes struct {
 	TextFont font.Face
 
-	TextColorLight color.Color
-	TextColorDark  color.Color
+	TextColorLight color.RGBA
+	TextColorDark  color.RGBA
 
-	TextBgColor color.Color
+	TextBgColor color.RGBA
 
-	BorderColor color.Color
+	ScrollAreaColor   color.RGBA
+	ScrollHandleColor color.RGBA
 
-	InputBgColor color.Color
+	BorderColor color.RGBA
 
-	ButtonTextColor       color.Color
-	ButtonBgColor         color.Color
-	ButtonBgColorDisabled color.Color
+	InputBgColor color.RGBA
+
+	ButtonTextColor       color.RGBA
+	ButtonBgColor         color.RGBA
+	ButtonBgColorDisabled color.RGBA
 }
 
 var Style = &Attributes{
@@ -52,6 +55,9 @@ var Style = &Attributes{
 	TextColorDark:  color.RGBA{0, 0, 0, 255},
 
 	TextBgColor: transparent,
+
+	ScrollAreaColor:   color.RGBA{200, 200, 200, 255},
+	ScrollHandleColor: color.RGBA{108, 108, 108, 255},
 
 	BorderColor: color.RGBA{0, 0, 0, 255},
 
