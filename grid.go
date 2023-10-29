@@ -6,6 +6,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// Grid is a highly customizable cell-based layout. Widgets added to the Grid
+// may span multiple cells.
 type Grid struct {
 	*Box
 
@@ -21,12 +23,14 @@ type Grid struct {
 	updated bool
 }
 
+// NewGrid returns a new Grid widget.
 func NewGrid() *Grid {
 	return &Grid{
 		Box: NewBox(),
 	}
 }
 
+// SetRect sets the position and size of the widget.
 func (g *Grid) SetRect(r image.Rectangle) {
 	g.Lock()
 	defer g.Unlock()
@@ -35,6 +39,8 @@ func (g *Grid) SetRect(r image.Rectangle) {
 	g.updated = true
 }
 
+// SetColumnSizes sets the size of each column. A size of -1 represents an equal
+// proportion of the available space.
 func (g *Grid) SetColumnSizes(size ...int) {
 	g.Lock()
 	defer g.Unlock()
@@ -43,6 +49,7 @@ func (g *Grid) SetColumnSizes(size ...int) {
 	g.updated = true
 }
 
+// SetColumnPadding sets the amount of padding between each column.
 func (g *Grid) SetColumnPadding(padding int) {
 	g.Lock()
 	defer g.Unlock()
@@ -51,6 +58,8 @@ func (g *Grid) SetColumnPadding(padding int) {
 	g.updated = true
 }
 
+// SetRowSizes sets the size of each row. A size of -1 represents an equal
+// proportion of the available space.
 func (g *Grid) SetRowSizes(size ...int) {
 	g.Lock()
 	defer g.Unlock()
@@ -59,6 +68,7 @@ func (g *Grid) SetRowSizes(size ...int) {
 	g.updated = true
 }
 
+// SetRowPadding sets the amount of padding between each row.
 func (g *Grid) SetRowPadding(padding int) {
 	g.Lock()
 	defer g.Unlock()
@@ -67,6 +77,8 @@ func (g *Grid) SetRowPadding(padding int) {
 	g.updated = true
 }
 
+// AddChild adds a widget to the Grid at 0,0. To add widgets to a Grid, you
+// should use AddChildAt instead.
 func (g *Grid) AddChild(wgt ...Widget) {
 	g.Box.AddChild(wgt...)
 
@@ -78,6 +90,8 @@ func (g *Grid) AddChild(wgt ...Widget) {
 	g.updated = true
 }
 
+// AddChildAt adds a widget to the Grid at the specified position. Each widget
+// added to the grid may span multiple cells.
 func (g *Grid) AddChildAt(wgt Widget, x int, y int, columns int, rows int) {
 	g.Box.AddChild(wgt)
 
@@ -87,15 +101,7 @@ func (g *Grid) AddChildAt(wgt Widget, x int, y int, columns int, rows int) {
 	g.updated = true
 }
 
-func (g *Grid) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
-	if g.updated {
-		g.reposition()
-		g.updated = false
-	}
-
-	return false, nil
-}
-
+// HandleKeyboard is called when a keyboard event occurs.
 func (g *Grid) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
 	if g.updated {
 		g.reposition()
@@ -105,6 +111,17 @@ func (g *Grid) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
 	return false, nil
 }
 
+// HandleMouse is called when a mouse event occurs.
+func (g *Grid) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
+	if g.updated {
+		g.reposition()
+		g.updated = false
+	}
+
+	return false, nil
+}
+
+// Draw draws the widget on the screen.
 func (g *Grid) Draw(screen *ebiten.Image) error {
 	g.Lock()
 	defer g.Unlock()

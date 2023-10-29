@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// Text is a text display widget.
 type Text struct {
 	*messeji.TextField
 
@@ -15,6 +16,7 @@ type Text struct {
 	children   []Widget
 }
 
+// NewText returns a new Text widget.
 func NewText(text string) *Text {
 	textColor := Style.TextColorLight
 
@@ -30,6 +32,7 @@ func NewText(text string) *Text {
 	}
 }
 
+// Background returns the background color of the widget.
 func (t *Text) Background() color.RGBA {
 	t.Lock()
 	defer t.Unlock()
@@ -37,6 +40,7 @@ func (t *Text) Background() color.RGBA {
 	return t.background
 }
 
+// SetBackground sets the background color of the widget.
 func (t *Text) SetBackground(background color.RGBA) {
 	t.Lock()
 	defer t.Unlock()
@@ -44,14 +48,48 @@ func (t *Text) SetBackground(background color.RGBA) {
 	t.background = background
 }
 
+// Focus returns the focus state of the widget.
 func (t *Text) Focus() bool {
 	return false
 }
 
+// SetFocus sets the focus state of the widget.
 func (t *Text) SetFocus(focus bool) bool {
 	return false
 }
 
+// Clear clears the text buffer.
+func (t *Text) Clear() {
+	t.TextField.SetText("")
+}
+
+// Write writes to the text buffer.
+func (t *Text) Write(p []byte) (n int, err error) {
+	return t.TextField.Write(p)
+}
+
+// Text returns the content of the text buffer.
+func (t *Text) Text() string {
+	return t.TextField.Text()
+}
+
+// HandleKeyboard is called when a keyboard event occurs.
+func (t *Text) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) {
+	return t.TextField.HandleKeyboardEvent(key, r)
+}
+
+// HandleMouse is called when a mouse event occurs.
+func (t *Text) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
+	return t.TextField.HandleMouseEvent(cursor, pressed, clicked)
+}
+
+// Draw draws the widget on the screen.
+func (t *Text) Draw(screen *ebiten.Image) error {
+	t.TextField.Draw(screen)
+	return nil
+}
+
+// Children returns the children of the widget.
 func (t *Text) Children() []Widget {
 	t.Lock()
 	defer t.Unlock()
@@ -59,39 +97,12 @@ func (t *Text) Children() []Widget {
 	return t.children
 }
 
+// AddChild adds a child to the widget.
 func (t *Text) AddChild(w ...Widget) {
 	t.Lock()
 	defer t.Unlock()
 
 	t.children = append(t.children, w...)
-}
-
-// Clear clears the field's buffer.
-func (t *Text) Clear() {
-	t.TextField.SetText("")
-}
-
-// Write writes to the field's buffer.
-func (t *Text) Write(p []byte) (n int, err error) {
-	return t.TextField.Write(p)
-}
-
-func (t *Text) Text() string {
-	return t.TextField.Text()
-}
-
-func (t *Text) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) {
-	return t.TextField.HandleKeyboardEvent(key, r)
-}
-
-func (t *Text) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
-	return t.TextField.HandleMouseEvent(cursor, pressed, clicked)
-}
-
-func (t *Text) Draw(screen *ebiten.Image) error {
-	// Draw label.
-	t.TextField.Draw(screen)
-	return nil
 }
 
 var _ Widget = &Text{}

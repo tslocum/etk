@@ -32,6 +32,9 @@ const (
 	backspaceRepeatTime = 75 * time.Millisecond
 )
 
+// SetRoot sets the root widget. The root widget and all of its children will
+// be drawn on the screen and receive user input. The root widget will also be
+// focused. To temporarily disable etk, set a nil root widget.
 func SetRoot(w Widget) {
 	root = w
 	if root != nil && (lastWidth != 0 || lastHeight != 0) {
@@ -40,6 +43,7 @@ func SetRoot(w Widget) {
 	SetFocus(root)
 }
 
+// SetFocus focuses a widget.
 func SetFocus(w Widget) {
 	lastFocused := focusedWidget
 	if w != nil && !w.SetFocus(true) {
@@ -51,10 +55,12 @@ func SetFocus(w Widget) {
 	focusedWidget = w
 }
 
+// Focused returns the currently focused widget. If no widget is focused, nil is returned.
 func Focused() Widget {
 	return focusedWidget
 }
 
+// Layout sets the current screen size and resizes the root widget.
 func Layout(outsideWidth, outsideHeight int) {
 	if outsideWidth != lastWidth || outsideHeight != lastHeight {
 		lastWidth, lastHeight = outsideWidth, outsideHeight
@@ -66,6 +72,7 @@ func Layout(outsideWidth, outsideHeight int) {
 	root.SetRect(image.Rect(0, 0, outsideWidth, outsideHeight))
 }
 
+// Update handles user input and passes it to the focused or clicked widget.
 func Update() error {
 	if root == nil {
 		return nil
@@ -203,6 +210,7 @@ func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandl
 	return mouseHandled, nil
 }
 
+// Draw draws the root widget and its children to the screen.
 func Draw(screen *ebiten.Image) error {
 	if root == nil {
 		return nil

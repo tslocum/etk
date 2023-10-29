@@ -28,6 +28,7 @@ func defaultFont() font.Face {
 	return defaultFont
 }
 
+// Attributes represents a default attribute configuration.
 type Attributes struct {
 	TextFont font.Face
 
@@ -48,6 +49,7 @@ type Attributes struct {
 	ButtonBgColorDisabled color.RGBA
 }
 
+// Style is the current default attribute configuration.
 var Style = &Attributes{
 	TextFont: defaultFont(),
 

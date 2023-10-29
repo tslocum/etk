@@ -6,18 +6,22 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// Flex is a flexible stack-based layout. Each Flex widget may be oriented
+// horizontally or vertically.
 type Flex struct {
 	*Box
 
 	vertical bool
 }
 
+// NewFlex returns a new Flex widget.
 func NewFlex() *Flex {
 	return &Flex{
 		Box: NewBox(),
 	}
 }
 
+// SetRect sets the position and size of the widget.
 func (f *Flex) SetRect(r image.Rectangle) {
 	f.Lock()
 	defer f.Unlock()
@@ -26,6 +30,7 @@ func (f *Flex) SetRect(r image.Rectangle) {
 	f.reposition()
 }
 
+// SetVertical sets the orientation of the child widget stacking.
 func (f *Flex) SetVertical(v bool) {
 	f.Lock()
 	defer f.Unlock()
@@ -38,14 +43,17 @@ func (f *Flex) SetVertical(v bool) {
 	f.reposition()
 }
 
-func (f *Flex) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
-	return false, nil
-}
-
+// HandleKeyboard is called when a keyboard event occurs.
 func (f *Flex) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
 	return false, nil
 }
 
+// HandleMouse is called when a mouse event occurs.
+func (f *Flex) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
+	return false, nil
+}
+
+// Draw draws the widget on the screen.
 func (f *Flex) Draw(screen *ebiten.Image) error {
 	f.Lock()
 	defer f.Unlock()

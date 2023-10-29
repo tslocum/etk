@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// Button is a clickable button.
 type Button struct {
 	*Box
 
@@ -15,6 +16,7 @@ type Button struct {
 	onSelected func() error
 }
 
+// NewButton returns a new Button widget.
 func NewButton(label string, onSelected func() error) *Button {
 	textColor := Style.ButtonTextColor
 	if textColor.A == 0 {
@@ -36,12 +38,19 @@ func NewButton(label string, onSelected func() error) *Button {
 	}
 }
 
+// SetRect sets the position and size of the Button.
 func (b *Button) SetRect(r image.Rectangle) {
 	b.Box.rect = r
 
 	b.Label.SetRect(r)
 }
 
+// HandleKeyboard is called when a keyboard event occurs.
+func (b *Button) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
+	return false, nil
+}
+
+// HandleMouse is called when a mouse event occurs.
 func (b *Button) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
 	if !clicked {
 		return true, nil
@@ -58,10 +67,7 @@ func (b *Button) HandleMouse(cursor image.Point, pressed bool, clicked bool) (ha
 	return true, onSelected()
 }
 
-func (b *Button) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
-	return false, nil
-}
-
+// Draw draws the button on the screen.
 func (b *Button) Draw(screen *ebiten.Image) error {
 	// TODO background color
 	// Draw background.
