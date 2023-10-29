@@ -58,6 +58,10 @@ func (i *Input) SetRect(r image.Rectangle) {
 	i.Field.SetRect(r)
 }
 
+func (i *Input) Focus() bool {
+	return i.focus
+}
+
 func (i *Input) SetFocus(focus bool) bool {
 	i.focus = focus
 
@@ -67,10 +71,6 @@ func (i *Input) SetFocus(focus bool) bool {
 	}
 	i.Field.SetSuffix(cursor)
 	return true
-}
-
-func (i *Input) Focused() bool {
-	return i.focus
 }
 
 func (i *Input) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) {

@@ -12,9 +12,10 @@ type Widget interface {
 	SetRect(r image.Rectangle)
 	Background() color.RGBA
 	SetBackground(background color.RGBA)
+	Focus() bool
 	SetFocus(focus bool) (accept bool)
-	SetVisible(visible bool)
 	Visible() bool
+	SetVisible(visible bool)
 	HandleKeyboard(ebiten.Key, rune) (handled bool, err error)
 	HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error)
 	Draw(screen *ebiten.Image) error

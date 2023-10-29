@@ -51,19 +51,20 @@ func (b *Box) SetBackground(background color.RGBA) {
 	b.background = background
 }
 
+func (b *Box) Focus() bool {
+	return false
+}
+
 func (b *Box) SetFocus(focus bool) bool {
 	return false
 }
 
-func (b *Box) SetVisible(visible bool) {
-	b.visible = visible
-}
 func (b *Box) Visible() bool {
 	return b.visible
 }
 
-func (b *Box) Focus() bool {
-	return false
+func (b *Box) SetVisible(visible bool) {
+	b.visible = visible
 }
 
 func (b *Box) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {

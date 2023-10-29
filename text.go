@@ -44,11 +44,11 @@ func (t *Text) SetBackground(background color.RGBA) {
 	t.background = background
 }
 
-func (t *Text) SetFocus(focus bool) bool {
+func (t *Text) Focus() bool {
 	return false
 }
 
-func (t *Text) Focus() bool {
+func (t *Text) SetFocus(focus bool) bool {
 	return false
 }
 
