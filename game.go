@@ -8,6 +8,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"golang.org/x/image/font"
+	"golang.org/x/image/math/fixed"
 )
 
 var root Widget
@@ -58,6 +60,33 @@ func SetFocus(w Widget) {
 // Focused returns the currently focused widget. If no widget is focused, nil is returned.
 func Focused() Widget {
 	return focusedWidget
+}
+
+func boundString(f font.Face, s string) (bounds fixed.Rectangle26_6, advance fixed.Int26_6) {
+	func() (fixed.Rectangle26_6, fixed.Int26_6) {
+		defer func() {
+			if recover() != nil {
+				bounds, advance = font.BoundString(f, "A")
+			}
+		}()
+
+		bounds, advance = font.BoundString(f, s)
+		return bounds, advance
+	}()
+
+	return bounds, advance
+}
+
+func int26ToRect(r fixed.Rectangle26_6) image.Rectangle {
+	x, y := r.Min.X, r.Min.Y
+	w, h := r.Max.X-r.Min.X, r.Max.Y-r.Min.Y
+	return image.Rect(x.Round(), y.Round(), (x + w).Round(), (y + h).Round())
+}
+
+// BoundString returns the bounds of the provided string.
+func BoundString(f font.Face, s string) image.Rectangle {
+	bounds, _ := boundString(f, s)
+	return int26ToRect(bounds)
 }
 
 // Layout sets the current screen size and resizes the root widget.
