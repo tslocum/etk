@@ -191,8 +191,8 @@ func Update() error {
 	return nil
 }
 
-func getWidgetAt(w Widget, cursor image.Point) Widget {
-	if !cursor.In(w.Rect()) {
+func at(w Widget, p image.Point) Widget {
+	if !p.In(w.Rect()) {
 		return nil
 	}
 
@@ -201,8 +201,8 @@ func getWidgetAt(w Widget, cursor image.Point) Widget {
 			continue
 		}
 
-		if cursor.In(child.Rect()) {
-			result := getWidgetAt(child, cursor)
+		if p.In(child.Rect()) {
+			result := at(child, p)
 			if result != nil {
 				return result
 			}
@@ -210,6 +210,14 @@ func getWidgetAt(w Widget, cursor image.Point) Widget {
 	}
 
 	return w
+}
+
+// At returns the widget at the provided screen location.
+func At(p image.Point) Widget {
+	if root == nil {
+		return nil
+	}
+	return at(root, p)
 }
 
 func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandled bool) (bool, error) {
