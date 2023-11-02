@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"image"
 	"math"
+	"runtime/debug"
+	"strings"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 )
@@ -64,34 +65,27 @@ func Focused() Widget {
 }
 
 func boundString(f font.Face, s string) (bounds fixed.Rectangle26_6, advance fixed.Int26_6) {
-	func() (fixed.Rectangle26_6, fixed.Int26_6) {
-		defer func() {
-			if recover() != nil {
-				defer func() {
-					if recover() != nil {
-						r := text.BoundString(f, "A")
-						bounds = fixed.Rectangle26_6{
-							Min: fixed.Point26_6{
-								X: fixed.Int26_6(r.Min.X),
-								Y: fixed.Int26_6(r.Min.Y),
-							},
-							Max: fixed.Point26_6{
-								X: fixed.Int26_6(r.Max.X),
-								Y: fixed.Int26_6(r.Max.Y),
-							},
-						}
-					}
-				}()
-
-				bounds, advance = font.BoundString(f, "A")
-			}
+	if strings.TrimSpace(s) == "" {
+		return fixed.Rectangle26_6{}, 0
+	}
+	for i := 0; i < 100; i++ {
+		bounds, advance = func() (fixed.Rectangle26_6, fixed.Int26_6) {
+			defer func() {
+				err := recover()
+				if err != nil && i == 99 {
+					debug.PrintStack()
+					panic("failed to calculate bounds of string '" + s + "'")
+				}
+			}()
+			bounds, advance = font.BoundString(f, s)
+			return bounds, advance
 		}()
-
-		bounds, advance = font.BoundString(f, s)
-		return bounds, advance
-	}()
-
-	return bounds, advance
+		if !bounds.Empty() {
+			return bounds, advance
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	return fixed.Rectangle26_6{}, 0
 }
 
 func int26ToRect(r fixed.Rectangle26_6) image.Rectangle {
