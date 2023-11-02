@@ -8,6 +8,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 )
@@ -66,6 +67,22 @@ func boundString(f font.Face, s string) (bounds fixed.Rectangle26_6, advance fix
 	func() (fixed.Rectangle26_6, fixed.Int26_6) {
 		defer func() {
 			if recover() != nil {
+				defer func() {
+					if recover() != nil {
+						r := text.BoundString(f, "A")
+						bounds = fixed.Rectangle26_6{
+							Min: fixed.Point26_6{
+								X: fixed.Int26_6(r.Min.X),
+								Y: fixed.Int26_6(r.Min.Y),
+							},
+							Max: fixed.Point26_6{
+								X: fixed.Int26_6(r.Max.X),
+								Y: fixed.Int26_6(r.Max.Y),
+							},
+						}
+					}
+				}()
+
 				bounds, advance = font.BoundString(f, "A")
 			}
 		}()
