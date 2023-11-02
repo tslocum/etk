@@ -203,6 +203,10 @@ func Update() error {
 }
 
 func at(w Widget, p image.Point) Widget {
+	if w == nil {
+		return nil
+	}
+
 	if !p.In(w.Rect()) {
 		return nil
 	}
@@ -225,13 +229,14 @@ func at(w Widget, p image.Point) Widget {
 
 // At returns the widget at the provided screen location.
 func At(p image.Point) Widget {
-	if root == nil {
-		return nil
-	}
 	return at(root, p)
 }
 
 func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandled bool) (bool, error) {
+	if w == nil {
+		return false, nil
+	}
+
 	if !w.Visible() {
 		return mouseHandled, nil
 	}
@@ -260,14 +265,14 @@ func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandl
 
 // Draw draws the root widget and its children to the screen.
 func Draw(screen *ebiten.Image) error {
-	if root == nil {
-		return nil
-	}
-
 	return draw(root, screen)
 }
 
 func draw(w Widget, screen *ebiten.Image) error {
+	if w == nil {
+		return nil
+	}
+
 	if !w.Visible() {
 		return nil
 	}
