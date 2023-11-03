@@ -297,3 +297,9 @@ func draw(w Widget, screen *ebiten.Image) error {
 
 	return nil
 }
+
+func rectAtOrigin(r image.Rectangle) image.Rectangle {
+	r.Max.X, r.Max.Y = r.Dx(), r.Dy()
+	r.Min.X, r.Min.Y = 0, 0
+	return r
+}
