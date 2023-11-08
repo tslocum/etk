@@ -23,7 +23,7 @@ func NewButton(label string, onSelected func() error) *Button {
 		textColor = Style.TextColorDark
 	}
 
-	l := messeji.NewTextField(Style.TextFont)
+	l := messeji.NewTextField(Style.TextFont, Style.TextFontMutex)
 	l.SetText(label)
 	l.SetForegroundColor(textColor)
 	l.SetBackgroundColor(transparent)

@@ -3,6 +3,7 @@ package etk
 import (
 	"image/color"
 	"log"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"golang.org/x/image/font"
@@ -30,7 +31,8 @@ func defaultFont() font.Face {
 
 // Attributes represents a default attribute configuration.
 type Attributes struct {
-	TextFont font.Face
+	TextFont      font.Face
+	TextFontMutex *sync.Mutex
 
 	TextColorLight color.RGBA
 	TextColorDark  color.RGBA
@@ -51,7 +53,8 @@ type Attributes struct {
 
 // Style is the current default attribute configuration.
 var Style = &Attributes{
-	TextFont: defaultFont(),
+	TextFont:      defaultFont(),
+	TextFontMutex: &sync.Mutex{},
 
 	TextColorLight: color.RGBA{255, 255, 255, 255},
 	TextColorDark:  color.RGBA{0, 0, 0, 255},

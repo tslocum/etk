@@ -23,7 +23,7 @@ func NewInput(prefix string, text string, onSelected func(text string) (handled 
 		textColor = Style.InputColor
 	}*/
 
-	i := messeji.NewInputField(Style.TextFont)
+	i := messeji.NewInputField(Style.TextFont, Style.TextFontMutex)
 	i.SetPrefix(prefix)
 	i.SetSuffix("")
 	i.SetText(text)

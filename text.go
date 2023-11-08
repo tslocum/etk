@@ -20,7 +20,7 @@ type Text struct {
 func NewText(text string) *Text {
 	textColor := Style.TextColorLight
 
-	l := messeji.NewTextField(Style.TextFont)
+	l := messeji.NewTextField(Style.TextFont, Style.TextFontMutex)
 	l.SetText(text)
 	l.SetForegroundColor(textColor)
 	l.SetBackgroundColor(Style.TextBgColor)
