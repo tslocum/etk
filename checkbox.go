@@ -54,6 +54,10 @@ func (c *Checkbox) SetRect(r image.Rectangle) {
 	c.Box.rect = r
 
 	c.updateImage()
+
+	for _, w := range c.children {
+		w.SetRect(r)
+	}
 }
 
 // SetCheckColor sets the check mark color of the Checkbox.

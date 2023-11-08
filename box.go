@@ -37,9 +37,12 @@ func (b *Box) Rect() image.Rectangle {
 // SetRect returns the position and size of the widget.
 func (b *Box) SetRect(r image.Rectangle) {
 	b.Lock()
-	defer b.Unlock()
-
 	b.rect = r
+	b.Unlock()
+
+	for _, w := range b.children {
+		w.SetRect(r)
+	}
 }
 
 // Background returns the background color of the widget.

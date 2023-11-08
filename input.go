@@ -46,6 +46,10 @@ func (i *Input) SetRect(r image.Rectangle) {
 	i.Box.rect = r
 
 	i.Field.SetRect(r)
+
+	for _, w := range i.children {
+		w.SetRect(r)
+	}
 }
 
 // Focus returns the focus state of the widget.

@@ -43,6 +43,10 @@ func (b *Button) SetRect(r image.Rectangle) {
 	b.Box.rect = r
 
 	b.Label.SetRect(r)
+
+	for _, w := range b.children {
+		w.SetRect(r)
+	}
 }
 
 // HandleKeyboard is called when a keyboard event occurs.

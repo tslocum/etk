@@ -21,9 +21,12 @@ var (
 
 	lastX, lastY = -math.MaxInt, -math.MaxInt
 
-	touchIDs []ebiten.TouchID
+	touchIDs      []ebiten.TouchID
+	activeTouchID = ebiten.TouchID(-1)
 
 	focusedWidget Widget
+
+	pressedWidget Widget
 
 	lastBackspaceRepeat time.Time
 
@@ -126,15 +129,32 @@ func Update() error {
 	var clicked bool
 	var touchInput bool
 
-	touchIDs = inpututil.AppendJustPressedTouchIDs(touchIDs[:0])
-	for _, id := range touchIDs {
-		x, y := ebiten.TouchPosition(id)
+	if activeTouchID != -1 {
+		x, y := ebiten.TouchPosition(activeTouchID)
 		if x != 0 || y != 0 {
 			cursor = image.Point{x, y}
 
 			pressed = true
-			clicked = true
 			touchInput = true
+		} else {
+			activeTouchID = -1
+		}
+	}
+
+	if activeTouchID == -1 {
+		touchIDs = inpututil.AppendJustPressedTouchIDs(touchIDs[:0])
+		for _, id := range touchIDs {
+			x, y := ebiten.TouchPosition(id)
+			if x != 0 || y != 0 {
+				cursor = image.Point{x, y}
+
+				pressed = true
+				clicked = true
+				touchInput = true
+
+				activeTouchID = id
+				break
+			}
 		}
 	}
 
@@ -155,11 +175,15 @@ func Update() error {
 		}
 
 		for _, binding := range Bindings.ConfirmMouse {
-			clicked = inpututil.IsMouseButtonJustReleased(binding)
+			clicked = inpututil.IsMouseButtonJustPressed(binding)
 			if clicked {
 				break
 			}
 		}
+	}
+
+	if !pressed && !clicked {
+		pressedWidget = nil
 	}
 
 	_, err := update(root, cursor, pressed, clicked, false)
@@ -252,12 +276,19 @@ func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandl
 		}
 	}
 	if !mouseHandled && cursor.In(w.Rect()) {
+		if pressed && !clicked && w != pressedWidget {
+			return mouseHandled, nil
+		}
 		mouseHandled, err = w.HandleMouse(cursor, pressed, clicked)
 		if err != nil {
 			return false, fmt.Errorf("failed to handle widget mouse input: %s", err)
 		}
+		if mouseHandled && !clicked && pressedWidget != nil && (!pressed || pressedWidget != w) {
+			pressedWidget = nil
+		}
 		if clicked && mouseHandled {
 			SetFocus(w)
+			pressedWidget = w
 		}
 	}
 	return mouseHandled, nil
