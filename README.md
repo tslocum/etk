@@ -1,27 +1,33 @@
 # etk - Ebitengine Tool Kit
 [![GoDoc](https://code.rocket9labs.com/tslocum/godoc-static/raw/branch/master/badge.svg)](https://docs.rocket9labs.com/code.rocket9labs.com/tslocum/etk)
 [![Donate via LiberaPay](https://img.shields.io/liberapay/receives/rocket9labs.com.svg?logo=liberapay)](https://liberapay.com/rocket9labs.com)
-[![Donate via Patreon](https://img.shields.io/badge/dynamic/json?color=%23e85b46&label=Patreon&query=data.attributes.patron_count&suffix=%20patrons&url=https%3A%2F%2Fwww.patreon.com%2Fapi%2Fcampaigns%2F5252223)](https://www.patreon.com/rocketnine)
 
 [Ebitengine](https://github.com/hajimehoshi/ebiten) tool kit for creating graphical user interfaces
 
 **Note:** This library is still in development. Breaking changes may be made until v1.0 is released.
 
-## Widgets
+## Features
 
-Custom widgets may be created entirely from scratch or may be
-based on official widgets.
+- Simplifies GUI development:
+  - Propagates layout changes.
+  - Propagates user input.
+  - Propagates focus.
+- Extensibile by design:
+  - The Box widget is provided as a building block for custom widgets.
+  - Widgets may be nested within each other efficiently.
+- Tools in the kit:
+  - Box: Building block for creating custom widgets.
+  - Button: Clickable button.
+  - Flex: Flexible stack-based layout. Each Flex widget may be oriented horizontally or vertically.
+  - Frame: Widget container. All child widgets are displayed at once. Child widgets are not repositioned by default.
+  - Grid: Highly customizable cell-based layout. Each widget added to the Grid may span multiple cells.
+  - Input: Text input widget. The Input widget is simply a Text widget that also accepts user input.
+  - Text: Text display widget.
+  - Window: Widget paging mechanism. Only one widget added to a window is displayed at a time.
 
-The following official widgets are available:
+## Examples
 
-- Box - Building block for creating custom widgets.
-- Button - Clickable button.
-- Flex - Flexible stack-based layout. Each Flex widget may be oriented horizontally or vertically.
-- Frame - Widget container. All child widgets are displayed at once. Child widgets are not repositioned by default.
-- Grid - Highly customizable cell-based layout. Each widget added to the Grid may span multiple cells.
-- Input - Text input widget. The Input widget is simply a Text widget that also accepts user input.
-- Text - Text display widget.
-- Window - Widget paging mechanism. Only one widget added to a window is displayed at a time.
+See the [examples](https://code.rocket9labs.com/tslocum/etk/src/branch/main/examples) folder.
 
 ## Documentation
 
@@ -30,4 +36,3 @@ Documentation is available via [godoc](https://docs.rocket9labs.com/code.rocket9
 ## Support
 
 Please share issues and suggestions [here](https://code.rocket9labs.com/tslocum/etk/issues).
-
