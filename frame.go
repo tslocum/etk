@@ -10,10 +10,12 @@ type Frame struct {
 }
 
 // NewFrame returns a new Frame widget.
-func NewFrame() *Frame {
-	return &Frame{
+func NewFrame(w ...Widget) *Frame {
+	f := &Frame{
 		Box: NewBox(),
 	}
+	f.AddChild(w...)
+	return f
 }
 
 // SetRect sets the position and size of the widget.
