@@ -3,6 +3,7 @@ package etk
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"math"
 	"runtime/debug"
 	"strings"
@@ -15,6 +16,8 @@ import (
 )
 
 var root Widget
+
+var drawDebug bool
 
 var (
 	lastWidth, lastHeight int
@@ -33,6 +36,8 @@ var (
 	keyBuffer  []ebiten.Key
 	runeBuffer []rune
 )
+
+var debugColor = color.RGBA{0, 0, 255, 255}
 
 const (
 	backspaceRepeatWait = 500 * time.Millisecond
@@ -101,6 +106,12 @@ func int26ToRect(r fixed.Rectangle26_6) image.Rectangle {
 func BoundString(f font.Face, s string) image.Rectangle {
 	bounds, _ := boundString(f, s)
 	return int26ToRect(bounds)
+}
+
+// SetDebug sets whether debug information is drawn on screen. When enabled,
+// all visible widgets are outlined.
+func SetDebug(debug bool) {
+	drawDebug = debug
 }
 
 // Layout sets the current screen size and resizes the root widget.
@@ -316,6 +327,18 @@ func draw(w Widget, screen *ebiten.Image) error {
 	err := w.Draw(screen)
 	if err != nil {
 		return fmt.Errorf("failed to draw widget: %s", err)
+	}
+
+	if drawDebug {
+		r := w.Rect()
+		if !r.Empty() {
+			x, y := r.Min.X, r.Min.Y
+			w, h := r.Dx(), r.Dy()
+			screen.SubImage(image.Rect(x, y, x+w, y+1)).(*ebiten.Image).Fill(debugColor)
+			screen.SubImage(image.Rect(x, y+h-1, x+w, y+h)).(*ebiten.Image).Fill(debugColor)
+			screen.SubImage(image.Rect(x, y, x+1, y+h)).(*ebiten.Image).Fill(debugColor)
+			screen.SubImage(image.Rect(x+w-1, y, x+w, y+h)).(*ebiten.Image).Fill(debugColor)
+		}
 	}
 
 	children := w.Children()
