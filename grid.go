@@ -101,6 +101,17 @@ func (g *Grid) AddChildAt(wgt Widget, x int, y int, columns int, rows int) {
 	g.updated = true
 }
 
+// Empty removes all children from the Grid.
+func (g *Grid) Empty() {
+	g.Lock()
+	defer g.Unlock()
+
+	g.children = g.children[:0]
+	g.cellPositions = g.cellPositions[:0]
+	g.cellSpans = g.cellSpans[:0]
+	g.updated = true
+}
+
 // HandleKeyboard is called when a keyboard event occurs.
 func (g *Grid) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
 	if g.updated {
