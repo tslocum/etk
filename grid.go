@@ -101,8 +101,8 @@ func (g *Grid) AddChildAt(wgt Widget, x int, y int, columns int, rows int) {
 	g.updated = true
 }
 
-// Empty removes all children from the Grid.
-func (g *Grid) Empty() {
+// Clear removes all children from the Grid.
+func (g *Grid) Clear() {
 	g.Lock()
 	defer g.Unlock()
 
