@@ -49,3 +49,14 @@ type Widget interface {
 	// in reverse order.
 	Children() []Widget
 }
+
+// ignoreMouse wraps a widget to ignore mouse events.
+type ignoreMouse struct {
+	Widget
+}
+
+// HandleMouse is called when a mouse event occurs. Only mouse events that
+// are on top of the widget are passed to the widget.
+func (i *ignoreMouse) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
+	return false, nil
+}

@@ -142,13 +142,6 @@ func (g *Grid) Draw(screen *ebiten.Image) error {
 		g.updated = false
 	}
 
-	for _, child := range g.children {
-		err := child.Draw(screen)
-		if err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
