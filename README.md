@@ -26,6 +26,10 @@
   - Text: Text display widget.
   - Window: Widget paging mechanism. Only one widget added to a window is displayed at a time.
 
+## Demo
+
+[Boxcars](https://code.rocket9labs.com/tslocum/boxcars) uses etk extensively and is available at https://play.bgammon.org
+
 ## Examples
 
 See the [examples](https://code.rocket9labs.com/tslocum/etk/src/branch/main/examples) folder.
