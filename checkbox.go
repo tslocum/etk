@@ -8,8 +8,7 @@ import (
 	"github.com/llgcode/draw2d/draw2dimg"
 )
 
-// Checkbox is a toggleable Checkbox. It automatically resizes itself ensure
-// a square shape.
+// Checkbox is a toggleable Checkbox.
 type Checkbox struct {
 	*Box
 
@@ -33,7 +32,8 @@ func NewCheckbox(onSelect func() error) *Checkbox {
 	}
 }
 
-// SetRect sets the position and size of the Checkbox.
+// SetRect sets the position and size of the Checkbox. The checkbox is always
+// a square shape.
 func (c *Checkbox) SetRect(r image.Rectangle) {
 	if c.Box.rect.Eq(r) {
 		return

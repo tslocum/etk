@@ -75,7 +75,7 @@ func (w *Window) AddChild(wgt ...Widget) {
 	w.childrenUpdated()
 }
 
-// AddChildWithLabel adds a child to the window, as well as an associated label.
+// AddChildWithLabel adds a child to the window with the specified label.
 func (w *Window) AddChildWithLabel(wgt Widget, label string) {
 	w.Lock()
 	defer w.Unlock()
