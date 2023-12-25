@@ -115,8 +115,8 @@ func (b *Box) AddChild(w ...Widget) {
 	b.children = append(b.children, w...)
 }
 
-// Empty removes all children from the widget.
-func (b *Box) Empty() {
+// Clear removes all children from the widget.
+func (b *Box) Clear() {
 	b.Lock()
 	defer b.Unlock()
 
