@@ -193,7 +193,11 @@ func Update() error {
 		}
 	}
 
-	if !pressed && !clicked {
+	if !pressed && !clicked && pressedWidget != nil {
+		_, err := pressedWidget.HandleMouse(cursor, false, false)
+		if err != nil {
+			return err
+		}
 		pressedWidget = nil
 	}
 
