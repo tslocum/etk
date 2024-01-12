@@ -41,6 +41,7 @@ type List struct {
 	scrollAreaColor      color.RGBA
 	scrollHandleColor    color.RGBA
 	scrollDrag           bool
+	drawBorder           bool
 	sync.Mutex
 }
 
@@ -282,6 +283,11 @@ func (l *List) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) 
 	return l.grid.HandleKeyboard(key, r)
 }
 
+// SetDrawBorder enables or disables borders being drawn around the list.
+func (l *List) SetDrawBorder(drawBorder bool) {
+	l.drawBorder = drawBorder
+}
+
 // HandleMouse is called when a mouse event occurs. Only mouse events that
 // are on top of the widget are passed to the widget.
 func (l *List) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
@@ -380,15 +386,23 @@ func (l *List) Draw(screen *ebiten.Image) error {
 	}
 
 	// Highlight selection.
-	if l.selectionMode == SelectNone || l.selectedY < 0 {
-		return nil
+	drawHighlight := l.selectionMode != SelectNone && l.selectedY >= 0
+	if drawHighlight {
+		{
+			x, y := l.grid.rect.Min.X, l.grid.rect.Min.Y+l.selectedY*l.itemHeight
+			w, h := l.grid.rect.Dx(), l.itemHeight
+			r := image.Rect(x, y, x+w, y+h)
+			screen.SubImage(r).(*ebiten.Image).Fill(l.highlightColor)
+		}
 	}
 
-	{
-		x, y := l.grid.rect.Min.X, l.grid.rect.Min.Y+l.selectedY*l.itemHeight
-		w, h := l.grid.rect.Dx(), l.itemHeight
-		r := image.Rect(x, y, x+w, y+h)
-		screen.SubImage(r).(*ebiten.Image).Fill(l.highlightColor)
+	// Draw border.
+	if l.drawBorder {
+		const borderSize = 4
+		screen.SubImage(image.Rect(l.grid.rect.Min.X, l.grid.rect.Min.Y, l.grid.rect.Max.X, l.grid.rect.Min.Y+borderSize)).(*ebiten.Image).Fill(Style.BorderColor)
+		screen.SubImage(image.Rect(l.grid.rect.Min.X, l.grid.rect.Max.Y-borderSize, l.grid.rect.Max.X, l.grid.rect.Max.Y)).(*ebiten.Image).Fill(Style.BorderColor)
+		screen.SubImage(image.Rect(l.grid.rect.Min.X, l.grid.rect.Min.Y, l.grid.rect.Min.X+borderSize, l.grid.rect.Max.Y)).(*ebiten.Image).Fill(Style.BorderColor)
+		screen.SubImage(image.Rect(l.grid.rect.Max.X-borderSize, l.grid.rect.Min.Y, l.grid.rect.Max.X, l.grid.rect.Max.Y)).(*ebiten.Image).Fill(Style.BorderColor)
 	}
 
 	// Draw scroll bar.

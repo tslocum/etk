@@ -114,8 +114,13 @@ func SetDebug(debug bool) {
 	drawDebug = debug
 }
 
+// ScreenSize returns the current screen size.
+func ScreenSize() (width int, height int) {
+	return lastWidth, lastHeight
+}
+
 // Layout sets the current screen size and resizes the root widget.
-func Layout(outsideWidth, outsideHeight int) {
+func Layout(outsideWidth int, outsideHeight int) {
 	if outsideWidth != lastWidth || outsideHeight != lastHeight {
 		lastWidth, lastHeight = outsideWidth, outsideHeight
 	}
@@ -242,28 +247,22 @@ func Update() error {
 }
 
 func at(w Widget, p image.Point) Widget {
-	if w == nil {
-		return nil
-	}
-
-	if !p.In(w.Rect()) {
+	if w == nil || !w.Visible() {
 		return nil
 	}
 
 	for _, child := range w.Children() {
-		if !child.Visible() {
-			continue
-		}
-
-		if p.In(child.Rect()) {
-			result := at(child, p)
-			if result != nil {
-				return result
-			}
+		result := at(child, p)
+		if result != nil {
+			return result
 		}
 	}
 
-	return w
+	if p.In(w.Rect()) {
+		return w
+	}
+
+	return nil
 }
 
 // At returns the widget at the provided screen location.

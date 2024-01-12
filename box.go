@@ -34,7 +34,7 @@ func (b *Box) Rect() image.Rectangle {
 	return b.rect
 }
 
-// SetRect returns the position and size of the widget.
+// SetRect sets the position and size of the widget.
 func (b *Box) SetRect(r image.Rectangle) {
 	b.Lock()
 	b.rect = r

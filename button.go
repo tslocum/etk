@@ -73,7 +73,6 @@ func (b *Button) HandleMouse(cursor image.Point, pressed bool, clicked bool) (ha
 
 // Draw draws the button on the screen.
 func (b *Button) Draw(screen *ebiten.Image) error {
-	// TODO background color
 	// Draw background.
 	screen.SubImage(b.rect).(*ebiten.Image).Fill(Style.ButtonBgColor)
 
