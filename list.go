@@ -355,6 +355,7 @@ func (l *List) Draw(screen *ebiten.Image) error {
 	defer l.Unlock()
 
 	if l.recreateGrid {
+		maxY := l.grid.rect.Dy() / l.itemHeight
 		l.offset = l.clampOffset(l.offset)
 		l.grid.Clear()
 		rowSizes := make([]int, l.maxY+1)
@@ -366,6 +367,8 @@ func (l *List) Draw(screen *ebiten.Image) error {
 		for i := range l.items {
 			if i < l.offset {
 				continue
+			} else if y >= maxY {
+				break
 			}
 			for x := range l.items[i] {
 				w := l.items[i][x]
