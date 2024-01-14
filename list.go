@@ -260,6 +260,14 @@ func (l *List) AddChildAt(w Widget, x int, y int) {
 	}
 }
 
+// Rows returns the number of rows in the list.
+func (l *List) Rows() int {
+	l.Lock()
+	defer l.Unlock()
+
+	return l.maxY + 1
+}
+
 func (l *List) showScrollBar() bool {
 	return len(l.items) > l.grid.rect.Dy()/l.itemHeight
 }
