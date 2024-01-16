@@ -3,7 +3,6 @@ module code.rocket9labs.com/tslocum/etk
 go 1.18
 
 require (
-	code.rocketnine.space/tslocum/kibodo v1.0.3-0.20240110043547-31f31eb07497
 	code.rocketnine.space/tslocum/messeji v1.0.6-0.20240109205105-4ffeffdd2441
 	github.com/hajimehoshi/ebiten/v2 v2.6.3
 	github.com/llgcode/draw2d v0.0.0-20231212091825-f55e0c776b44
