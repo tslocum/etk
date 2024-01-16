@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"code.rocket9labs.com/tslocum/etk"
-	"code.rocketnine.space/tslocum/messeji"
+	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 

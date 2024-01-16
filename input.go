@@ -3,7 +3,7 @@ package etk
 import (
 	"image"
 
-	"code.rocketnine.space/tslocum/messeji"
+	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
