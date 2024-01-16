@@ -30,6 +30,8 @@
 
 [Boxcars](https://code.rocket9labs.com/tslocum/boxcars) uses etk extensively and is available at https://play.bgammon.org
 
+[![Screenshot](https://code.rocket9labs.com/tslocum/boxcars/raw/branch/main/screenshot.png)](https://code.rocket9labs.com/tslocum/boxcars/src/branch/main/screenshot.png)
+
 ## Examples
 
 See the [examples](https://code.rocket9labs.com/tslocum/etk/src/branch/main/examples) folder.
