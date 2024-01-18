@@ -12,7 +12,7 @@
   - Propagates layout changes.
   - Propagates user input.
   - Propagates focus.
-- Extensibile by design:
+- Extensible by design:
   - The Box widget is provided as a building block for custom widgets.
   - Widgets may be nested within each other efficiently.
 - Tools in the kit:
