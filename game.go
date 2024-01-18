@@ -213,34 +213,35 @@ func Update() error {
 
 	// Handle keyboard input.
 
-	if focusedWidget != nil {
-		if ebiten.IsKeyPressed(ebiten.KeyBackspace) {
-			if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-				lastBackspaceRepeat = time.Now().Add(backspaceRepeatWait)
-			} else if time.Since(lastBackspaceRepeat) >= backspaceRepeatTime {
-				lastBackspaceRepeat = time.Now()
+	if focusedWidget == nil {
+		return nil
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyBackspace) {
+		if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
+			lastBackspaceRepeat = time.Now().Add(backspaceRepeatWait)
+		} else if time.Since(lastBackspaceRepeat) >= backspaceRepeatTime {
+			lastBackspaceRepeat = time.Now()
 
-				_, err := focusedWidget.HandleKeyboard(ebiten.KeyBackspace, 0)
-				if err != nil {
-					return err
-				}
+			_, err := focusedWidget.HandleKeyboard(ebiten.KeyBackspace, 0)
+			if err != nil {
+				return err
 			}
 		}
+	}
 
-		keyBuffer = inpututil.AppendJustPressedKeys(keyBuffer[:0])
-		for _, key := range keyBuffer {
-			_, err := focusedWidget.HandleKeyboard(key, 0)
-			if err != nil {
-				return fmt.Errorf("failed to handle widget keyboard input: %s", err)
-			}
+	keyBuffer = inpututil.AppendJustPressedKeys(keyBuffer[:0])
+	for _, key := range keyBuffer {
+		_, err := focusedWidget.HandleKeyboard(key, 0)
+		if err != nil {
+			return fmt.Errorf("failed to handle widget keyboard input: %s", err)
 		}
+	}
 
-		runeBuffer = ebiten.AppendInputChars(runeBuffer[:0])
-		for _, r := range runeBuffer {
-			_, err := focusedWidget.HandleKeyboard(-1, r)
-			if err != nil {
-				return fmt.Errorf("failed to handle widget keyboard input: %s", err)
-			}
+	runeBuffer = ebiten.AppendInputChars(runeBuffer[:0])
+	for _, r := range runeBuffer {
+		_, err := focusedWidget.HandleKeyboard(-1, r)
+		if err != nil {
+			return fmt.Errorf("failed to handle widget keyboard input: %s", err)
 		}
 	}
 	return nil

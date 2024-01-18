@@ -6,7 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// Flex is a flexbox layout which may be oriented horizontally or vertically.
+// Flex is a flexible stack-based layout which may be oriented horizontally or vertically.
 type Flex struct {
 	*Box
 	vertical                bool
@@ -33,8 +33,8 @@ func (f *Flex) SetRect(r image.Rectangle) {
 	f.modified = true
 }
 
-// SetGapSize sets the gap between each child in the Flex.
-func (f *Flex) SetGapSize(columnGap int, rowGap int) {
+// SetGaps sets the gaps between each child in the Flex.
+func (f *Flex) SetGaps(columnGap int, rowGap int) {
 	f.Lock()
 	defer f.Unlock()
 
