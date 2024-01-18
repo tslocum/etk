@@ -6,7 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// Flex is a flexbox layou which may be oriented horizontally or vertically.
+// Flex is a flexbox layout which may be oriented horizontally or vertically.
 type Flex struct {
 	*Box
 	vertical                bool
@@ -18,7 +18,9 @@ type Flex struct {
 // NewFlex returns a new Flex widget.
 func NewFlex() *Flex {
 	return &Flex{
-		Box: NewBox(),
+		Box:       NewBox(),
+		columnGap: 5,
+		rowGap:    5,
 	}
 }
 
@@ -31,7 +33,7 @@ func (f *Flex) SetRect(r image.Rectangle) {
 	f.modified = true
 }
 
-// SetGapSize sets the gap between child in the Flex.
+// SetGapSize sets the gap between each child in the Flex.
 func (f *Flex) SetGapSize(columnGap int, rowGap int) {
 	f.Lock()
 	defer f.Unlock()
@@ -44,7 +46,7 @@ func (f *Flex) SetGapSize(columnGap int, rowGap int) {
 	f.modified = true
 }
 
-// SetChildSize sets the size of each child in the Flex.
+// SetChildSize sets the minimum size of each child in the Flex.
 func (f *Flex) SetChildSize(width int, height int) {
 	f.Lock()
 	defer f.Unlock()
@@ -110,40 +112,38 @@ func (f *Flex) Draw(screen *ebiten.Image) error {
 }
 
 func (f *Flex) reposition() {
-	l := len(f.children)
 	r := f.rect
 
-	// flexbox
-	// gap
-	// orientation
-
 	if f.vertical {
-		childHeight := float64(r.Dy()) / float64(l)
-
-		minY := r.Min.Y
-		for i, child := range f.children {
-			maxY := r.Min.Y + int(childHeight*float64(i+1))
-			if i == l-1 {
-				maxY = r.Max.Y
+		x1, y1 := r.Min.X, r.Min.Y
+		for _, child := range f.children {
+			x2, y2 := x1+f.childWidth, y1+f.childHeight
+			if y2 > r.Max.Y {
+				return
 			}
-			child.SetRect(image.Rect(r.Min.X, minY, r.Max.X, maxY))
+			child.SetRect(image.Rect(x1, y1, x2, y2))
 
-			minY = maxY
+			y1 += f.childHeight + f.rowGap
+			if y1 >= r.Max.Y-f.childHeight {
+				x1 += f.childWidth + f.columnGap
+				y1 = r.Min.Y
+			}
 		}
-
 		return
 	}
 
-	childWidth := float64(r.Dx()) / float64(l)
-
-	minX := r.Min.X
-	for i, child := range f.children {
-		maxX := r.Min.X + int(childWidth*float64(i+1))
-		if i == l-1 {
-			maxX = r.Max.X
+	x1, y1 := r.Min.X, r.Min.Y
+	for _, child := range f.children {
+		x2, y2 := x1+f.childWidth, y1+f.childHeight
+		if x2 > r.Max.X {
+			return
 		}
-		child.SetRect(image.Rect(minX, r.Min.Y, maxX, r.Max.Y))
+		child.SetRect(image.Rect(x1, y1, x2, y2))
 
-		minX = maxX
+		x1 += f.childWidth + f.columnGap
+		if x1 >= r.Max.X-f.childWidth {
+			y1 += f.childHeight + f.rowGap
+			x1 = r.Min.X
+		}
 	}
 }
