@@ -12,8 +12,8 @@ import (
 func main() {
 	ebiten.SetWindowTitle("キーボード")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-
-	ebiten.SetTPS(60)
+	ebiten.SetWindowSize(640, 480)
+	ebiten.SetTPS(144)
 	ebiten.SetVsyncEnabled(true)
 
 	g := game.NewDemoGame()

@@ -11,10 +11,10 @@ import (
 
 func main() {
 	ebiten.SetWindowTitle("メッセージ")
-	ebiten.SetWindowResizable(true)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowSize(640, 480)
-	ebiten.SetMaxTPS(144)
-	ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMinimum)
+	ebiten.SetTPS(144)
+	ebiten.SetVsyncEnabled(true)
 
 	g := game.NewDemoGame()
 	if err := ebiten.RunGame(g); err != nil {
