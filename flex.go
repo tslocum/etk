@@ -6,7 +6,11 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// Flex is a flexible stack-based layout which may be oriented horizontally or vertically.
+// Flex is a flexible stack-based layout which may be oriented horizontally or
+// vertically. Children are positioned with equal spacing by default. A minimum
+// size may instead be specified via SetChildSize, causing children to be
+// positioned similar to a flexbox, where each child either has the minimum
+// size or the child stretches to fill the remaining row or column.
 type Flex struct {
 	*Box
 	vertical                bool
@@ -113,37 +117,65 @@ func (f *Flex) Draw(screen *ebiten.Image) error {
 
 func (f *Flex) reposition() {
 	r := f.rect
+	childWidth := f.childWidth
+	if childWidth == 0 {
+		if f.vertical {
+			childWidth = r.Dx()
+		} else if len(f.children) > 0 {
+			var gapSpace int
+			if len(f.children) > 1 {
+				gapSpace = f.columnGap * (len(f.children) - 1)
+			}
+			childWidth = (r.Dx() - gapSpace) / len(f.children)
+		}
+	}
+	childHeight := f.childHeight
+	if childHeight == 0 {
+		if f.vertical && len(f.children) > 0 {
+			var gapSpace int
+			if len(f.children) > 1 {
+				gapSpace = f.rowGap * (len(f.children) - 1)
+			}
+			childHeight = (r.Dy() - gapSpace) / len(f.children)
+		} else {
+			childHeight = r.Dy()
+		}
+	}
 
+	rects := make([]image.Rectangle, len(f.children))
+	x1, y1 := r.Min.X, r.Min.Y
 	if f.vertical {
-		x1, y1 := r.Min.X, r.Min.Y
-		for _, child := range f.children {
-			x2, y2 := x1+f.childWidth, y1+f.childHeight
+		for i := range f.children {
+			x2, y2 := x1+childWidth, y1+childHeight
 			if y2 > r.Max.Y {
 				return
 			}
-			child.SetRect(image.Rect(x1, y1, x2, y2))
+			rects[i] = image.Rect(x1, y1, x2, y2)
 
-			y1 += f.childHeight + f.rowGap
-			if y1 >= r.Max.Y-f.childHeight {
-				x1 += f.childWidth + f.columnGap
+			y1 += childHeight + f.rowGap
+			if y1 > r.Max.Y-childHeight {
+				rects[i].Max.Y = r.Max.Y
+				x1 += childWidth + f.columnGap
 				y1 = r.Min.Y
 			}
 		}
-		return
+	} else {
+		for i := range f.children {
+			x2, y2 := x1+childWidth, y1+childHeight
+			if x2 > r.Max.X {
+				return
+			}
+			rects[i] = image.Rect(x1, y1, x2, y2)
+
+			x1 += childWidth + f.columnGap
+			if x1 > r.Max.X-childWidth {
+				rects[i].Max.X = r.Max.X
+				y1 += childHeight + f.rowGap
+				x1 = r.Min.X
+			}
+		}
 	}
-
-	x1, y1 := r.Min.X, r.Min.Y
-	for _, child := range f.children {
-		x2, y2 := x1+f.childWidth, y1+f.childHeight
-		if x2 > r.Max.X {
-			return
-		}
-		child.SetRect(image.Rect(x1, y1, x2, y2))
-
-		x1 += f.childWidth + f.columnGap
-		if x1 >= r.Max.X-f.childWidth {
-			y1 += f.childHeight + f.rowGap
-			x1 = r.Min.X
-		}
+	for i, child := range f.children {
+		child.SetRect(rects[i])
 	}
 }
