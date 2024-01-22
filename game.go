@@ -44,6 +44,27 @@ const (
 	backspaceRepeatTime = 75 * time.Millisecond
 )
 
+var deviceScale = -1.0
+
+// ScaleFactor returns the device scale factor. When running on Android, this function
+// may only be called during or after the first Layout call made by Ebitengine.
+func ScaleFactor() float64 {
+	if deviceScale == -1 {
+		deviceScale = ebiten.DeviceScaleFactor()
+	}
+	return deviceScale
+}
+
+// Scale applies the device scale factor to the provided value and returns the result.
+// When running on Android, this function may only be called during or after the first
+// Layout call made by Ebitengine.
+func Scale(v int) int {
+	if deviceScale == -1 {
+		deviceScale = ebiten.DeviceScaleFactor()
+	}
+	return int(float64(v) * deviceScale)
+}
+
 // SetRoot sets the root widget. The root widget and all of its children will
 // be drawn on the screen and receive user input. The root widget will also be
 // focused. To temporarily disable etk, set a nil root widget.
@@ -121,6 +142,7 @@ func ScreenSize() (width int, height int) {
 
 // Layout sets the current screen size and resizes the root widget.
 func Layout(outsideWidth int, outsideHeight int) {
+	outsideWidth, outsideHeight = Scale(outsideWidth), Scale(outsideHeight)
 	if outsideWidth != lastWidth || outsideHeight != lastHeight {
 		lastWidth, lastHeight = outsideWidth, outsideHeight
 	}
