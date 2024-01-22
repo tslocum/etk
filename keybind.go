@@ -7,6 +7,11 @@ type Shortcuts struct {
 	ConfirmKeyboard []ebiten.Key
 	ConfirmMouse    []ebiten.MouseButton
 	ConfirmGamepad  []ebiten.GamepadButton
+
+	// A sentinel rune value may be set for the confirm and back actions.
+	// This allows working around on-screen keyboard issues on Android.
+	ConfirmRune rune
+	BackRune    rune
 }
 
 // Bindings is the current keyboard shortcut configuration.

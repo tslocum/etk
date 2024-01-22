@@ -239,7 +239,15 @@ func Update() error {
 
 	runeBuffer = ebiten.AppendInputChars(runeBuffer[:0])
 	for _, r := range runeBuffer {
-		_, err := focusedWidget.HandleKeyboard(-1, r)
+		var err error
+		switch r {
+		case Bindings.ConfirmRune:
+			_, err = focusedWidget.HandleKeyboard(ebiten.KeyEnter, 0)
+		case Bindings.BackRune:
+			_, err = focusedWidget.HandleKeyboard(ebiten.KeyBackspace, 0)
+		default:
+			_, err = focusedWidget.HandleKeyboard(-1, r)
+		}
 		if err != nil {
 			return fmt.Errorf("failed to handle widget keyboard input: %s", err)
 		}
