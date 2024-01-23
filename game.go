@@ -9,10 +9,25 @@ import (
 	"strings"
 	"time"
 
+	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
+)
+
+// Alignment specifies how text is aligned within the field.
+type Alignment int
+
+const (
+	// AlignStart aligns text at the start of the field.
+	AlignStart Alignment = 0
+
+	// AlignCenter aligns text at the center of the field.
+	AlignCenter Alignment = 1
+
+	// AlignEnd aligns text at the end of the field.
+	AlignEnd Alignment = 2
 )
 
 var root Widget
@@ -384,6 +399,16 @@ func draw(w Widget, screen *ebiten.Image) error {
 	}
 
 	return nil
+}
+
+func newText() *messeji.TextField {
+	f := messeji.NewTextField(Style.TextFont, Style.TextFontMutex)
+	f.SetForegroundColor(Style.TextColorLight)
+	f.SetBackgroundColor(transparent)
+	f.SetScrollBarColors(Style.ScrollAreaColor, Style.ScrollHandleColor)
+	f.SetScrollBorderSize(Scale(Style.ScrollBorderSize))
+	f.SetScrollBorderColors(Style.ScrollBorderColorTop, Style.ScrollBorderColorRight, Style.ScrollBorderColorBottom, Style.ScrollBorderColorLeft)
+	return f
 }
 
 func rectAtOrigin(r image.Rectangle) image.Rectangle {

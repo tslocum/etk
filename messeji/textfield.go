@@ -113,10 +113,10 @@ type TextField struct {
 	lineOffset int
 
 	// textColor is the color of the text within the field.
-	textColor color.Color
+	textColor color.RGBA
 
 	// backgroundColor is the color of the background of the field.
-	backgroundColor color.Color
+	backgroundColor color.RGBA
 
 	// padding is the amount of padding around the text within the field.
 	padding int
@@ -149,6 +149,15 @@ type TextField struct {
 
 	// scrollHandleColor is the color of the scroll handle.
 	scrollHandleColor color.RGBA
+
+	// scrollBorderSize is the size of the border around the scroll bar handle.
+	scrollBorderSize int
+
+	// Scroll bar handle border colors.
+	scrollBorderTop    color.RGBA
+	scrollBorderRight  color.RGBA
+	scrollBorderBottom color.RGBA
+	scrollBorderLeft   color.RGBA
 
 	// scrollVisible is whether the scroll bar is visible on the screen.
 	scrollVisible bool
@@ -272,7 +281,7 @@ func (f *TextField) SetPrefix(text string) {
 	f.modified = true
 }
 
-// SetSuffix sets the text shown before the content of the field.
+// SetSuffix sets the text shown after the content of the field.
 func (f *TextField) SetSuffix(text string) {
 	f.Lock()
 	defer f.Unlock()
@@ -361,8 +370,16 @@ func (f *TextField) SetLineHeight(height int) {
 	f.modified = true
 }
 
+// ForegroundColor returns the color of the text within the field.
+func (f *TextField) ForegroundColor() color.RGBA {
+	f.Lock()
+	defer f.Unlock()
+
+	return f.textColor
+}
+
 // SetForegroundColor sets the color of the text within the field.
-func (f *TextField) SetForegroundColor(c color.Color) {
+func (f *TextField) SetForegroundColor(c color.RGBA) {
 	f.Lock()
 	defer f.Unlock()
 
@@ -371,7 +388,7 @@ func (f *TextField) SetForegroundColor(c color.Color) {
 }
 
 // SetBackgroundColor sets the color of the background of the field.
-func (f *TextField) SetBackgroundColor(c color.Color) {
+func (f *TextField) SetBackgroundColor(c color.RGBA) {
 	f.Lock()
 	defer f.Unlock()
 
@@ -460,6 +477,28 @@ func (f *TextField) SetScrollBarColors(area color.RGBA, handle color.RGBA) {
 	defer f.Unlock()
 
 	f.scrollAreaColor, f.scrollHandleColor = area, handle
+	f.redraw = true
+}
+
+// SetScrollBorderSize sets the size of the border around the scroll bar handle.
+func (f *TextField) SetScrollBorderSize(size int) {
+	f.Lock()
+	defer f.Unlock()
+
+	f.scrollBorderSize = size
+	f.redraw = true
+}
+
+// SetScrollBorderColor sets the color of the top, right, bottom and left border
+// of the scroll bar handle.
+func (f *TextField) SetScrollBorderColors(top color.RGBA, right color.RGBA, bottom color.RGBA, left color.RGBA) {
+	f.Lock()
+	defer f.Unlock()
+
+	f.scrollBorderTop = top
+	f.scrollBorderRight = right
+	f.scrollBorderBottom = bottom
+	f.scrollBorderLeft = left
 	f.redraw = true
 }
 
@@ -870,7 +909,11 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 
 // drawContent draws the text buffer to img.
 func (f *TextField) drawContent() (overflow bool) {
-	f.img.Fill(f.backgroundColor)
+	if f.backgroundColor.A != 0 {
+		f.img.Fill(f.backgroundColor)
+	} else {
+		f.img.Clear()
+	}
 	fieldWidth := f.r.Dx()
 	fieldHeight := f.r.Dy()
 	if f.showScrollBar() {
@@ -1017,8 +1060,20 @@ func (f *TextField) drawImage() {
 		scrollY += int(float64(h-scrollBarH) * pct)
 		scrollBarRect := image.Rect(scrollX, scrollY, scrollX+f.scrollWidth, scrollY+scrollBarH)
 
+		// Draw scroll area.
 		f.img.SubImage(f.scrollRect).(*ebiten.Image).Fill(f.scrollAreaColor)
+
+		// Draw scroll handle.
 		f.img.SubImage(scrollBarRect).(*ebiten.Image).Fill(f.scrollHandleColor)
+
+		// Draw scroll handle border.
+		if f.scrollBorderSize != 0 {
+			r := scrollBarRect
+			f.img.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+f.scrollBorderSize, r.Max.Y)).(*ebiten.Image).Fill(f.scrollBorderLeft)
+			f.img.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+f.scrollBorderSize)).(*ebiten.Image).Fill(f.scrollBorderTop)
+			f.img.SubImage(image.Rect(r.Max.X-f.scrollBorderSize, r.Min.Y, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(f.scrollBorderRight)
+			f.img.SubImage(image.Rect(r.Min.X, r.Max.Y-f.scrollBorderSize, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(f.scrollBorderBottom)
+		}
 	}
 }
 

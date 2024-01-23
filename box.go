@@ -22,7 +22,8 @@ type Box struct {
 // NewBox returns a new Box widget.
 func NewBox() *Box {
 	return &Box{
-		visible: true,
+		background: transparent,
+		visible:    true,
 	}
 }
 

@@ -39,7 +39,8 @@ func main() {
 		buffer.Write([]byte("\nInput: " + text))
 		return true
 	}
-	input := etk.NewInput(">", "", onselected)
+	input := etk.NewInput("", onselected)
+	input.SetPrefix(">")
 	{
 		inputDemo := etk.NewFlex()
 		inputDemo.SetVertical(true)

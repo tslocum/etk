@@ -7,7 +7,6 @@ import (
 	"log"
 
 	"code.rocket9labs.com/tslocum/etk"
-	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -23,8 +22,8 @@ func main() {
 
 	newText := func(size int) *etk.Text {
 		t := etk.NewText(fmt.Sprintf("%dpx Text", size))
-		t.SetHorizontal(messeji.AlignCenter)
-		t.SetVertical(messeji.AlignCenter)
+		t.SetHorizontal(etk.AlignCenter)
+		t.SetVertical(etk.AlignCenter)
 		return t
 	}
 

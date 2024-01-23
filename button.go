@@ -3,17 +3,18 @@ package etk
 import (
 	"image"
 	"image/color"
+	"sync"
 
 	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
+	"golang.org/x/image/font"
 )
 
 // Button is a clickable button.
 type Button struct {
 	*Box
-
-	Label *messeji.TextField
-
+	field        *messeji.TextField
+	borderSize   int
 	borderTop    color.RGBA
 	borderRight  color.RGBA
 	borderBottom color.RGBA
@@ -27,19 +28,18 @@ func NewButton(label string, onSelected func() error) *Button {
 	if textColor.A == 0 {
 		textColor = Style.TextColorDark
 	}
-
-	l := messeji.NewTextField(Style.TextFont, Style.TextFontMutex)
-	l.SetText(label)
-	l.SetForegroundColor(textColor)
-	l.SetBackgroundColor(transparent)
-	l.SetHorizontal(messeji.AlignCenter)
-	l.SetVertical(messeji.AlignCenter)
-	l.SetScrollBarVisible(false)
+	f := newText()
+	f.SetText(label)
+	f.SetForegroundColor(textColor)
+	f.SetHorizontal(messeji.AlignCenter)
+	f.SetVertical(messeji.AlignCenter)
+	f.SetScrollBarVisible(false)
 
 	return &Button{
 		Box:          NewBox(),
-		Label:        l,
+		field:        f,
 		onSelected:   onSelected,
+		borderSize:   Scale(Style.BorderSize),
 		borderTop:    Style.BorderColorTop,
 		borderRight:  Style.BorderColorRight,
 		borderBottom: Style.BorderColorBottom,
@@ -51,7 +51,7 @@ func NewButton(label string, onSelected func() error) *Button {
 func (b *Button) SetRect(r image.Rectangle) {
 	b.Box.rect = r
 
-	b.Label.SetRect(r)
+	b.field.SetRect(r)
 
 	for _, w := range b.children {
 		w.SetRect(r)
@@ -67,6 +67,30 @@ func (b *Button) SetBorderColor(top color.RGBA, right color.RGBA, bottom color.R
 	b.borderRight = right
 	b.borderBottom = bottom
 	b.borderLeft = left
+}
+
+// Text returns the content of the text buffer.
+func (b *Button) Text() string {
+	b.Lock()
+	defer b.Unlock()
+
+	return b.field.Text()
+}
+
+// SetText sets the text in the field.
+func (b *Button) SetText(text string) {
+	b.Lock()
+	defer b.Unlock()
+
+	b.field.SetText(text)
+}
+
+// SetFont sets the font face of the text within the field.
+func (b *Button) SetFont(face font.Face, mutex *sync.Mutex) {
+	b.Lock()
+	defer b.Unlock()
+
+	b.field.SetFont(face, mutex)
 }
 
 // HandleKeyboard is called when a keyboard event occurs.
@@ -99,7 +123,7 @@ func (b *Button) Draw(screen *ebiten.Image) error {
 	screen.SubImage(r).(*ebiten.Image).Fill(Style.ButtonBgColor)
 
 	// Draw label.
-	b.Label.Draw(screen)
+	b.field.Draw(screen)
 
 	// Draw border.
 	const borderSize = 4

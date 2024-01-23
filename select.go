@@ -4,14 +4,12 @@ import (
 	"image"
 	"image/color"
 
-	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // Select is a dropdown selection widget.
 type Select struct {
 	*Box
-
 	label    *Text
 	list     *List
 	onSelect func(index int) (accept bool)
@@ -26,9 +24,9 @@ func NewSelect(itemHeight int, onSelect func(index int) (accept bool)) *Select {
 		label:    NewText(""),
 		onSelect: onSelect,
 	}
-	s.label.SetVertical(messeji.AlignCenter)
-	s.label.SetForegroundColor(Style.ButtonTextColor)
-	s.label.SetBackgroundColor(Style.ButtonBgColor)
+	s.label.SetVertical(AlignCenter)
+	s.label.SetForeground(Style.ButtonTextColor)
+	s.SetBackground(Style.ButtonBgColor)
 	s.list = NewList(itemHeight, s.selectList)
 	s.list.SetBackground(Style.ButtonBgColor)
 	s.list.SetDrawBorder(true)
@@ -109,8 +107,8 @@ func (s *Select) AddOption(label string) {
 	}
 
 	t := NewText(label)
-	t.SetVertical(messeji.AlignCenter)
-	t.SetForegroundColor(Style.ButtonTextColor)
+	t.SetVertical(AlignCenter)
+	t.SetForeground(Style.ButtonTextColor)
 	s.list.AddChildAt(t, 0, len(s.items)-1)
 }
 

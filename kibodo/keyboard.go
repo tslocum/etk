@@ -39,8 +39,8 @@ type Keyboard struct {
 
 	op *ebiten.DrawImageOptions
 
-	backgroundColor     color.Color
-	lastBackgroundColor color.Color
+	backgroundColor     color.RGBA
+	lastBackgroundColor color.RGBA
 
 	shift bool
 
@@ -78,7 +78,7 @@ func NewKeyboard() *Keyboard {
 		normalKeys:      KeysQWERTY,
 		backgroundLower: ebiten.NewImage(1, 1),
 		backgroundUpper: ebiten.NewImage(1, 1),
-		backgroundColor: color.Black,
+		backgroundColor: color.RGBA{0, 0, 0, 255},
 		holdTouchID:     -1,
 		labelFont:       fontFace,
 		backspaceDelay:  500 * time.Millisecond,
