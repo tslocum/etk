@@ -44,12 +44,12 @@ const (
 	backspaceRepeatTime = 75 * time.Millisecond
 )
 
-var deviceScale = -1.0
+var deviceScale float64
 
 // ScaleFactor returns the device scale factor. When running on Android, this function
 // may only be called during or after the first Layout call made by Ebitengine.
 func ScaleFactor() float64 {
-	if deviceScale == -1 {
+	if deviceScale == 0 {
 		deviceScale = ebiten.DeviceScaleFactor()
 	}
 	return deviceScale
@@ -59,7 +59,7 @@ func ScaleFactor() float64 {
 // When running on Android, this function may only be called during or after the first
 // Layout call made by Ebitengine.
 func Scale(v int) int {
-	if deviceScale == -1 {
+	if deviceScale == 0 {
 		deviceScale = ebiten.DeviceScaleFactor()
 	}
 	return int(float64(v) * deviceScale)

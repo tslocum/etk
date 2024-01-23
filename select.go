@@ -185,10 +185,11 @@ func (s *Select) Draw(screen *ebiten.Image) error {
 
 	// Draw border.
 	const borderSize = 4
-	screen.SubImage(image.Rect(s.rect.Min.X, s.rect.Min.Y, s.rect.Max.X, s.rect.Min.Y+borderSize)).(*ebiten.Image).Fill(Style.BorderColor)
-	screen.SubImage(image.Rect(s.rect.Min.X, s.rect.Max.Y-borderSize, s.rect.Max.X, s.rect.Max.Y)).(*ebiten.Image).Fill(Style.BorderColor)
-	screen.SubImage(image.Rect(s.rect.Min.X, s.rect.Min.Y, s.rect.Min.X+borderSize, s.rect.Max.Y)).(*ebiten.Image).Fill(Style.BorderColor)
-	screen.SubImage(image.Rect(s.rect.Max.X-borderSize, s.rect.Min.Y, s.rect.Max.X, s.rect.Max.Y)).(*ebiten.Image).Fill(Style.BorderColor)
+	r := s.rect
+	screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+borderSize, r.Max.Y)).(*ebiten.Image).Fill(Style.BorderColorLeft)
+	screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+borderSize)).(*ebiten.Image).Fill(Style.BorderColorTop)
+	screen.SubImage(image.Rect(r.Max.X-borderSize, r.Min.Y, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(Style.BorderColorRight)
+	screen.SubImage(image.Rect(r.Min.X, r.Max.Y-borderSize, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(Style.BorderColorBottom)
 
 	return nil
 }
