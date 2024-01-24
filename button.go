@@ -58,8 +58,16 @@ func (b *Button) SetRect(r image.Rectangle) {
 	}
 }
 
-// SetBorderColor sets the color of the top, right, bottom and left border.
-func (b *Button) SetBorderColor(top color.RGBA, right color.RGBA, bottom color.RGBA, left color.RGBA) {
+// SetBorderSize sets the size of the border around the button.
+func (b *Button) SetBorderSize(size int) {
+	b.Lock()
+	defer b.Unlock()
+
+	b.borderSize = size
+}
+
+// SetBorderColors sets the color of the top, right, bottom and left border.
+func (b *Button) SetBorderColors(top color.RGBA, right color.RGBA, bottom color.RGBA, left color.RGBA) {
 	b.Lock()
 	defer b.Unlock()
 
@@ -126,11 +134,12 @@ func (b *Button) Draw(screen *ebiten.Image) error {
 	b.field.Draw(screen)
 
 	// Draw border.
-	const borderSize = 4
-	screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+borderSize, r.Max.Y)).(*ebiten.Image).Fill(b.borderLeft)
-	screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+borderSize)).(*ebiten.Image).Fill(b.borderTop)
-	screen.SubImage(image.Rect(r.Max.X-borderSize, r.Min.Y, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(b.borderRight)
-	screen.SubImage(image.Rect(r.Min.X, r.Max.Y-borderSize, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(b.borderBottom)
+	if b.borderSize != 0 {
+		screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+b.borderSize, r.Max.Y)).(*ebiten.Image).Fill(b.borderLeft)
+		screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+b.borderSize)).(*ebiten.Image).Fill(b.borderTop)
+		screen.SubImage(image.Rect(r.Max.X-b.borderSize, r.Min.Y, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(b.borderRight)
+		screen.SubImage(image.Rect(r.Min.X, r.Max.Y-b.borderSize, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(b.borderBottom)
+	}
 
 	return nil
 }

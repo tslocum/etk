@@ -182,8 +182,8 @@ func (s *Select) Draw(screen *ebiten.Image) error {
 	s.label.Draw(screen)
 
 	// Draw border.
-	const borderSize = 4
 	r := s.rect
+	borderSize := Scale(Style.BorderSize)
 	screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+borderSize, r.Max.Y)).(*ebiten.Image).Fill(Style.BorderColorLeft)
 	screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+borderSize)).(*ebiten.Image).Fill(Style.BorderColorTop)
 	screen.SubImage(image.Rect(r.Max.X-borderSize, r.Min.Y, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(Style.BorderColorRight)
