@@ -44,11 +44,9 @@ func main() {
 	{
 		inputDemo := etk.NewFlex()
 		inputDemo.SetVertical(true)
+		inputDemo.AddChild(buffer, input)
 
-		t := etk.NewText("Input")
-		inputDemo.AddChild(t, buffer, input)
-
-		w.AddChildWithLabel(inputDemo, "Input")
+		w.AddChildWithTitle(inputDemo, "Input")
 	}
 
 	// Flex demo.
@@ -75,11 +73,9 @@ func main() {
 
 		flexDemo := etk.NewFlex()
 		flexDemo.SetVertical(true)
+		flexDemo.AddChild(topFlex, bottomFlex)
 
-		t := etk.NewText("Flex")
-		flexDemo.AddChild(t, topFlex, bottomFlex)
-
-		w.AddChildWithLabel(flexDemo, "Flex")
+		w.AddChildWithTitle(flexDemo, "Flex")
 	}
 
 	etk.SetRoot(w)
