@@ -50,5 +50,11 @@ clicked or tapped always receives a final event where clicked and pressed are bo
 
 Each time etk draws a widget it subsequently draws all of the widget's children
 in the order they are returned.
+
+# Subpackages
+
+There are two subpackages in etk: messeji and kibodo. These are available for
+use without requiring etk. Usually you will not reference any subpackages, as
+etk wraps them to provide widgets with additional features.
 */
 package etk

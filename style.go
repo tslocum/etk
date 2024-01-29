@@ -39,8 +39,7 @@ type Attributes struct {
 
 	TextBgColor color.RGBA
 
-	BorderSize int
-
+	BorderSize        int
 	BorderColorTop    color.RGBA
 	BorderColorRight  color.RGBA
 	BorderColorBottom color.RGBA
@@ -49,8 +48,7 @@ type Attributes struct {
 	ScrollAreaColor   color.RGBA
 	ScrollHandleColor color.RGBA
 
-	ScrollBorderSize int
-
+	ScrollBorderSize        int
 	ScrollBorderColorTop    color.RGBA
 	ScrollBorderColorRight  color.RGBA
 	ScrollBorderColorBottom color.RGBA
@@ -73,8 +71,7 @@ var Style = &Attributes{
 
 	TextBgColor: transparent,
 
-	BorderSize: 4,
-
+	BorderSize:        4,
 	BorderColorTop:    color.RGBA{220, 220, 220, 255},
 	BorderColorRight:  color.RGBA{0, 0, 0, 255},
 	BorderColorBottom: color.RGBA{0, 0, 0, 255},
@@ -83,8 +80,7 @@ var Style = &Attributes{
 	ScrollAreaColor:   color.RGBA{200, 200, 200, 255},
 	ScrollHandleColor: color.RGBA{108, 108, 108, 255},
 
-	ScrollBorderSize: 2,
-
+	ScrollBorderSize:        2,
 	ScrollBorderColorTop:    color.RGBA{240, 240, 240, 255},
 	ScrollBorderColorRight:  color.RGBA{0, 0, 0, 255},
 	ScrollBorderColorBottom: color.RGBA{0, 0, 0, 255},

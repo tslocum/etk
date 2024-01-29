@@ -155,6 +155,12 @@ func (s *Select) _setMenuVisible(visible bool) {
 	s.open = visible
 	s.list.SetVisible(visible)
 	s.updateLabel()
+
+	if !visible {
+		s.background = Style.ButtonBgColor
+	} else {
+		s.background = color.RGBA{uint8(float64(Style.ButtonBgColor.R) * 0.95), uint8(float64(Style.ButtonBgColor.G) * 0.95), uint8(float64(Style.ButtonBgColor.B) * 0.95), 255}
+	}
 }
 
 // HandleKeyboard is called when a keyboard event occurs.
@@ -184,10 +190,19 @@ func (s *Select) Draw(screen *ebiten.Image) error {
 	// Draw border.
 	r := s.rect
 	borderSize := Scale(Style.BorderSize)
-	screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+borderSize, r.Max.Y)).(*ebiten.Image).Fill(Style.BorderColorLeft)
-	screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+borderSize)).(*ebiten.Image).Fill(Style.BorderColorTop)
-	screen.SubImage(image.Rect(r.Max.X-borderSize, r.Min.Y, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(Style.BorderColorRight)
-	screen.SubImage(image.Rect(r.Min.X, r.Max.Y-borderSize, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(Style.BorderColorBottom)
-
+	borderLeft, borderTop := Style.BorderColorLeft, Style.BorderColorTop
+	borderRight, borderBottom := Style.BorderColorRight, Style.BorderColorBottom
+	if !s.open {
+		screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+borderSize, r.Max.Y)).(*ebiten.Image).Fill(borderLeft)
+		screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+borderSize)).(*ebiten.Image).Fill(borderTop)
+		screen.SubImage(image.Rect(r.Max.X-borderSize, r.Min.Y, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(borderRight)
+		screen.SubImage(image.Rect(r.Min.X, r.Max.Y-borderSize, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(borderBottom)
+	} else {
+		borderLeft, borderTop, borderRight, borderBottom = borderRight, borderBottom, borderLeft, borderTop
+		screen.SubImage(image.Rect(r.Max.X-borderSize, r.Min.Y, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(borderRight)
+		screen.SubImage(image.Rect(r.Min.X, r.Max.Y-borderSize, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(borderBottom)
+		screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+borderSize, r.Max.Y)).(*ebiten.Image).Fill(borderLeft)
+		screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+borderSize)).(*ebiten.Image).Fill(borderTop)
+	}
 	return nil
 }

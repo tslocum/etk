@@ -20,6 +20,7 @@ type Button struct {
 	borderBottom color.RGBA
 	borderLeft   color.RGBA
 	onSelected   func() error
+	pressed      bool
 }
 
 // NewButton returns a new Button widget.
@@ -35,7 +36,7 @@ func NewButton(label string, onSelected func() error) *Button {
 	f.SetVertical(messeji.AlignCenter)
 	f.SetScrollBarVisible(false)
 
-	return &Button{
+	b := &Button{
 		Box:          NewBox(),
 		field:        f,
 		onSelected:   onSelected,
@@ -45,6 +46,8 @@ func NewButton(label string, onSelected func() error) *Button {
 		borderBottom: Style.BorderColorBottom,
 		borderLeft:   Style.BorderColorLeft,
 	}
+	b.SetBackground(Style.ButtonBgColor)
+	return b
 }
 
 // SetRect sets the position and size of the Button.
@@ -109,10 +112,16 @@ func (b *Button) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
 // HandleMouse is called when a mouse event occurs.
 func (b *Button) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
 	if !clicked {
+		if b.pressed && !pressed {
+			b.pressed = false
+			b.SetBackground(Style.ButtonBgColor)
+		}
 		return true, nil
 	}
 
 	b.Lock()
+	b.pressed = true
+	b.background = color.RGBA{uint8(float64(Style.ButtonBgColor.R) * 0.95), uint8(float64(Style.ButtonBgColor.G) * 0.95), uint8(float64(Style.ButtonBgColor.B) * 0.95), 255}
 	onSelected := b.onSelected
 	if onSelected == nil {
 		b.Unlock()
@@ -127,18 +136,22 @@ func (b *Button) HandleMouse(cursor image.Point, pressed bool, clicked bool) (ha
 func (b *Button) Draw(screen *ebiten.Image) error {
 	r := b.rect
 
-	// Draw background.
-	screen.SubImage(r).(*ebiten.Image).Fill(Style.ButtonBgColor)
-
 	// Draw label.
 	b.field.Draw(screen)
 
 	// Draw border.
 	if b.borderSize != 0 {
-		screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+b.borderSize, r.Max.Y)).(*ebiten.Image).Fill(b.borderLeft)
-		screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+b.borderSize)).(*ebiten.Image).Fill(b.borderTop)
-		screen.SubImage(image.Rect(r.Max.X-b.borderSize, r.Min.Y, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(b.borderRight)
-		screen.SubImage(image.Rect(r.Min.X, r.Max.Y-b.borderSize, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(b.borderBottom)
+		if !b.pressed {
+			screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+b.borderSize, r.Max.Y)).(*ebiten.Image).Fill(b.borderLeft)
+			screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+b.borderSize)).(*ebiten.Image).Fill(b.borderTop)
+			screen.SubImage(image.Rect(r.Max.X-b.borderSize, r.Min.Y, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(b.borderRight)
+			screen.SubImage(image.Rect(r.Min.X, r.Max.Y-b.borderSize, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(b.borderBottom)
+		} else {
+			screen.SubImage(image.Rect(r.Max.X-b.borderSize, r.Min.Y, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(b.borderLeft)
+			screen.SubImage(image.Rect(r.Min.X, r.Max.Y-b.borderSize, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(b.borderTop)
+			screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+b.borderSize, r.Max.Y)).(*ebiten.Image).Fill(b.borderRight)
+			screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+b.borderSize)).(*ebiten.Image).Fill(b.borderBottom)
+		}
 	}
 
 	return nil
