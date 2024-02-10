@@ -197,6 +197,14 @@ func (t *Text) SetSingleLine(single bool) {
 	t.field.SetSingleLine(single)
 }
 
+// SetMask sets the rune used to mask the text buffer contents. Set to 0 to disable.
+func (t *Text) SetMask(r rune) {
+	t.Lock()
+	defer t.Unlock()
+
+	t.field.SetMask(r)
+}
+
 // HandleKeyboard is called when a keyboard event occurs.
 func (t *Text) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) {
 	return t.field.HandleKeyboardEvent(key, r)

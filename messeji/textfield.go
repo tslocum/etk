@@ -169,6 +169,9 @@ type TextField struct {
 	// scrollDrag is whether the scroll bar is currently being dragged.
 	scrollDrag bool
 
+	// maskRune is the rune shown instead of the actual buffer contents.
+	maskRune rune
+
 	// img is the image of the field.
 	img *ebiten.Image
 
@@ -565,6 +568,19 @@ func (f *TextField) SetHandleKeyboard(handle bool) {
 	f.handleKeyboard = handle
 }
 
+// SetMask sets the rune used to mask the text buffer contents. Set to 0 to disable.
+func (f *TextField) SetMask(r rune) {
+	f.Lock()
+	defer f.Unlock()
+
+	if f.maskRune == r {
+		return
+	}
+
+	f.maskRune = r
+	f.modified = true
+}
+
 // Write writes to the field's buffer.
 func (f *TextField) Write(p []byte) (n int, err error) {
 	f.Lock()
@@ -945,6 +961,12 @@ func (f *TextField) drawContent() (overflow bool) {
 	}
 	for i := firstVisible; i <= lastVisible; i++ {
 		line := f.bufferWrapped[i]
+		if f.maskRune != 0 {
+			line = strings.Repeat(string(f.maskRune), len(line))
+			if i == lastVisible && len(line) > 0 && len(line) >= len(f.suffix) {
+				line = line[:len(line)-len(f.suffix)] + f.suffix
+			}
+		}
 		lineX := f.padding
 		lineY := 1 + f.padding + f.lineOffset + lineHeight*i
 

@@ -113,8 +113,10 @@ func (b *Button) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
 func (b *Button) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
 	if !clicked {
 		if b.pressed && !pressed {
+			b.Lock()
 			b.pressed = false
-			b.SetBackground(Style.ButtonBgColor)
+			b.background = Style.ButtonBgColor
+			b.Unlock()
 		}
 		return true, nil
 	}

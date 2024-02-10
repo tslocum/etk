@@ -54,7 +54,7 @@ in the order they are returned.
 # Subpackages
 
 There are two subpackages in etk: messeji and kibodo. These are available for
-use without requiring etk. Usually you will not reference any subpackages, as
-etk wraps them to provide widgets with additional features.
+use without requiring etk. Usually you will not need to reference any
+subpackages, as etk wraps them to provide widgets with additional features.
 */
 package etk

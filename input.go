@@ -217,6 +217,14 @@ func (i *Input) SetVertical(h Alignment) {
 	i.field.SetVertical(messeji.Alignment(h))
 }
 
+// SetMask sets the rune used to mask the text buffer contents. Set to 0 to disable.
+func (i *Input) SetMask(r rune) {
+	i.Lock()
+	defer i.Unlock()
+
+	i.field.SetMask(r)
+}
+
 // Write writes to the text buffer.
 func (i *Input) Write(p []byte) (n int, err error) {
 	return i.field.Write(p)
