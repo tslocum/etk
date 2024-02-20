@@ -275,7 +275,17 @@ func Update() error {
 	}
 
 	runeBuffer = ebiten.AppendInputChars(runeBuffer[:0])
-	for _, r := range runeBuffer {
+INPUTCHARS:
+	for i, r := range runeBuffer {
+		if i > 0 {
+			for j, r2 := range runeBuffer {
+				if j == i {
+					break
+				} else if r2 == r {
+					continue INPUTCHARS
+				}
+			}
+		}
 		var err error
 		switch r {
 		case Bindings.ConfirmRune:
