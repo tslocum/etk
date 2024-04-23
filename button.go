@@ -3,11 +3,10 @@ package etk
 import (
 	"image"
 	"image/color"
-	"sync"
 
 	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
-	"golang.org/x/image/font"
+	"golang.org/x/image/font/sfnt"
 )
 
 // Button is a clickable button.
@@ -96,12 +95,12 @@ func (b *Button) SetText(text string) {
 	b.field.SetText(text)
 }
 
-// SetFont sets the font face of the text within the field.
-func (b *Button) SetFont(face font.Face, mutex *sync.Mutex) {
+// SetFont sets the font and text size of button label. Scaling is not applied.
+func (b *Button) SetFont(fnt *sfnt.Font, size int) {
 	b.Lock()
 	defer b.Unlock()
 
-	b.field.SetFont(face, mutex)
+	b.field.SetFont(FontFace(fnt, size), fontMutex)
 }
 
 // HandleKeyboard is called when a keyboard event occurs.

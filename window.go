@@ -3,17 +3,16 @@ package etk
 import (
 	"image"
 	"image/color"
-	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"golang.org/x/image/font"
+	"golang.org/x/image/font/sfnt"
 )
 
 // Window displays child widgets in floating or maximized windows.
 type Window struct {
 	*Box
-	fontFace   font.Face
-	fontMutex  *sync.Mutex
+	font       *sfnt.Font
+	fontSize   int
 	frameSize  int
 	titleSize  int
 	titles     []*Text
@@ -26,8 +25,8 @@ type Window struct {
 func NewWindow() *Window {
 	return &Window{
 		Box:       NewBox(),
-		fontFace:  Style.TextFont,
-		fontMutex: Style.TextFontMutex,
+		font:      Style.TextFont,
+		fontSize:  Scale(Style.TextSize),
 		frameSize: Scale(4),
 		titleSize: Scale(40),
 	}
@@ -42,16 +41,16 @@ func (w *Window) SetRect(r image.Rectangle) {
 	w.modified = true
 }
 
-// SetFont sets the font face of the window titles.
-func (w *Window) SetFont(face font.Face, mutex *sync.Mutex) {
+// SetFont sets the font and text size of the window titles. Scaling is not applied.
+func (w *Window) SetFont(fnt *sfnt.Font, size int) {
 	w.Lock()
 	defer w.Unlock()
 
-	w.fontFace = face
-	w.fontMutex = mutex
+	w.font = fnt
+	w.fontSize = size
 
 	for _, title := range w.titles {
-		title.SetFont(w.fontFace, w.fontMutex)
+		title.SetFont(w.font, w.fontSize)
 	}
 }
 
@@ -158,7 +157,7 @@ func (w *Window) AddChild(wgt ...Widget) {
 
 	for _, widget := range wgt {
 		t := NewText("")
-		t.SetFont(w.fontFace, w.fontMutex)
+		t.SetFont(w.font, w.fontSize)
 
 		w.children = append(w.children, &windowWidget{NewBox(), t, widget, w})
 		w.titles = append(w.titles, t)
@@ -173,7 +172,7 @@ func (w *Window) AddChildWithTitle(wgt Widget, title string) int {
 	defer w.Unlock()
 
 	t := NewText(title)
-	t.SetFont(w.fontFace, w.fontMutex)
+	t.SetFont(w.font, w.fontSize)
 
 	w.children = append(w.children, &windowWidget{NewBox(), t, wgt, w})
 	w.titles = append(w.titles, t)

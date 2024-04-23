@@ -3,43 +3,34 @@ package etk
 import (
 	"image/color"
 	"log"
-	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
-	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/font/sfnt"
 )
 
 var transparent = color.RGBA{0, 0, 0, 0}
 
-func defaultFont() font.Face {
-	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+func defaultFont() *sfnt.Font {
+	f, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
 	if err != nil {
 		log.Fatal(err)
 	}
-	const dpi = 72
-	defaultFont, err := opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    32,
-		DPI:     dpi,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	return defaultFont
+	return f
 }
 
 // Attributes represents a default attribute configuration. Integer values will be scaled.
 type Attributes struct {
-	TextFont      font.Face
-	TextFontMutex *sync.Mutex
+	TextFont *sfnt.Font
+	TextSize int
 
 	TextColorLight color.RGBA
 	TextColorDark  color.RGBA
 
 	TextBgColor color.RGBA
 
-	BorderSize        int
+	BorderSize int
+
 	BorderColorTop    color.RGBA
 	BorderColorRight  color.RGBA
 	BorderColorBottom color.RGBA
@@ -48,7 +39,8 @@ type Attributes struct {
 	ScrollAreaColor   color.RGBA
 	ScrollHandleColor color.RGBA
 
-	ScrollBorderSize        int
+	ScrollBorderSize int
+
 	ScrollBorderColorTop    color.RGBA
 	ScrollBorderColorRight  color.RGBA
 	ScrollBorderColorBottom color.RGBA
@@ -63,15 +55,16 @@ type Attributes struct {
 
 // Style is the current default attribute configuration. Integer values will be scaled.
 var Style = &Attributes{
-	TextFont:      defaultFont(),
-	TextFontMutex: &sync.Mutex{},
+	TextFont: defaultFont(),
+	TextSize: 32,
 
 	TextColorLight: color.RGBA{255, 255, 255, 255},
 	TextColorDark:  color.RGBA{0, 0, 0, 255},
 
 	TextBgColor: transparent,
 
-	BorderSize:        4,
+	BorderSize: 4,
+
 	BorderColorTop:    color.RGBA{220, 220, 220, 255},
 	BorderColorRight:  color.RGBA{0, 0, 0, 255},
 	BorderColorBottom: color.RGBA{0, 0, 0, 255},
@@ -80,7 +73,8 @@ var Style = &Attributes{
 	ScrollAreaColor:   color.RGBA{200, 200, 200, 255},
 	ScrollHandleColor: color.RGBA{108, 108, 108, 255},
 
-	ScrollBorderSize:        2,
+	ScrollBorderSize: 2,
+
 	ScrollBorderColorTop:    color.RGBA{240, 240, 240, 255},
 	ScrollBorderColorRight:  color.RGBA{0, 0, 0, 255},
 	ScrollBorderColorBottom: color.RGBA{0, 0, 0, 255},

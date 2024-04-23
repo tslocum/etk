@@ -4,15 +4,19 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"log"
 	"math"
 	"runtime/debug"
 	"strings"
+	"sync"
 	"time"
 
 	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/font/sfnt"
 	"golang.org/x/image/math/fixed"
 )
 
@@ -50,6 +54,8 @@ var (
 
 	keyBuffer  []ebiten.Key
 	runeBuffer []rune
+
+	fontMutex = &sync.Mutex{}
 )
 
 var debugColor = color.RGBA{0, 0, 255, 255}
@@ -78,6 +84,37 @@ func Scale(v int) int {
 		deviceScale = ebiten.DeviceScaleFactor()
 	}
 	return int(float64(v) * deviceScale)
+}
+
+var (
+	fontCache     = make(map[string]font.Face)
+	fontCacheLock sync.Mutex
+)
+
+// FontFace returns a face for the provided font and size. Scaling is not applied.
+func FontFace(fnt *sfnt.Font, size int) font.Face {
+	id := fmt.Sprintf("%p/%d", fnt, size)
+
+	fontCacheLock.Lock()
+	defer fontCacheLock.Unlock()
+
+	f := fontCache[id]
+	if f != nil {
+		return f
+	}
+
+	const dpi = 72
+	f, err := opentype.NewFace(fnt, &opentype.FaceOptions{
+		Size:    float64(size),
+		DPI:     dpi,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fontCache[id] = f
+	return f
 }
 
 // SetRoot sets the root widget. The root widget and all of its children will
@@ -412,7 +449,7 @@ func draw(w Widget, screen *ebiten.Image) error {
 }
 
 func newText() *messeji.TextField {
-	f := messeji.NewTextField(Style.TextFont, Style.TextFontMutex)
+	f := messeji.NewTextField(FontFace(Style.TextFont, Scale(Style.TextSize)), fontMutex)
 	f.SetForegroundColor(Style.TextColorLight)
 	f.SetBackgroundColor(transparent)
 	f.SetScrollBarColors(Style.ScrollAreaColor, Style.ScrollHandleColor)

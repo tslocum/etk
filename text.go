@@ -3,11 +3,10 @@ package etk
 import (
 	"image"
 	"image/color"
-	"sync"
 
 	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
-	"golang.org/x/image/font"
+	"golang.org/x/image/font/sfnt"
 )
 
 // Text is a text display widget.
@@ -155,12 +154,12 @@ func (t *Text) SetAutoHideScrollBar(autoHide bool) {
 	t.field.SetAutoHideScrollBar(autoHide)
 }
 
-// SetFont sets the font face of the text within the field.
-func (t *Text) SetFont(face font.Face, mutex *sync.Mutex) {
+// SetFont sets the font and text size of the field. Scaling is not applied.
+func (t *Text) SetFont(fnt *sfnt.Font, size int) {
 	t.Lock()
 	defer t.Unlock()
 
-	t.field.SetFont(face, mutex)
+	t.field.SetFont(FontFace(fnt, size), fontMutex)
 }
 
 // Padding returns the amount of padding around the text within the field.

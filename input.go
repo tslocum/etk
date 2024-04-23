@@ -3,11 +3,10 @@ package etk
 import (
 	"image"
 	"image/color"
-	"sync"
 
 	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
-	"golang.org/x/image/font"
+	"golang.org/x/image/font/sfnt"
 )
 
 // Input is a text input widget. The Input widget is simply a Text widget that
@@ -26,7 +25,7 @@ func NewInput(text string, onSelected func(text string) (handled bool)) *Input {
 		textColor = Style.InputColor
 	}*/
 
-	f := messeji.NewInputField(Style.TextFont, Style.TextFontMutex)
+	f := messeji.NewInputField(FontFace(Style.TextFont, Scale(Style.TextSize)), fontMutex)
 	f.SetForegroundColor(textColor)
 	f.SetBackgroundColor(transparent)
 	f.SetScrollBarColors(Style.ScrollAreaColor, Style.ScrollHandleColor)
@@ -169,12 +168,12 @@ func (i *Input) SetAutoHideScrollBar(autoHide bool) {
 	i.field.SetAutoHideScrollBar(autoHide)
 }
 
-// SetFont sets the font face of the text within the field.
-func (i *Input) SetFont(face font.Face, mutex *sync.Mutex) {
-	i.Lock()
-	defer i.Unlock()
+// SetFont sets the font and text size of the field. Scaling is not applied.
+func (t *Input) SetFont(fnt *sfnt.Font, size int) {
+	t.Lock()
+	defer t.Unlock()
 
-	i.field.SetFont(face, mutex)
+	t.field.SetFont(FontFace(fnt, size), fontMutex)
 }
 
 // Padding returns the amount of padding around the text within the field.
