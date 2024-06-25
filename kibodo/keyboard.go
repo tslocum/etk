@@ -19,10 +19,9 @@ type Keyboard struct {
 	x, y int
 	w, h int
 
-	visible       bool
-	alpha         float64
-	passPhysical  bool
-	allowUserHide bool
+	visible      bool
+	alpha        float64
+	passPhysical bool
 
 	incomingBuffer []rune
 
@@ -80,6 +79,7 @@ func NewKeyboard() *Keyboard {
 		backgroundUpper: ebiten.NewImage(1, 1),
 		backgroundColor: color.RGBA{0, 0, 0, 255},
 		holdTouchID:     -1,
+		hideShortcuts:   []ebiten.Key{ebiten.KeyEscape},
 		labelFont:       fontFace,
 		backspaceDelay:  500 * time.Millisecond,
 		backspaceRepeat: 75 * time.Millisecond,
@@ -178,7 +178,7 @@ func (k *Keyboard) fontUpdated() {
 }
 
 // SetHideShortcuts sets the key shortcuts which, when pressed, will hide the
-// keyboard.
+// keyboard. Defaults to the Escape key.
 func (k *Keyboard) SetHideShortcuts(shortcuts []ebiten.Key) {
 	k.hideShortcuts = shortcuts
 }
@@ -278,10 +278,6 @@ func (k *Keyboard) handleToggleExtendedKey(inputKey ebiten.Key) bool {
 }
 
 func (k *Keyboard) handleHideKey(inputKey ebiten.Key) bool {
-	if !k.allowUserHide {
-		return false
-	}
-
 	for _, key := range k.hideShortcuts {
 		if key == inputKey {
 			k.Hide()
@@ -703,12 +699,6 @@ func (k *Keyboard) Draw(target *ebiten.Image) {
 			subImg.Fill(darkShade)
 		}
 	}
-}
-
-// SetAllowUserHide sets a flag that controls whether the widget may be hidden
-// by the user.
-func (k *Keyboard) SetAllowUserHide(allow bool) {
-	k.allowUserHide = allow
 }
 
 // SetPassThroughPhysicalInput sets a flag that controls whether physical

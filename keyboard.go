@@ -33,8 +33,27 @@ func (k *Keyboard) SetRect(r image.Rectangle) {
 	k.k.SetRect(r.Min.X, r.Min.Y, r.Dx(), r.Dy())
 }
 
-// GetKeys returns the keys of the keyboard.
-func (k *Keyboard) GetKeys() [][]*kibodo.Key {
+// Visible returns the visibility of the keyboard.
+func (k *Keyboard) Visible() bool {
+	k.Lock()
+	defer k.Unlock()
+	return k.visible && k.k.Visible()
+}
+
+// SetVisible sets the visibility of the keyboard.
+func (k *Keyboard) SetVisible(visible bool) {
+	k.Lock()
+	defer k.Unlock()
+	k.visible = visible
+	if visible {
+		k.k.Show()
+	} else {
+		k.k.Hide()
+	}
+}
+
+// Keys returns the keys of the keyboard.
+func (k *Keyboard) Keys() [][]*kibodo.Key {
 	k.Lock()
 	defer k.Unlock()
 	return k.k.GetKeys()

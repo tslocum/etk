@@ -506,16 +506,16 @@ var KeysMobileQWERTY = [][]*Key{
 	},
 	{
 		{
+			LowerLabel: "Escape",
+			UpperLabel: "ESCAPE",
+			LowerInput: &Input{Key: ebiten.KeyEscape},
+			UpperInput: &Input{Key: ebiten.KeyEscape},
+		},
+		{
 			LowerLabel: "Symbols",
 			UpperLabel: "SYMBOLS",
 			LowerInput: &Input{Key: KeyToggleExtended},
 			UpperInput: &Input{Key: KeyToggleExtended},
-		},
-		{
-			LowerLabel: "?",
-			UpperLabel: "!",
-			LowerInput: &Input{Rune: '?'},
-			UpperInput: &Input{Rune: '!'},
 		},
 		{
 			LowerLabel: "Space",
@@ -785,16 +785,16 @@ var KeysMobileSymbols = [][]*Key{
 	},
 	{
 		{
+			LowerLabel: "Escape",
+			UpperLabel: "ESCAPE",
+			LowerInput: &Input{Key: ebiten.KeyEscape},
+			UpperInput: &Input{Key: ebiten.KeyEscape},
+		},
+		{
 			LowerLabel: "Symbols",
 			UpperLabel: "SYMBOLS",
 			LowerInput: &Input{Key: KeyToggleExtended},
 			UpperInput: &Input{Key: KeyToggleExtended},
-		},
-		{
-			LowerLabel: ",",
-			UpperLabel: ",",
-			LowerInput: &Input{Rune: ','},
-			UpperInput: &Input{Rune: ','},
 		},
 		{
 			LowerLabel: "Space",

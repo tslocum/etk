@@ -30,10 +30,8 @@ var spinner = []byte(`-\|/`)
 // NewDemoGame returns a new kibodo demo game.
 func NewDemoGame() *game {
 	k := kibodo.NewKeyboard()
-	k.SetAllowUserHide(true)
 	k.SetPassThroughPhysicalInput(true)
 	k.SetKeys(kibodo.KeysQWERTY)
-	k.SetHideShortcuts([]ebiten.Key{ebiten.KeyEscape})
 
 	g := &game{
 		k: k,
