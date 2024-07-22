@@ -103,6 +103,22 @@ func (b *Button) SetFont(fnt *sfnt.Font, size int) {
 	b.field.SetFont(FontFace(fnt, size), fontMutex)
 }
 
+// SetHorizontal sets the horizontal alignment of the button label.
+func (b *Button) SetHorizontal(h Alignment) {
+	b.Lock()
+	defer b.Unlock()
+
+	b.field.SetHorizontal(messeji.Alignment(h))
+}
+
+// SetVertical sets the vertical alignment of the button label.
+func (b *Button) SetVertical(h Alignment) {
+	b.Lock()
+	defer b.Unlock()
+
+	b.field.SetVertical(messeji.Alignment(h))
+}
+
 // HandleKeyboard is called when a keyboard event occurs.
 func (b *Button) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
 	return false, nil

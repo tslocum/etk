@@ -3,7 +3,7 @@ module code.rocket9labs.com/tslocum/etk
 go 1.18
 
 require (
-	github.com/hajimehoshi/ebiten/v2 v2.7.7
+	github.com/hajimehoshi/ebiten/v2 v2.7.8
 	github.com/llgcode/draw2d v0.0.0-20240627062922-0ed1ff131195
 	golang.org/x/image v0.18.0
 )
