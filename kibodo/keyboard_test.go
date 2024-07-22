@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"code.rocket9labs.com/tslocum/etk"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -58,7 +59,7 @@ func BenchmarkKeyboard_Press(b *testing.B) {
 }
 
 func newTestKeyboard() *Keyboard {
-	k := NewKeyboard()
+	k := NewKeyboard(etk.Style.TextFont)
 	k.SetRect(0, 0, 300, 100)
 
 	return k

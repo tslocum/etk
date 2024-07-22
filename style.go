@@ -2,22 +2,11 @@ package etk
 
 import (
 	"image/color"
-	"log"
 
-	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
-	"golang.org/x/image/font/opentype"
 	"golang.org/x/image/font/sfnt"
 )
 
 var transparent = color.RGBA{0, 0, 0, 0}
-
-func defaultFont() *sfnt.Font {
-	f, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return f
-}
 
 // Attributes represents a default attribute configuration. Integer values will be scaled.
 type Attributes struct {
@@ -55,7 +44,6 @@ type Attributes struct {
 
 // Style is the current default attribute configuration. Integer values will be scaled.
 var Style = &Attributes{
-	TextFont: defaultFont(),
 	TextSize: 32,
 
 	TextColorLight: color.RGBA{255, 255, 255, 255},

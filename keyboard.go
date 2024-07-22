@@ -17,7 +17,7 @@ type Keyboard struct {
 
 // NewKeyboard returns a new Keyboard widget.
 func NewKeyboard() *Keyboard {
-	k := kibodo.NewKeyboard()
+	k := kibodo.NewKeyboard(Style.TextFont)
 	k.Show()
 	return &Keyboard{
 		Box: NewBox(),

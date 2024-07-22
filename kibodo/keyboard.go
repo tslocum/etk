@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/font/sfnt"
 )
 
 // Keyboard is an on-screen keyboard widget.
@@ -62,8 +62,8 @@ type Keyboard struct {
 }
 
 // NewKeyboard returns a new Keyboard widget.
-func NewKeyboard() *Keyboard {
-	fontFace, err := defaultFontFace(64)
+func NewKeyboard(f *sfnt.Font) *Keyboard {
+	ff, err := fontFace(f, 64)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -80,7 +80,7 @@ func NewKeyboard() *Keyboard {
 		backgroundColor: color.RGBA{0, 0, 0, 255},
 		holdTouchID:     -1,
 		hideShortcuts:   []ebiten.Key{ebiten.KeyEscape},
-		labelFont:       fontFace,
+		labelFont:       ff,
 		backspaceDelay:  500 * time.Millisecond,
 		backspaceRepeat: 75 * time.Millisecond,
 	}
@@ -88,15 +88,7 @@ func NewKeyboard() *Keyboard {
 	return k
 }
 
-func defaultFont() (*opentype.Font, error) {
-	return opentype.Parse(fonts.MPlus1pRegular_ttf)
-}
-
-func defaultFontFace(size float64) (font.Face, error) {
-	f, err := defaultFont()
-	if err != nil {
-		return nil, err
-	}
+func fontFace(f *sfnt.Font, size float64) (font.Face, error) {
 	const dpi = 72 // TODO
 	return opentype.NewFace(f, &opentype.FaceOptions{
 		Size:    size,

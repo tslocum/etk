@@ -4,11 +4,15 @@ package game
 
 import (
 	"fmt"
+	"log"
 
 	"code.rocket9labs.com/tslocum/etk/kibodo"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/font/sfnt"
 )
 
 type game struct {
@@ -29,7 +33,7 @@ var spinner = []byte(`-\|/`)
 
 // NewDemoGame returns a new kibodo demo game.
 func NewDemoGame() *game {
-	k := kibodo.NewKeyboard()
+	k := kibodo.NewKeyboard(defaultFont())
 	k.SetPassThroughPhysicalInput(true)
 	k.SetKeys(kibodo.KeysQWERTY)
 
@@ -115,4 +119,12 @@ func (g *game) Draw(screen *ebiten.Image) {
 	g.op.GeoM.Translate(3, 0)
 	g.op.GeoM.Scale(2, 2)
 	screen.DrawImage(g.buffer, g.op)
+}
+
+func defaultFont() *sfnt.Font {
+	f, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return f
 }
