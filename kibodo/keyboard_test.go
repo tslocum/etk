@@ -1,12 +1,15 @@
 package kibodo
 
 import (
+	"log"
 	"runtime"
 	"testing"
 	"time"
 
-	"code.rocket9labs.com/tslocum/etk"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
+	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/font/sfnt"
 )
 
 // TODO test presses registered
@@ -59,7 +62,7 @@ func BenchmarkKeyboard_Press(b *testing.B) {
 }
 
 func newTestKeyboard() *Keyboard {
-	k := NewKeyboard(etk.Style.TextFont)
+	k := NewKeyboard(defaultFont())
 	k.SetRect(0, 0, 300, 100)
 
 	return k
@@ -83,4 +86,12 @@ func (d *DummyGame) Layout(outsideWidth, outsideHeight int) (screenWidth, screen
 
 func NewDummyGame() *DummyGame {
 	return &DummyGame{}
+}
+
+func defaultFont() *sfnt.Font {
+	f, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return f
 }

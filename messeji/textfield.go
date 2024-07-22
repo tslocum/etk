@@ -5,10 +5,8 @@ import (
 	"image"
 	"image/color"
 	"math"
-	"runtime/debug"
 	"strings"
 	"sync"
-	"time"
 	"unicode"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -783,7 +781,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 
 	if f.singleLine || len(f.buffer) == 0 {
 		buffer := f.prefix + string(bytes.Join(f.buffer, nil)) + f.suffix
-		bounds, _ := boundString(f.face, buffer)
+		bounds, _ := font.BoundString(f.face, buffer)
 
 		f.bufferWrapped = []string{buffer}
 		f.wrapStart = 0
@@ -842,7 +840,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 			for end > start {
 				initialEnd = end
 
-				bounds, _ := boundString(f.face, line[start:end])
+				bounds, _ := font.BoundString(f.face, line[start:end])
 				boundsWidth := (bounds.Max.X - bounds.Min.X).Floor()
 				if boundsWidth > availableWidth && end > start+1 {
 					delta := (end - start) / 2
@@ -861,7 +859,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 			for end < l {
 				initialEnd = end
 
-				bounds, _ := boundString(f.face, line[start:end])
+				bounds, _ := font.BoundString(f.face, line[start:end])
 				boundsWidth := (bounds.Max.X - bounds.Min.X).Floor()
 				if boundsWidth > availableWidth && end > start+1 {
 					break
@@ -896,7 +894,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 			}
 
 			if boundsWidth == 0 || end != initialEnd {
-				bounds, _ = boundString(f.face, line[start:end])
+				bounds, _ = font.BoundString(f.face, line[start:end])
 				boundsWidth = (bounds.Max.X - bounds.Min.X).Floor()
 			}
 
@@ -954,7 +952,7 @@ func (f *TextField) drawContent() (overflow bool) {
 	}
 	// Calculate buffer size (width for single-line fields or height for multi-line fields).
 	if f.singleLine {
-		bounds, _ := boundString(f.face, f.bufferWrapped[firstVisible])
+		bounds, _ := font.BoundString(f.face, f.bufferWrapped[firstVisible])
 		f.bufferSize = (bounds.Max.X - bounds.Min.X).Floor()
 	} else {
 		f.bufferSize = (len(f.bufferWrapped)) * lineHeight
@@ -1142,28 +1140,4 @@ func (f *TextField) bufferModified() {
 
 func rectIsZero(r image.Rectangle) bool {
 	return r.Dx() == 0 || r.Dy() == 0
-}
-
-func boundString(f font.Face, s string) (bounds fixed.Rectangle26_6, advance fixed.Int26_6) {
-	if strings.TrimSpace(s) == "" {
-		return fixed.Rectangle26_6{}, 0
-	}
-	for i := 0; i < 100; i++ {
-		bounds, advance = func() (fixed.Rectangle26_6, fixed.Int26_6) {
-			defer func() {
-				err := recover()
-				if err != nil && i == 99 {
-					debug.PrintStack()
-					panic("failed to calculate bounds of string '" + s + "'")
-				}
-			}()
-			bounds, advance = font.BoundString(f, s)
-			return bounds, advance
-		}()
-		if !bounds.Empty() {
-			return bounds, advance
-		}
-		time.Sleep(10 * time.Millisecond)
-	}
-	return fixed.Rectangle26_6{}, 0
 }

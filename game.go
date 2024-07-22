@@ -6,8 +6,6 @@ import (
 	"image/color"
 	"log"
 	"math"
-	"runtime/debug"
-	"strings"
 	"sync"
 	"time"
 
@@ -159,30 +157,6 @@ func Focused() Widget {
 	return focusedWidget
 }
 
-func boundString(f font.Face, s string) (bounds fixed.Rectangle26_6, advance fixed.Int26_6) {
-	if strings.TrimSpace(s) == "" {
-		return fixed.Rectangle26_6{}, 0
-	}
-	for i := 0; i < 100; i++ {
-		bounds, advance = func() (fixed.Rectangle26_6, fixed.Int26_6) {
-			defer func() {
-				err := recover()
-				if err != nil && i == 99 {
-					debug.PrintStack()
-					panic("failed to calculate bounds of string '" + s + "'")
-				}
-			}()
-			bounds, advance = font.BoundString(f, s)
-			return bounds, advance
-		}()
-		if !bounds.Empty() {
-			return bounds, advance
-		}
-		time.Sleep(10 * time.Millisecond)
-	}
-	return fixed.Rectangle26_6{}, 0
-}
-
 func int26ToRect(r fixed.Rectangle26_6) image.Rectangle {
 	x, y := r.Min.X, r.Min.Y
 	w, h := r.Max.X-r.Min.X, r.Max.Y-r.Min.Y
@@ -191,7 +165,7 @@ func int26ToRect(r fixed.Rectangle26_6) image.Rectangle {
 
 // BoundString returns the bounds of the provided string.
 func BoundString(f font.Face, s string) image.Rectangle {
-	bounds, _ := boundString(f, s)
+	bounds, _ := font.BoundString(f, s)
 	return int26ToRect(bounds)
 }
 
