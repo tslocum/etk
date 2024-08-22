@@ -6,14 +6,19 @@ import (
 
 	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
+	"golang.org/x/image/font"
 	"golang.org/x/image/font/sfnt"
 )
 
 // Text is a text display widget.
 type Text struct {
 	*Box
-	field    *messeji.TextField
-	children []Widget
+	field        *messeji.TextField
+	textFont     *sfnt.Font
+	textSize     int
+	textResize   bool
+	textAutoSize int
+	children     []Widget
 }
 
 // NewText returns a new Text widget.
@@ -23,10 +28,14 @@ func NewText(text string) *Text {
 	f.SetForegroundColor(Style.TextColorLight)
 	f.SetHandleKeyboard(true)
 
-	return &Text{
-		Box:   NewBox(),
-		field: f,
+	t := &Text{
+		Box:      NewBox(),
+		field:    f,
+		textFont: Style.TextFont,
+		textSize: Scale(Style.TextSize),
 	}
+	t.resizeFont()
+	return t
 }
 
 // SetRect sets the position and size of the widget.
@@ -36,6 +45,7 @@ func (t *Text) SetRect(r image.Rectangle) {
 
 	t.rect = r
 	t.field.SetRect(r)
+	t.resizeFont()
 }
 
 // Foreground return the color of the text within the field.
@@ -118,7 +128,12 @@ func (t *Text) Write(p []byte) (n int, err error) {
 	t.Lock()
 	defer t.Unlock()
 
-	return t.field.Write(p)
+	n, err = t.field.Write(p)
+	if err != nil {
+		return n, err
+	}
+	t.resizeFont()
+	return n, err
 }
 
 // Text returns the content of the text buffer.
@@ -135,6 +150,45 @@ func (t *Text) SetText(text string) {
 	defer t.Unlock()
 
 	t.field.SetText(text)
+	t.resizeFont()
+}
+
+func (t *Text) resizeFont() {
+	if !t.textResize {
+		if t.textAutoSize == t.textSize {
+			return
+		}
+		t.textAutoSize = t.textSize
+		ff := FontFace(t.textFont, t.textSize)
+		t.field.SetFont(ff, fontMutex)
+		return
+	}
+
+	w := t.rect.Dx() - t.field.Padding()*2
+	if w == 0 {
+		if t.textAutoSize == t.textSize {
+			return
+		}
+		t.textAutoSize = t.textSize
+		ff := FontFace(t.textFont, t.textSize)
+		t.field.SetFont(ff, fontMutex)
+		return
+	}
+
+	var autoSize int
+	var ff font.Face
+	for autoSize = t.textSize; autoSize > 0; autoSize-- {
+		ff = FontFace(t.textFont, autoSize)
+		if BoundString(ff, t.field.Text()).Dx() <= w {
+			break
+		}
+	}
+	if t.textAutoSize == autoSize {
+		return
+	}
+
+	t.field.SetFont(ff, fontMutex)
+	t.textAutoSize = autoSize
 }
 
 // SetScrollBarVisible sets whether the scroll bar is visible on the screen.
@@ -159,7 +213,18 @@ func (t *Text) SetFont(fnt *sfnt.Font, size int) {
 	t.Lock()
 	defer t.Unlock()
 
-	t.field.SetFont(FontFace(fnt, size), fontMutex)
+	t.textFont, t.textSize = fnt, size
+	t.resizeFont()
+}
+
+// SetAutoResize sets whether the font is automatically scaled down when it is
+// too large to fit the entire text buffer on one line.
+func (t *Text) SetAutoResize(resize bool) {
+	t.Lock()
+	defer t.Unlock()
+
+	t.textResize = resize
+	t.resizeFont()
 }
 
 // Padding returns the amount of padding around the text within the field.

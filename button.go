@@ -6,6 +6,7 @@ import (
 
 	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
+	"golang.org/x/image/font"
 	"golang.org/x/image/font/sfnt"
 )
 
@@ -13,6 +14,9 @@ import (
 type Button struct {
 	*Box
 	field        *messeji.TextField
+	textFont     *sfnt.Font
+	textSize     int
+	textAutoSize int
 	borderSize   int
 	borderTop    color.RGBA
 	borderRight  color.RGBA
@@ -38,6 +42,8 @@ func NewButton(label string, onSelected func() error) *Button {
 	b := &Button{
 		Box:          NewBox(),
 		field:        f,
+		textFont:     Style.TextFont,
+		textSize:     Scale(Style.TextSize),
 		onSelected:   onSelected,
 		borderSize:   Scale(Style.BorderSize),
 		borderTop:    Style.BorderColorTop,
@@ -46,6 +52,7 @@ func NewButton(label string, onSelected func() error) *Button {
 		borderLeft:   Style.BorderColorLeft,
 	}
 	b.SetBackground(Style.ButtonBgColor)
+	b.resizeFont()
 	return b
 }
 
@@ -54,6 +61,7 @@ func (b *Button) SetRect(r image.Rectangle) {
 	b.Box.rect = r
 
 	b.field.SetRect(r)
+	b.resizeFont()
 
 	for _, w := range b.children {
 		w.SetRect(r)
@@ -93,6 +101,7 @@ func (b *Button) SetText(text string) {
 	defer b.Unlock()
 
 	b.field.SetText(text)
+	b.resizeFont()
 }
 
 // SetFont sets the font and text size of button label. Scaling is not applied.
@@ -100,7 +109,31 @@ func (b *Button) SetFont(fnt *sfnt.Font, size int) {
 	b.Lock()
 	defer b.Unlock()
 
-	b.field.SetFont(FontFace(fnt, size), fontMutex)
+	b.textFont, b.textSize = fnt, size
+	b.resizeFont()
+}
+
+func (b *Button) resizeFont() {
+	w := b.rect.Dx() - b.field.Padding()*2
+	if w == 0 {
+		b.textAutoSize = b.textSize
+		return
+	}
+
+	var autoSize int
+	var ff font.Face
+	for autoSize = b.textSize; autoSize > 0; autoSize-- {
+		ff = FontFace(b.textFont, autoSize)
+		if BoundString(ff, b.field.Text()).Dx() <= w {
+			break
+		}
+	}
+	if b.textAutoSize == autoSize {
+		return
+	}
+
+	b.field.SetFont(ff, fontMutex)
+	b.textAutoSize = autoSize
 }
 
 // SetHorizontal sets the horizontal alignment of the button label.
