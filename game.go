@@ -165,6 +165,9 @@ func int26ToRect(r fixed.Rectangle26_6) image.Rectangle {
 
 // BoundString returns the bounds of the provided string.
 func BoundString(f font.Face, s string) image.Rectangle {
+	fontMutex.Lock()
+	defer fontMutex.Unlock()
+
 	bounds, _ := font.BoundString(f, s)
 	return int26ToRect(bounds)
 }
