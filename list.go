@@ -26,6 +26,7 @@ const (
 
 // List is a list of widgets. Rows or cells may optionally be selectable.
 type List struct {
+	rect                 image.Rectangle
 	grid                 *Grid
 	itemHeight           int
 	highlightColor       color.RGBA
@@ -40,6 +41,11 @@ type List struct {
 	scrollWidth          int
 	scrollAreaColor      color.RGBA
 	scrollHandleColor    color.RGBA
+	scrollBorderSize     int
+	scrollBorderTop      color.RGBA
+	scrollBorderRight    color.RGBA
+	scrollBorderBottom   color.RGBA
+	scrollBorderLeft     color.RGBA
 	scrollDrag           bool
 	drawBorder           bool
 	sync.Mutex
@@ -60,16 +66,21 @@ var (
 // NewList returns a new List widget.
 func NewList(itemHeight int, onSelected func(index int) (accept bool)) *List {
 	return &List{
-		grid:              NewGrid(),
-		itemHeight:        itemHeight,
-		highlightColor:    color.RGBA{255, 255, 255, 255},
-		maxY:              -1,
-		selectedY:         -1,
-		selectedFunc:      onSelected,
-		recreateGrid:      true,
-		scrollWidth:       initialScrollWidth,
-		scrollAreaColor:   initialScrollArea,
-		scrollHandleColor: initialScrollHandle,
+		grid:               NewGrid(),
+		itemHeight:         itemHeight,
+		highlightColor:     color.RGBA{255, 255, 255, 255},
+		maxY:               -1,
+		selectedY:          -1,
+		selectedFunc:       onSelected,
+		recreateGrid:       true,
+		scrollWidth:        initialScrollWidth,
+		scrollAreaColor:    initialScrollArea,
+		scrollHandleColor:  initialScrollHandle,
+		scrollBorderSize:   Style.ScrollBorderSize,
+		scrollBorderTop:    Style.ScrollBorderColorTop,
+		scrollBorderRight:  Style.ScrollBorderColorRight,
+		scrollBorderBottom: Style.ScrollBorderColorBottom,
+		scrollBorderLeft:   Style.ScrollBorderColorLeft,
 	}
 }
 
@@ -78,7 +89,7 @@ func (l *List) Rect() image.Rectangle {
 	l.Lock()
 	defer l.Unlock()
 
-	return l.grid.Rect()
+	return l.rect
 }
 
 // SetRect sets the position and size of the widget.
@@ -86,6 +97,10 @@ func (l *List) SetRect(r image.Rectangle) {
 	l.Lock()
 	defer l.Unlock()
 
+	l.rect = r
+	if l.showScrollBar() {
+		r.Max.X -= l.scrollWidth
+	}
 	l.grid.SetRect(r)
 	l.recreateGrid = true
 }
@@ -222,6 +237,26 @@ func (l *List) SetScrollBarColors(area color.RGBA, handle color.RGBA) {
 	l.scrollAreaColor, l.scrollHandleColor = area, handle
 }
 
+// SetScrollBorderSize sets the size of the border around the scroll bar handle.
+func (l *List) SetScrollBorderSize(size int) {
+	l.Lock()
+	defer l.Unlock()
+
+	l.scrollBorderSize = size
+}
+
+// SetScrollBorderColor sets the color of the top, right, bottom and left border
+// of the scroll bar handle.
+func (l *List) SetScrollBorderColors(top color.RGBA, right color.RGBA, bottom color.RGBA, left color.RGBA) {
+	l.Lock()
+	defer l.Unlock()
+
+	l.scrollBorderTop = top
+	l.scrollBorderRight = right
+	l.scrollBorderBottom = bottom
+	l.scrollBorderLeft = left
+}
+
 // SetSelectedFunc sets a handler which is called when a list item is selected.
 // Providing a nil function value will remove the existing handler (if set).
 // The handler may return false to return the selection to its original state.
@@ -253,7 +288,12 @@ func (l *List) AddChildAt(w Widget, x int, y int) {
 	for i := x; i > len(l.items[y]); i-- {
 		l.items[y] = append(l.items[y], nil)
 	}
-	l.items[y] = append(l.items[y], &ignoreMouseExceptScroll{Widget: w})
+	if l.selectionMode == SelectNone {
+		w = &ignoreMouseExceptScroll{Widget: w}
+	} else {
+		w = &ignoreMouse{Widget: w}
+	}
+	l.items[y] = append(l.items[y], w)
 	if y > l.maxY {
 		l.maxY = y
 		l.recreateGrid = true
@@ -387,6 +427,11 @@ func (l *List) Draw(screen *ebiten.Image) error {
 			}
 			y++
 		}
+		r := l.rect
+		if l.showScrollBar() {
+			r.Max.X -= l.scrollWidth
+		}
+		l.grid.SetRect(r)
 		l.recreateGrid = false
 	}
 
@@ -420,8 +465,8 @@ func (l *List) Draw(screen *ebiten.Image) error {
 	if !l.showScrollBar() {
 		return nil
 	}
-	w, h := l.grid.rect.Dx(), l.grid.rect.Dy()
-	scrollAreaX, scrollAreaY := l.grid.rect.Min.X+w-l.scrollWidth, l.grid.rect.Min.Y
+	w, h := l.rect.Dx(), l.rect.Dy()
+	scrollAreaX, scrollAreaY := l.rect.Min.X+w-l.scrollWidth, l.rect.Min.Y
 	l.scrollRect = image.Rect(scrollAreaX, scrollAreaY, scrollAreaX+l.scrollWidth, scrollAreaY+h)
 
 	scrollBarH := l.scrollWidth / 2
@@ -429,13 +474,22 @@ func (l *List) Draw(screen *ebiten.Image) error {
 		scrollBarH = 4
 	}
 
-	scrollX, scrollY := l.grid.rect.Min.X+w-l.scrollWidth, l.grid.rect.Min.Y
-	pct := float64(-l.offset) / float64(len(l.items)-(l.grid.rect.Dy()/l.itemHeight))
+	scrollX, scrollY := l.rect.Min.X+w-l.scrollWidth, l.rect.Min.Y
+	pct := float64(-l.offset) / float64(len(l.items)-(l.rect.Dy()/l.itemHeight))
 	scrollY -= int(float64(h-scrollBarH) * pct)
 	scrollBarRect := image.Rect(scrollX, scrollY, scrollX+l.scrollWidth, scrollY+scrollBarH)
 
 	screen.SubImage(l.scrollRect).(*ebiten.Image).Fill(l.scrollAreaColor)
 	screen.SubImage(scrollBarRect).(*ebiten.Image).Fill(l.scrollHandleColor)
+
+	// Draw scroll handle border.
+	if l.scrollBorderSize != 0 {
+		r := scrollBarRect
+		screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+l.scrollBorderSize, r.Max.Y)).(*ebiten.Image).Fill(l.scrollBorderLeft)
+		screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+l.scrollBorderSize)).(*ebiten.Image).Fill(l.scrollBorderTop)
+		screen.SubImage(image.Rect(r.Max.X-l.scrollBorderSize, r.Min.Y, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(l.scrollBorderRight)
+		screen.SubImage(image.Rect(r.Min.X, r.Max.Y-l.scrollBorderSize, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(l.scrollBorderBottom)
+	}
 	return nil
 }
 
