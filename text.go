@@ -13,12 +13,13 @@ import (
 // Text is a text display widget.
 type Text struct {
 	*Box
-	field        *messeji.TextField
-	textFont     *sfnt.Font
-	textSize     int
-	textResize   bool
-	textAutoSize int
-	children     []Widget
+	field         *messeji.TextField
+	textFont      *sfnt.Font
+	textSize      int
+	textResize    bool
+	textAutoSize  int
+	scrollVisible bool
+	children      []Widget
 }
 
 // NewText returns a new Text widget.
@@ -29,10 +30,11 @@ func NewText(text string) *Text {
 	f.SetHandleKeyboard(true)
 
 	t := &Text{
-		Box:      NewBox(),
-		field:    f,
-		textFont: Style.TextFont,
-		textSize: Scale(Style.TextSize),
+		Box:           NewBox(),
+		field:         f,
+		textFont:      Style.TextFont,
+		textSize:      Scale(Style.TextSize),
+		scrollVisible: true,
 	}
 	t.resizeFont()
 	return t
@@ -191,12 +193,20 @@ func (t *Text) resizeFont() {
 	t.textAutoSize = autoSize
 }
 
+func (t *Text) scrollBarVisible() bool {
+	if t.textResize {
+		return false
+	}
+	return t.scrollVisible
+}
+
 // SetScrollBarVisible sets whether the scroll bar is visible on the screen.
 func (t *Text) SetScrollBarVisible(scrollVisible bool) {
 	t.Lock()
 	defer t.Unlock()
 
-	t.field.SetScrollBarVisible(scrollVisible)
+	t.scrollVisible = scrollVisible
+	t.field.SetScrollBarVisible(t.scrollBarVisible())
 }
 
 // SetAutoHideScrollBar sets whether the scroll bar is automatically hidden
@@ -225,6 +235,7 @@ func (t *Text) SetAutoResize(resize bool) {
 
 	t.textResize = resize
 	t.resizeFont()
+	t.field.SetScrollBarVisible(t.scrollBarVisible())
 }
 
 // Padding returns the amount of padding around the text within the field.
