@@ -114,9 +114,14 @@ func (b *Button) SetFont(fnt *sfnt.Font, size int) {
 }
 
 func (b *Button) resizeFont() {
-	w := b.rect.Dx() - b.field.Padding()*2
-	if w == 0 {
+	w, h := b.rect.Dx()-b.field.Padding()*2, b.rect.Dy()-b.field.Padding()*2
+	if w == 0 || h == 0 {
+		if b.textAutoSize == b.textSize {
+			return
+		}
 		b.textAutoSize = b.textSize
+		ff := FontFace(b.textFont, b.textSize)
+		b.field.SetFont(ff, fontMutex)
 		return
 	}
 
@@ -124,7 +129,8 @@ func (b *Button) resizeFont() {
 	var ff font.Face
 	for autoSize = b.textSize; autoSize > 0; autoSize-- {
 		ff = FontFace(b.textFont, autoSize)
-		if BoundString(ff, b.field.Text()).Dx() <= w {
+		bounds := BoundString(ff, b.field.Text())
+		if bounds.Dx() <= w && bounds.Dy() <= h {
 			break
 		}
 	}

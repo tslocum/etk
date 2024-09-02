@@ -166,8 +166,8 @@ func (t *Text) resizeFont() {
 		return
 	}
 
-	w := t.rect.Dx() - t.field.Padding()*2
-	if w == 0 {
+	w, h := t.rect.Dx()-t.field.Padding()*2, t.rect.Dy()-t.field.Padding()*2
+	if w == 0 || h == 0 {
 		if t.textAutoSize == t.textSize {
 			return
 		}
@@ -181,7 +181,8 @@ func (t *Text) resizeFont() {
 	var ff font.Face
 	for autoSize = t.textSize; autoSize > 0; autoSize-- {
 		ff = FontFace(t.textFont, autoSize)
-		if BoundString(ff, t.field.Text()).Dx() <= w {
+		bounds := BoundString(ff, t.field.Text())
+		if bounds.Dx() <= w && bounds.Dy() <= h {
 			break
 		}
 	}
