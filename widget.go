@@ -60,3 +60,23 @@ type ignoreMouse struct {
 func (i *ignoreMouse) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
 	return false, nil
 }
+
+// ignoreMouseExceptScroll wraps a widget to ignore all mouse events except
+// scroll events.
+type ignoreMouseExceptScroll struct {
+	Widget
+	handleOnce bool
+}
+
+// HandleMouse is called when a mouse event occurs. Only mouse events that
+// are on top of the widget are passed to the widget.
+func (i *ignoreMouseExceptScroll) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
+	if pressed || clicked {
+		i.handleOnce = true
+		return i.Widget.HandleMouse(cursor, pressed, clicked)
+	} else if i.handleOnce {
+		i.handleOnce = false
+		return i.Widget.HandleMouse(cursor, pressed, clicked)
+	}
+	return false, nil
+}

@@ -253,7 +253,7 @@ func (l *List) AddChildAt(w Widget, x int, y int) {
 	for i := x; i > len(l.items[y]); i-- {
 		l.items[y] = append(l.items[y], nil)
 	}
-	l.items[y] = append(l.items[y], &ignoreMouse{w})
+	l.items[y] = append(l.items[y], &ignoreMouseExceptScroll{Widget: w})
 	if y > l.maxY {
 		l.maxY = y
 		l.recreateGrid = true
