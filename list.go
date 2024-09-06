@@ -289,9 +289,9 @@ func (l *List) AddChildAt(w Widget, x int, y int) {
 		l.items[y] = append(l.items[y], nil)
 	}
 	if l.selectionMode == SelectNone {
-		w = &ignoreMouseExceptScroll{Widget: w}
+		w = &WithoutMouseExceptScroll{Widget: w}
 	} else {
-		w = &ignoreMouse{Widget: w}
+		w = &WithoutMouse{Widget: w}
 	}
 	l.items[y] = append(l.items[y], w)
 	if y > l.maxY {

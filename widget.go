@@ -50,33 +50,33 @@ type Widget interface {
 	Children() []Widget
 }
 
-// ignoreMouse wraps a widget to ignore mouse events.
-type ignoreMouse struct {
+// WithoutMouse wraps a widget to ignore all mouse events.
+type WithoutMouse struct {
 	Widget
 }
 
-// HandleMouse is called when a mouse event occurs. Only mouse events that
-// are on top of the widget are passed to the widget.
-func (i *ignoreMouse) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
+// HandleMouse is called when a mouse event occurs. Only mouse events that are
+// on top of the widget are passed to the widget.
+func (w *WithoutMouse) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
 	return false, nil
 }
 
-// ignoreMouseExceptScroll wraps a widget to ignore all mouse events except
+// WithoutMouseExceptScroll wraps a widget to ignore all mouse events except
 // scroll events.
-type ignoreMouseExceptScroll struct {
+type WithoutMouseExceptScroll struct {
 	Widget
 	handleOnce bool
 }
 
-// HandleMouse is called when a mouse event occurs. Only mouse events that
-// are on top of the widget are passed to the widget.
-func (i *ignoreMouseExceptScroll) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
+// HandleMouse is called when a mouse event occurs. Only mouse events that are
+// on top of the widget are passed to the widget.
+func (w *WithoutMouseExceptScroll) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
 	if pressed || clicked {
-		i.handleOnce = true
-		return i.Widget.HandleMouse(cursor, pressed, clicked)
-	} else if i.handleOnce {
-		i.handleOnce = false
-		return i.Widget.HandleMouse(cursor, pressed, clicked)
+		w.handleOnce = true
+		return w.Widget.HandleMouse(cursor, pressed, clicked)
+	} else if w.handleOnce {
+		w.handleOnce = false
+		return w.Widget.HandleMouse(cursor, pressed, clicked)
 	}
 	return false, nil
 }
