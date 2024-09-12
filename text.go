@@ -125,6 +125,12 @@ func (t *Text) SetVertical(h Alignment) {
 	t.field.SetVertical(messeji.Alignment(h))
 }
 
+// Cursor returns the cursor shape shown when a mouse cursor hovers over the
+// widget, or -1 to let widgets beneath determine the cursor shape.
+func (t *Text) Cursor() ebiten.CursorShapeType {
+	return ebiten.CursorShapeDefault
+}
+
 // Write writes to the text buffer.
 func (t *Text) Write(p []byte) (n int, err error) {
 	t.Lock()

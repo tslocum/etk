@@ -163,6 +163,12 @@ func (s *Select) _setMenuVisible(visible bool) {
 	}
 }
 
+// Cursor returns the cursor shape shown when a mouse cursor hovers over the
+// widget, or -1 to let widgets beneath determine the cursor shape.
+func (s *Select) Cursor() ebiten.CursorShapeType {
+	return ebiten.CursorShapePointer
+}
+
 // HandleKeyboard is called when a keyboard event occurs.
 func (s *Select) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
 	return false, nil

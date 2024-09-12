@@ -34,6 +34,10 @@ type Widget interface {
 	// SetVisible sets the visibility of the widget.
 	SetVisible(visible bool)
 
+	// Cursor returns the cursor shape shown when a mouse cursor hovers over
+	// the widget, or -1 to let widgets beneath determine the cursor shape.
+	Cursor() ebiten.CursorShapeType
+
 	// HandleKeyboard is called when a keyboard event occurs.
 	HandleKeyboard(ebiten.Key, rune) (handled bool, err error)
 

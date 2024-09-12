@@ -158,6 +158,12 @@ func (b *Button) SetVertical(h Alignment) {
 	b.field.SetVertical(messeji.Alignment(h))
 }
 
+// Cursor returns the cursor shape shown when a mouse cursor hovers over the
+// widget, or -1 to let widgets beneath determine the cursor shape.
+func (b *Button) Cursor() ebiten.CursorShapeType {
+	return ebiten.CursorShapePointer
+}
+
 // HandleKeyboard is called when a keyboard event occurs.
 func (b *Button) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
 	return false, nil

@@ -87,6 +87,12 @@ func (c *Checkbox) SetSelected(selected bool) {
 	c.updateImage()
 }
 
+// Cursor returns the cursor shape shown when a mouse cursor hovers over the
+// widget, or -1 to let widgets beneath determine the cursor shape.
+func (c *Checkbox) Cursor() ebiten.CursorShapeType {
+	return ebiten.CursorShapePointer
+}
+
 // HandleKeyboard is called when a keyboard event occurs.
 func (c *Checkbox) HandleKeyboard(ebiten.Key, rune) (handled bool, err error) {
 	return false, nil

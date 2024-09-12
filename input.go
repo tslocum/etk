@@ -224,6 +224,12 @@ func (i *Input) SetMask(r rune) {
 	i.field.SetMask(r)
 }
 
+// Cursor returns the cursor shape shown when a mouse cursor hovers over the
+// widget, or -1 to let widgets beneath determine the cursor shape.
+func (i *Input) Cursor() ebiten.CursorShapeType {
+	return ebiten.CursorShapeText
+}
+
 // Write writes to the text buffer.
 func (i *Input) Write(p []byte) (n int, err error) {
 	return i.field.Write(p)

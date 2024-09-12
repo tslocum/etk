@@ -48,6 +48,8 @@ var (
 
 	pressedWidget Widget
 
+	cursorShape ebiten.CursorShapeType
+
 	lastBackspaceRepeat time.Time
 
 	keyBuffer  []ebiten.Key
@@ -271,17 +273,19 @@ func Update() error {
 		pressedWidget = nil
 	}
 
-	_, err := update(root, cursor, pressed, clicked, false)
+	mouseHandled, err := update(root, cursor, pressed, clicked, false)
 	if err != nil {
 		return fmt.Errorf("failed to handle widget mouse input: %s", err)
+	} else if !mouseHandled && cursorShape != ebiten.CursorShapeDefault {
+		ebiten.SetCursorShape(ebiten.CursorShapeDefault)
+		cursorShape = ebiten.CursorShapeDefault
 	}
 
 	// Handle keyboard input.
 
 	if focusedWidget == nil {
 		return nil
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyBackspace) {
+	} else if ebiten.IsKeyPressed(ebiten.KeyBackspace) {
 		if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
 			lastBackspaceRepeat = time.Now().Add(backspaceRepeatWait)
 		} else if time.Since(lastBackspaceRepeat) >= backspaceRepeatTime {
@@ -380,13 +384,18 @@ func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandl
 		mouseHandled, err = w.HandleMouse(cursor, pressed, clicked)
 		if err != nil {
 			return false, fmt.Errorf("failed to handle widget mouse input: %s", err)
-		}
-		if mouseHandled && !clicked && pressedWidget != nil && (!pressed || pressedWidget != w) {
-			pressedWidget = nil
-		}
-		if clicked && mouseHandled {
-			SetFocus(w)
-			pressedWidget = w
+		} else if mouseHandled {
+			if clicked {
+				SetFocus(w)
+				pressedWidget = w
+			} else if pressedWidget != nil && (!pressed || pressedWidget != w) {
+				pressedWidget = nil
+			}
+			shape := w.Cursor()
+			if shape != -1 && shape != cursorShape {
+				ebiten.SetCursorShape(shape)
+				cursorShape = shape
+			}
 		}
 	}
 	return mouseHandled, nil

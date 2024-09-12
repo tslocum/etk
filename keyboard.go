@@ -87,6 +87,12 @@ func (k *Keyboard) SetScheduleFrameFunc(f func()) {
 	k.k.SetScheduleFrameFunc(f)
 }
 
+// Cursor returns the cursor shape shown when a mouse cursor hovers over the
+// widget, or -1 to let widgets beneath determine the cursor shape.
+func (k *Keyboard) Cursor() ebiten.CursorShapeType {
+	return ebiten.CursorShapePointer
+}
+
 // HandleMouse is called when a mouse event occurs.
 func (k *Keyboard) HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
 	k.Lock()

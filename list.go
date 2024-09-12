@@ -323,6 +323,12 @@ func (l *List) clampOffset(offset int) int {
 	return offset
 }
 
+// Cursor returns the cursor shape shown when a mouse cursor hovers over the
+// widget, or -1 to let widgets beneath determine the cursor shape.
+func (l *List) Cursor() ebiten.CursorShapeType {
+	return ebiten.CursorShapeDefault
+}
+
 // HandleKeyboard is called when a keyboard event occurs.
 func (l *List) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) {
 	l.Lock()

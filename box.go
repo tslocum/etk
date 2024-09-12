@@ -82,6 +82,12 @@ func (b *Box) SetVisible(visible bool) {
 	b.visible = visible
 }
 
+// Cursor returns the cursor shape shown when a mouse cursor hovers over the
+// widget, or -1 to let widgets beneath determine the cursor shape.
+func (b *Box) Cursor() ebiten.CursorShapeType {
+	return -1
+}
+
 // HandleKeyboard is called when a keyboard event occurs.
 func (b *Box) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) {
 	return false, nil
