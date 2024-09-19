@@ -151,11 +151,11 @@ func (b *Button) SetHorizontal(h Alignment) {
 }
 
 // SetVertical sets the vertical alignment of the button label.
-func (b *Button) SetVertical(h Alignment) {
+func (b *Button) SetVertical(v Alignment) {
 	b.Lock()
 	defer b.Unlock()
 
-	b.field.SetVertical(messeji.Alignment(h))
+	b.field.SetVertical(messeji.Alignment(v))
 }
 
 // Cursor returns the cursor shape shown when a mouse cursor hovers over the

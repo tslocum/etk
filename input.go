@@ -209,11 +209,11 @@ func (i *Input) SetHorizontal(h Alignment) {
 }
 
 // SetVertical sets the vertical alignment of the text within the field.
-func (i *Input) SetVertical(h Alignment) {
+func (i *Input) SetVertical(v Alignment) {
 	i.Lock()
 	defer i.Unlock()
 
-	i.field.SetVertical(messeji.Alignment(h))
+	i.field.SetVertical(messeji.Alignment(v))
 }
 
 // SetMask sets the rune used to mask the text buffer contents. Set to 0 to disable.

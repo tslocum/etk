@@ -118,11 +118,11 @@ func (t *Text) SetHorizontal(h Alignment) {
 }
 
 // SetVertical sets the vertical alignment of the text within the field.
-func (t *Text) SetVertical(h Alignment) {
+func (t *Text) SetVertical(v Alignment) {
 	t.Lock()
 	defer t.Unlock()
 
-	t.field.SetVertical(messeji.Alignment(h))
+	t.field.SetVertical(messeji.Alignment(v))
 }
 
 // Cursor returns the cursor shape shown when a mouse cursor hovers over the

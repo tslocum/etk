@@ -5,7 +5,7 @@ go 1.22.0
 toolchain go1.23.0
 
 require (
-	github.com/hajimehoshi/ebiten/v2 v2.7.9
+	github.com/hajimehoshi/ebiten/v2 v2.7.10
 	github.com/llgcode/draw2d v0.0.0-20240627062922-0ed1ff131195
 	golang.org/x/image v0.20.0
 )
