@@ -18,22 +18,24 @@ type Attributes struct {
 
 	TextBgColor color.RGBA
 
-	BorderSize int
+	ButtonBorderSize   int
+	ButtonBorderTop    color.RGBA
+	ButtonBorderRight  color.RGBA
+	ButtonBorderBottom color.RGBA
+	ButtonBorderLeft   color.RGBA
 
-	BorderColorTop    color.RGBA
-	BorderColorRight  color.RGBA
-	BorderColorBottom color.RGBA
-	BorderColorLeft   color.RGBA
+	InputBorderSize      int
+	InputBorderFocused   color.RGBA
+	InputBorderUnfocused color.RGBA
 
 	ScrollAreaColor   color.RGBA
 	ScrollHandleColor color.RGBA
 
-	ScrollBorderSize int
-
-	ScrollBorderColorTop    color.RGBA
-	ScrollBorderColorRight  color.RGBA
-	ScrollBorderColorBottom color.RGBA
-	ScrollBorderColorLeft   color.RGBA
+	ScrollBorderSize   int
+	ScrollBorderTop    color.RGBA
+	ScrollBorderRight  color.RGBA
+	ScrollBorderBottom color.RGBA
+	ScrollBorderLeft   color.RGBA
 
 	InputBgColor color.RGBA
 
@@ -51,22 +53,24 @@ var Style = &Attributes{
 
 	TextBgColor: transparent,
 
-	BorderSize: 4,
+	ButtonBorderSize:   4,
+	ButtonBorderTop:    color.RGBA{220, 220, 220, 255},
+	ButtonBorderRight:  color.RGBA{0, 0, 0, 255},
+	ButtonBorderBottom: color.RGBA{0, 0, 0, 255},
+	ButtonBorderLeft:   color.RGBA{220, 220, 220, 255},
 
-	BorderColorTop:    color.RGBA{220, 220, 220, 255},
-	BorderColorRight:  color.RGBA{0, 0, 0, 255},
-	BorderColorBottom: color.RGBA{0, 0, 0, 255},
-	BorderColorLeft:   color.RGBA{220, 220, 220, 255},
+	InputBorderSize:      2,
+	InputBorderFocused:   color.RGBA{220, 220, 220, 255},
+	InputBorderUnfocused: color.RGBA{0, 0, 0, 255},
 
 	ScrollAreaColor:   color.RGBA{200, 200, 200, 255},
 	ScrollHandleColor: color.RGBA{108, 108, 108, 255},
 
-	ScrollBorderSize: 2,
-
-	ScrollBorderColorTop:    color.RGBA{240, 240, 240, 255},
-	ScrollBorderColorRight:  color.RGBA{0, 0, 0, 255},
-	ScrollBorderColorBottom: color.RGBA{0, 0, 0, 255},
-	ScrollBorderColorLeft:   color.RGBA{240, 240, 240, 255},
+	ScrollBorderSize:   2,
+	ScrollBorderTop:    color.RGBA{240, 240, 240, 255},
+	ScrollBorderRight:  color.RGBA{0, 0, 0, 255},
+	ScrollBorderBottom: color.RGBA{0, 0, 0, 255},
+	ScrollBorderLeft:   color.RGBA{240, 240, 240, 255},
 
 	InputBgColor: color.RGBA{0, 128, 0, 255},
 

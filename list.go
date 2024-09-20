@@ -77,10 +77,10 @@ func NewList(itemHeight int, onSelected func(index int) (accept bool)) *List {
 		scrollAreaColor:    initialScrollArea,
 		scrollHandleColor:  initialScrollHandle,
 		scrollBorderSize:   Style.ScrollBorderSize,
-		scrollBorderTop:    Style.ScrollBorderColorTop,
-		scrollBorderRight:  Style.ScrollBorderColorRight,
-		scrollBorderBottom: Style.ScrollBorderColorBottom,
-		scrollBorderLeft:   Style.ScrollBorderColorLeft,
+		scrollBorderTop:    Style.ScrollBorderTop,
+		scrollBorderRight:  Style.ScrollBorderRight,
+		scrollBorderBottom: Style.ScrollBorderBottom,
+		scrollBorderLeft:   Style.ScrollBorderLeft,
 	}
 }
 
@@ -461,10 +461,10 @@ func (l *List) Draw(screen *ebiten.Image) error {
 	// Draw border.
 	if l.drawBorder {
 		const borderSize = 4
-		screen.SubImage(image.Rect(l.grid.rect.Min.X, l.grid.rect.Min.Y, l.grid.rect.Max.X, l.grid.rect.Min.Y+borderSize)).(*ebiten.Image).Fill(Style.BorderColorBottom)
-		screen.SubImage(image.Rect(l.grid.rect.Min.X, l.grid.rect.Max.Y-borderSize, l.grid.rect.Max.X, l.grid.rect.Max.Y)).(*ebiten.Image).Fill(Style.BorderColorBottom)
-		screen.SubImage(image.Rect(l.grid.rect.Min.X, l.grid.rect.Min.Y, l.grid.rect.Min.X+borderSize, l.grid.rect.Max.Y)).(*ebiten.Image).Fill(Style.BorderColorBottom)
-		screen.SubImage(image.Rect(l.grid.rect.Max.X-borderSize, l.grid.rect.Min.Y, l.grid.rect.Max.X, l.grid.rect.Max.Y)).(*ebiten.Image).Fill(Style.BorderColorBottom)
+		screen.SubImage(image.Rect(l.grid.rect.Min.X, l.grid.rect.Min.Y, l.grid.rect.Max.X, l.grid.rect.Min.Y+borderSize)).(*ebiten.Image).Fill(Style.ButtonBorderBottom)
+		screen.SubImage(image.Rect(l.grid.rect.Min.X, l.grid.rect.Max.Y-borderSize, l.grid.rect.Max.X, l.grid.rect.Max.Y)).(*ebiten.Image).Fill(Style.ButtonBorderBottom)
+		screen.SubImage(image.Rect(l.grid.rect.Min.X, l.grid.rect.Min.Y, l.grid.rect.Min.X+borderSize, l.grid.rect.Max.Y)).(*ebiten.Image).Fill(Style.ButtonBorderBottom)
+		screen.SubImage(image.Rect(l.grid.rect.Max.X-borderSize, l.grid.rect.Min.Y, l.grid.rect.Max.X, l.grid.rect.Max.Y)).(*ebiten.Image).Fill(Style.ButtonBorderBottom)
 	}
 
 	// Draw scroll bar.

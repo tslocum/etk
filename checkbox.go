@@ -27,7 +27,7 @@ func NewCheckbox(onSelect func() error) *Checkbox {
 		Box:         NewBox(),
 		checkColor:  Style.TextColorDark,
 		borderSize:  2,
-		borderColor: Style.BorderColorBottom,
+		borderColor: Style.ButtonBorderBottom,
 		onSelect:    onSelect,
 	}
 }

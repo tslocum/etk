@@ -195,9 +195,9 @@ func (s *Select) Draw(screen *ebiten.Image) error {
 
 	// Draw border.
 	r := s.rect
-	borderSize := Scale(Style.BorderSize)
-	borderLeft, borderTop := Style.BorderColorLeft, Style.BorderColorTop
-	borderRight, borderBottom := Style.BorderColorRight, Style.BorderColorBottom
+	borderSize := Scale(Style.ButtonBorderSize)
+	borderLeft, borderTop := Style.ButtonBorderLeft, Style.ButtonBorderTop
+	borderRight, borderBottom := Style.ButtonBorderRight, Style.ButtonBorderBottom
 	if !s.open {
 		screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+borderSize, r.Max.Y)).(*ebiten.Image).Fill(borderLeft)
 		screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+borderSize)).(*ebiten.Image).Fill(borderTop)

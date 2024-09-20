@@ -454,7 +454,7 @@ func newText() *messeji.TextField {
 	f.SetBackgroundColor(transparent)
 	f.SetScrollBarColors(Style.ScrollAreaColor, Style.ScrollHandleColor)
 	f.SetScrollBorderSize(Scale(Style.ScrollBorderSize))
-	f.SetScrollBorderColors(Style.ScrollBorderColorTop, Style.ScrollBorderColorRight, Style.ScrollBorderColorBottom, Style.ScrollBorderColorLeft)
+	f.SetScrollBorderColors(Style.ScrollBorderTop, Style.ScrollBorderRight, Style.ScrollBorderBottom, Style.ScrollBorderLeft)
 	return f
 }
 

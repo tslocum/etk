@@ -13,9 +13,12 @@ import (
 // also accepts user input.
 type Input struct {
 	*Box
-	field  *messeji.InputField
-	cursor string
-	focus  bool
+	field           *messeji.InputField
+	cursor          string
+	borderSize      int
+	borderFocused   color.RGBA
+	borderUnfocused color.RGBA
+	focus           bool
 }
 
 // NewInput returns a new Input widget.
@@ -30,7 +33,7 @@ func NewInput(text string, onSelected func(text string) (handled bool)) *Input {
 	f.SetBackgroundColor(transparent)
 	f.SetScrollBarColors(Style.ScrollAreaColor, Style.ScrollHandleColor)
 	f.SetScrollBorderSize(Scale(Style.ScrollBorderSize))
-	f.SetScrollBorderColors(Style.ScrollBorderColorTop, Style.ScrollBorderColorRight, Style.ScrollBorderColorBottom, Style.ScrollBorderColorLeft)
+	f.SetScrollBorderColors(Style.ScrollBorderTop, Style.ScrollBorderRight, Style.ScrollBorderBottom, Style.ScrollBorderLeft)
 	f.SetPrefix("")
 	f.SetSuffix("")
 	f.SetText(text)
@@ -40,9 +43,12 @@ func NewInput(text string, onSelected func(text string) (handled bool)) *Input {
 	})
 
 	i := &Input{
-		Box:    NewBox(),
-		field:  f,
-		cursor: "_",
+		Box:             NewBox(),
+		field:           f,
+		cursor:          "_",
+		borderSize:      Scale(Style.InputBorderSize),
+		borderFocused:   Style.InputBorderFocused,
+		borderUnfocused: Style.InputBorderUnfocused,
 	}
 	i.SetBackground(Style.InputBgColor)
 	return i
@@ -57,6 +63,23 @@ func (i *Input) SetRect(r image.Rectangle) {
 	for _, w := range i.children {
 		w.SetRect(r)
 	}
+}
+
+// SetBorderSize sets the size of the border around the field.
+func (i *Input) SetBorderSize(size int) {
+	i.Lock()
+	defer i.Unlock()
+
+	i.borderSize = size
+}
+
+// SetBorderColors sets the border colors of the field when focused and unfocused.
+func (i *Input) SetBorderColors(focused color.RGBA, unfocused color.RGBA) {
+	i.Lock()
+	defer i.Unlock()
+
+	i.borderFocused = focused
+	i.borderUnfocused = unfocused
 }
 
 // Foreground return the color of the text within the field.
@@ -252,5 +275,19 @@ func (i *Input) HandleMouse(cursor image.Point, pressed bool, clicked bool) (han
 // Draw draws the widget on the screen.
 func (i *Input) Draw(screen *ebiten.Image) error {
 	i.field.Draw(screen)
+
+	// Draw border.
+	if i.borderSize == 0 {
+		return nil
+	}
+	r := i.rect
+	c := i.borderUnfocused
+	if i.focus {
+		c = i.borderFocused
+	}
+	screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Min.X+i.borderSize, r.Max.Y)).(*ebiten.Image).Fill(c)
+	screen.SubImage(image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+i.borderSize)).(*ebiten.Image).Fill(c)
+	screen.SubImage(image.Rect(r.Max.X-i.borderSize, r.Min.Y, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(c)
+	screen.SubImage(image.Rect(r.Min.X, r.Max.Y-i.borderSize, r.Max.X, r.Max.Y)).(*ebiten.Image).Fill(c)
 	return nil
 }

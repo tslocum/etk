@@ -45,11 +45,11 @@ func NewButton(label string, onSelected func() error) *Button {
 		textFont:     Style.TextFont,
 		textSize:     Scale(Style.TextSize),
 		onSelected:   onSelected,
-		borderSize:   Scale(Style.BorderSize),
-		borderTop:    Style.BorderColorTop,
-		borderRight:  Style.BorderColorRight,
-		borderBottom: Style.BorderColorBottom,
-		borderLeft:   Style.BorderColorLeft,
+		borderSize:   Scale(Style.ButtonBorderSize),
+		borderTop:    Style.ButtonBorderTop,
+		borderRight:  Style.ButtonBorderRight,
+		borderBottom: Style.ButtonBorderBottom,
+		borderLeft:   Style.ButtonBorderLeft,
 	}
 	b.SetBackground(Style.ButtonBgColor)
 	b.resizeFont()
