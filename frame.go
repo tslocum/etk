@@ -8,6 +8,8 @@ type Frame struct {
 	*Box
 	padding          int
 	positionChildren bool
+	maxWidth         int
+	maxHeight        int
 }
 
 // NewFrame returns a new Frame widget.
@@ -25,7 +27,7 @@ func (f *Frame) SetPadding(padding int) {
 	defer f.Unlock()
 
 	f.padding = padding
-	f.reposition()
+	f.repositionAll()
 }
 
 // SetRect sets the position and size of the widget.
@@ -34,7 +36,7 @@ func (f *Frame) SetRect(r image.Rectangle) {
 	defer f.Unlock()
 
 	f.rect = r
-	f.reposition()
+	f.repositionAll()
 }
 
 // SetPositionChildren sets a flag that determines whether child widgets are
@@ -44,7 +46,27 @@ func (f *Frame) SetPositionChildren(position bool) {
 	defer f.Unlock()
 
 	f.positionChildren = position
-	f.reposition()
+	f.repositionAll()
+}
+
+// SetMaxWidth sets the maximum width of widgets within the frame. This will
+// only have an effect after SetPositionChildren(true) is called. 0 to disable.
+func (f *Frame) SetMaxWidth(w int) {
+	f.Lock()
+	defer f.Unlock()
+
+	f.maxWidth = w
+	f.repositionAll()
+}
+
+// SetMaxHeight sets the maximum height of widgets within the frame. This will
+// only have an effect after SetPositionChildren(true) is called. 0 to disable.
+func (f *Frame) SetMaxHeight(h int) {
+	f.Lock()
+	defer f.Unlock()
+
+	f.maxHeight = h
+	f.repositionAll()
 }
 
 // AddChild adds a child to the widget.
@@ -54,20 +76,30 @@ func (f *Frame) AddChild(w ...Widget) {
 
 	f.children = append(f.children, w...)
 
-	if f.positionChildren {
-		r := f.rect.Inset(f.padding)
-		for _, wgt := range w {
-			wgt.SetRect(r)
-		}
-	}
-}
-
-func (f *Frame) reposition() {
 	if !f.positionChildren {
 		return
 	}
+	for _, child := range w {
+		f.repositionChild(child)
+	}
+}
+
+func (f *Frame) repositionChild(w Widget) {
 	r := f.rect.Inset(f.padding)
+	if f.maxWidth > 0 && r.Dx() > f.maxWidth {
+		r.Max.X = r.Min.X + f.maxWidth
+	}
+	if f.maxHeight > 0 && r.Dy() > f.maxHeight {
+		r.Max.Y = r.Min.Y + f.maxHeight
+	}
+	w.SetRect(r)
+}
+
+func (f *Frame) repositionAll() {
+	if !f.positionChildren {
+		return
+	}
 	for _, w := range f.children {
-		w.SetRect(r)
+		f.repositionChild(w)
 	}
 }
