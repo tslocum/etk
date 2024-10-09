@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"math"
 	"sync"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -28,12 +29,15 @@ const (
 type List struct {
 	rect                 image.Rectangle
 	grid                 *Grid
+	focused              bool
 	itemHeight           int
 	highlightColor       color.RGBA
 	maxY                 int
 	selectionMode        SelectionMode
 	selectedX, selectedY int
+	selectedTime         time.Time
 	selectedFunc         func(index int) (accept bool)
+	confirmedFunc        func(index int)
 	items                [][]Widget
 	offset               int
 	recreateGrid         bool
@@ -126,7 +130,7 @@ func (l *List) Focus() bool {
 	l.Lock()
 	defer l.Unlock()
 
-	return l.grid.Focus()
+	return l.focused
 }
 
 // SetFocus sets the focus state of the widget.
@@ -134,7 +138,8 @@ func (l *List) SetFocus(focus bool) (accept bool) {
 	l.Lock()
 	defer l.Unlock()
 
-	return l.grid.SetFocus(focus)
+	l.focused = focus
+	return true
 }
 
 // Visible returns the visibility of the widget.
@@ -267,6 +272,15 @@ func (l *List) SetSelectedFunc(f func(index int) (accept bool)) {
 	l.selectedFunc = f
 }
 
+// SetConfirmedFunc sets a handler which is called when the list selection is confirmed.
+// Providing a nil function value will remove the existing handler (if set).
+func (l *List) SetConfirmedFunc(f func(index int)) {
+	l.Lock()
+	defer l.Unlock()
+
+	l.confirmedFunc = f
+}
+
 // Children returns the children of the widget. Children are drawn in the
 // order they are returned. Keyboard and mouse events are passed to children
 // in reverse order.
@@ -334,6 +348,53 @@ func (l *List) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) 
 	l.Lock()
 	defer l.Unlock()
 
+	if r == 0 {
+		// Handle confirmation.
+		for _, confirmKey := range Bindings.ConfirmKeyboard {
+			if key == confirmKey {
+				confirmedFunc := l.confirmedFunc
+				if confirmedFunc != nil {
+					l.Unlock()
+					confirmedFunc(l.selectedY)
+					l.Lock()
+				}
+				return true, nil
+			}
+		}
+
+		// Handle movement.
+		move := func(x int, y int) {
+			y = l.selectedY + y
+			if y >= 0 && y <= l.maxY {
+				l.selectedY = y
+			}
+		}
+		for _, leftKey := range Bindings.MoveLeftKeyboard {
+			if key == leftKey {
+				move(-1, 0)
+				return true, nil
+			}
+		}
+		for _, rightKey := range Bindings.MoveRightKeyboard {
+			if key == rightKey {
+				move(1, 0)
+				return true, nil
+			}
+		}
+		for _, downKey := range Bindings.MoveDownKeyboard {
+			if key == downKey {
+				move(0, 1)
+				return true, nil
+			}
+		}
+		for _, upKey := range Bindings.MoveUpKeyboard {
+			if key == upKey {
+				move(0, -1)
+				return true, nil
+			}
+		}
+	}
+
 	return l.grid.HandleKeyboard(key, r)
 }
 
@@ -393,12 +454,30 @@ func (l *List) HandleMouse(cursor image.Point, pressed bool, clicked bool) (hand
 	if selected >= 0 && selected <= l.maxY {
 		lastSelected := l.selectedY
 		l.selectedY = selected
-		if l.selectedFunc != nil {
-			accept := l.selectedFunc(l.selectedY)
+
+		selectedFunc := l.selectedFunc
+		if selectedFunc != nil {
+			l.Unlock()
+			accept := selectedFunc(l.selectedY)
+			l.Lock()
 			if !accept {
 				l.selectedY = lastSelected
+				return true, nil
 			}
 		}
+
+		if selected == lastSelected && time.Since(l.selectedTime) <= Bindings.DoubleClickThreshold {
+			confirmedFunc := l.confirmedFunc
+			if confirmedFunc != nil {
+				l.Unlock()
+				confirmedFunc(l.selectedY)
+				l.Lock()
+			}
+			l.selectedTime = time.Time{}
+			return true, nil
+		}
+
+		l.selectedTime = time.Now()
 	}
 	return true, nil
 }
