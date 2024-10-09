@@ -463,3 +463,26 @@ func rectAtOrigin(r image.Rectangle) image.Rectangle {
 	r.Min.X, r.Min.Y = 0, 0
 	return r
 }
+
+func _clamp(x int, y int, boundary image.Rectangle) (int, int) {
+	if x < boundary.Min.X {
+		x = boundary.Min.X
+	} else if y > boundary.Max.X {
+		x = boundary.Max.X
+	}
+	if y < boundary.Min.Y {
+		y = boundary.Min.Y
+	} else if y > boundary.Max.Y {
+		y = boundary.Max.Y
+	}
+	return x, y
+}
+
+func clampRect(r image.Rectangle, boundary image.Rectangle) image.Rectangle {
+	r.Min.X, r.Min.Y = _clamp(r.Min.X, r.Min.Y, boundary)
+	r.Max.X, r.Max.Y = _clamp(r.Max.X, r.Max.Y, boundary)
+	if r.Min.X == r.Max.X || r.Min.Y == r.Max.Y {
+		return image.Rectangle{}
+	}
+	return r
+}

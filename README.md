@@ -23,6 +23,7 @@
   - Grid: Highly customizable cell-based layout. Each widget added to the Grid may span multiple cells.
   - Input: Text input widget. The Input widget is simply a Text widget that also accepts user input.
   - List: List of widgets as selectable items.
+  - Sprite: Resizable image.
   - Text: Text display widget.
   - Window: Widget paging mechanism. Only one widget added to a window is displayed at a time.
 
