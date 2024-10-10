@@ -415,31 +415,31 @@ func draw(w Widget, screen *ebiten.Image) error {
 		return nil
 	}
 
+	r := w.Rect()
+	subScreen := screen.SubImage(r).(*ebiten.Image)
+
 	background := w.Background()
 	if background.A > 0 {
-		screen.SubImage(w.Rect()).(*ebiten.Image).Fill(background)
+		subScreen.Fill(background)
 	}
 
-	err := w.Draw(screen)
+	err := w.Draw(subScreen)
 	if err != nil {
 		return fmt.Errorf("failed to draw widget: %s", err)
 	}
 
-	if drawDebug {
-		r := w.Rect()
-		if !r.Empty() {
-			x, y := r.Min.X, r.Min.Y
-			w, h := r.Dx(), r.Dy()
-			screen.SubImage(image.Rect(x, y, x+w, y+1)).(*ebiten.Image).Fill(debugColor)
-			screen.SubImage(image.Rect(x, y+h-1, x+w, y+h)).(*ebiten.Image).Fill(debugColor)
-			screen.SubImage(image.Rect(x, y, x+1, y+h)).(*ebiten.Image).Fill(debugColor)
-			screen.SubImage(image.Rect(x+w-1, y, x+w, y+h)).(*ebiten.Image).Fill(debugColor)
-		}
+	if drawDebug && !r.Empty() {
+		x, y := r.Min.X, r.Min.Y
+		w, h := r.Dx(), r.Dy()
+		screen.SubImage(image.Rect(x, y, x+w, y+1)).(*ebiten.Image).Fill(debugColor)
+		screen.SubImage(image.Rect(x, y+h-1, x+w, y+h)).(*ebiten.Image).Fill(debugColor)
+		screen.SubImage(image.Rect(x, y, x+1, y+h)).(*ebiten.Image).Fill(debugColor)
+		screen.SubImage(image.Rect(x+w-1, y, x+w, y+h)).(*ebiten.Image).Fill(debugColor)
 	}
 
 	children := w.Children()
 	for _, child := range children {
-		err = draw(child, screen)
+		err = draw(child, subScreen)
 		if err != nil {
 			return fmt.Errorf("failed to draw widget: %s", err)
 		}
