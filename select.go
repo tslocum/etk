@@ -24,6 +24,7 @@ func NewSelect(itemHeight int, onSelect func(index int) (accept bool)) *Select {
 		label:    NewText(""),
 		onSelect: onSelect,
 	}
+	s.label.SetAutoResize(true)
 	s.label.SetVertical(AlignCenter)
 	s.label.SetForeground(Style.ButtonTextColor)
 	s.SetBackground(Style.ButtonBgColor)
