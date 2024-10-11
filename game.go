@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"io"
 	"log"
 	"math"
 	"sync"
@@ -293,6 +294,18 @@ func Update() error {
 
 			_, err := focusedWidget.HandleKeyboard(ebiten.KeyBackspace, 0)
 			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// Handle paste.
+	if inpututil.IsKeyJustPressed(ebiten.KeyV) && ebiten.IsKeyPressed(ebiten.KeyControl) {
+		focused := Focused()
+		if focused != nil {
+			writer, ok := focused.(io.Writer)
+			if ok {
+				_, err := writer.Write(clipboardBuffer())
 				return err
 			}
 		}
