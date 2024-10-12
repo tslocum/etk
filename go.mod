@@ -5,9 +5,9 @@ go 1.22.0
 toolchain go1.23.0
 
 require (
+	code.rocket9labs.com/tslocum/clipboard v0.0.0-20241012025701-2c0fb515daab
 	github.com/hajimehoshi/ebiten/v2 v2.8.1
 	github.com/llgcode/draw2d v0.0.0-20240627062922-0ed1ff131195
-	golang.design/x/clipboard v0.7.0
 	golang.org/x/image v0.21.0
 )
 

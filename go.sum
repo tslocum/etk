@@ -1,3 +1,5 @@
+code.rocket9labs.com/tslocum/clipboard v0.0.0-20241012025701-2c0fb515daab h1:0sF/YYnb3/GaPMKALyNVXS0Ku5JoulpC4GWdTcP1v+Q=
+code.rocket9labs.com/tslocum/clipboard v0.0.0-20241012025701-2c0fb515daab/go.mod h1:v2cql+mNoahFvZ1U/KQmDDqPmD0H0l1jyistVAgg8YA=
 github.com/ebitengine/gomobile v0.0.0-20241001034212-22433622d8a5 h1:vAmkJvgX1ukQ772M7yxWCmSfDwr8vLAZTWlJqM1ox4A=
 github.com/ebitengine/gomobile v0.0.0-20241001034212-22433622d8a5/go.mod h1:ulhSQcbPioQrallSuIzF8l1NKQoD7xmMZc5NxzibUMY=
 github.com/ebitengine/hideconsole v1.0.0 h1:5J4U0kXF+pv/DhiXt5/lTz0eO5ogJ1iXb8Yj1yReDqE=
@@ -18,8 +20,6 @@ github.com/llgcode/ps v0.0.0-20210114104736-f4b0c5d1e02e h1:ZAvbj5hI/G/EbAYAcj4y
 github.com/llgcode/ps v0.0.0-20210114104736-f4b0c5d1e02e/go.mod h1:1l8ky+Ew27CMX29uG+a2hNOKpeNYEQjjtiALiBlFQbY=
 github.com/pierrec/lz4/v4 v4.1.21 h1:yOVMLb6qSIDP67pl/5F7RepeKYu/VmTyEXvuMI5d9mQ=
 github.com/pierrec/lz4/v4 v4.1.21/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
-golang.design/x/clipboard v0.7.0 h1:4Je8M/ys9AJumVnl8m+rZnIvstSnYj1fvzqYrU3TXvo=
-golang.design/x/clipboard v0.7.0/go.mod h1:PQIvqYO9GP29yINEfsEn5zSQKAz3UgXmZKzDA6dnq2E=
 golang.org/x/exp/shiny v0.0.0-20241009180824-f66d83c29e7c h1:jTMrjjZRcSH/BDxWhXCP6OWsfVgmnwI7J+F4/nyVXaU=
 golang.org/x/exp/shiny v0.0.0-20241009180824-f66d83c29e7c/go.mod h1:3F+MieQB7dRYLTmnncoFbb1crS5lfQoTfDgQy6K4N0o=
 golang.org/x/image v0.21.0 h1:c5qV36ajHpdj4Qi0GnE0jUc/yuo33OLFaa0d+crTD5s=

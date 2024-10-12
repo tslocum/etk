@@ -1,4 +1,4 @@
-//go:build !windows && !js && !wasm && !cgo
+//go:build android || (!windows && !js && !wasm && !cgo)
 
 package etk
 
