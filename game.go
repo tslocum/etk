@@ -59,6 +59,8 @@ var (
 	fontMutex = &sync.Mutex{}
 )
 
+const maxScroll = 3
+
 var debugColor = color.RGBA{0, 0, 255, 255}
 
 const (

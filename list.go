@@ -430,6 +430,11 @@ func (l *List) HandleMouse(cursor image.Point, pressed bool, clicked bool) (hand
 
 	_, scroll := ebiten.Wheel()
 	if scroll != 0 {
+		if scroll < -maxScroll {
+			scroll = -maxScroll
+		} else if scroll > maxScroll {
+			scroll = maxScroll
+		}
 		offset := l.clampOffset(l.offset - int(math.Round(scroll)))
 		if offset != l.offset {
 			l.offset = offset

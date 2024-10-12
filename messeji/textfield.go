@@ -33,6 +33,7 @@ const (
 const (
 	initialPadding     = 5
 	initialScrollWidth = 32
+	maxScroll          = 3
 )
 
 var (
@@ -644,10 +645,15 @@ func (f *TextField) _handleMouseEvent(cursor image.Point, pressed bool, clicked 
 	}
 
 	// Handle mouse wheel.
-	_, scrollY := ebiten.Wheel()
-	if scrollY != 0 {
+	_, scroll := ebiten.Wheel()
+	if scroll != 0 {
+		if scroll < -maxScroll {
+			scroll = -maxScroll
+		} else if scroll > maxScroll {
+			scroll = maxScroll
+		}
 		const offsetAmount = 25
-		f.offset += int(scrollY * offsetAmount)
+		f.offset += int(scroll * offsetAmount)
 		f.clampOffset()
 		f.redraw = true
 	}
