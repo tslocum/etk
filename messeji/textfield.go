@@ -272,6 +272,30 @@ func (f *TextField) SetText(text string) {
 	f.redraw = true
 }
 
+// SetLast sets the text of the last line of the field. Newline characters are
+// replaced with spaces.
+func (f *TextField) SetLast(text string) {
+	f.Lock()
+	defer f.Unlock()
+
+	t := bytes.ReplaceAll([]byte(text), []byte("\n"), []byte(" "))
+
+	f.processIncoming()
+
+	bufferLen := len(f.buffer)
+	if bufferLen == 0 {
+		f.incoming = append(f.incoming[:0], t...)
+	} else {
+		f.buffer[bufferLen-1] = t
+		if f.needWrap == -1 || f.needWrap > bufferLen-1 {
+			f.needWrap = bufferLen - 1
+		}
+	}
+
+	f.modified = true
+	f.redraw = true
+}
+
 // SetPrefix sets the text shown before the content of the field.
 func (f *TextField) SetPrefix(text string) {
 	f.Lock()

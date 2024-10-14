@@ -161,6 +161,15 @@ func (t *Text) SetText(text string) {
 	t.resizeFont()
 }
 
+// SetLast sets the text of the last line of the field.
+func (t *Text) SetLast(text string) {
+	t.Lock()
+	defer t.Unlock()
+
+	t.field.SetLast(text)
+	t.resizeFont()
+}
+
 func (t *Text) resizeFont() {
 	if !t.textResize {
 		if t.textAutoSize == t.textSize {
