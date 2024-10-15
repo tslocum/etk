@@ -234,6 +234,14 @@ func (t *Text) SetAutoHideScrollBar(autoHide bool) {
 	t.field.SetAutoHideScrollBar(autoHide)
 }
 
+// FontSize returns the font size of the field.
+func (t *Text) FontSize() int {
+	t.Lock()
+	defer t.Unlock()
+
+	return t.textAutoSize
+}
+
 // SetFont sets the font and text size of the field. Scaling is not applied.
 func (t *Text) SetFont(fnt *sfnt.Font, size int) {
 	t.Lock()
