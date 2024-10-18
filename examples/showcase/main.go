@@ -78,6 +78,8 @@ func main() {
 		w.AddChildWithTitle(flexDemo, "Flex")
 	}
 
+	w.Show(0)
+
 	etk.SetRoot(w)
 	etk.SetFocus(input)
 
