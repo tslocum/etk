@@ -46,7 +46,7 @@ func main() {
 		inputDemo.SetVertical(true)
 		inputDemo.AddChild(buffer, input)
 
-		w.AddChildWithTitle(inputDemo, "Input")
+		w.AddChildWithLabel(inputDemo, input, "Input")
 	}
 
 	// Flex demo.
@@ -75,7 +75,7 @@ func main() {
 		flexDemo.SetVertical(true)
 		flexDemo.AddChild(topFlex, bottomFlex)
 
-		w.AddChildWithTitle(flexDemo, "Flex")
+		w.AddChildWithLabel(flexDemo, nil, "Flex")
 	}
 
 	w.Show(0)

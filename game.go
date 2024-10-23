@@ -51,6 +51,8 @@ var (
 
 	cursorShape ebiten.CursorShapeType
 
+	foundFocused bool
+
 	lastBackspaceRepeat time.Time
 
 	keyBuffer  []ebiten.Key
@@ -376,9 +378,7 @@ func At(p image.Point) Widget {
 func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandled bool) (bool, error) {
 	if w == nil {
 		return false, nil
-	}
-
-	if !w.Visible() {
+	} else if !w.Visible() {
 		return mouseHandled, nil
 	}
 
@@ -418,15 +418,18 @@ func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandl
 
 // Draw draws the root widget and its children to the screen.
 func Draw(screen *ebiten.Image) error {
-	return draw(root, screen)
+	foundFocused = false
+	err := draw(root, screen)
+	if err != nil {
+		return err
+	} else if focusedWidget != nil && !foundFocused {
+		SetFocus(nil)
+	}
+	return nil
 }
 
 func draw(w Widget, screen *ebiten.Image) error {
-	if w == nil {
-		return nil
-	}
-
-	if !w.Visible() {
+	if w == nil || !w.Visible() {
 		return nil
 	}
 
@@ -460,6 +463,9 @@ func draw(w Widget, screen *ebiten.Image) error {
 		}
 	}
 
+	if w == focusedWidget {
+		foundFocused = true
+	}
 	return nil
 }
 

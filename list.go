@@ -25,7 +25,7 @@ const (
 	SelectColumn
 )
 
-// List is a list of widgets. Rows or cells may optionally be selectable.
+// List is a list of widgets.
 type List struct {
 	rect                 image.Rectangle
 	grid                 *Grid
@@ -72,8 +72,10 @@ func NewList(itemHeight int, onSelected func(index int) (accept bool)) *List {
 	return &List{
 		grid:               NewGrid(),
 		itemHeight:         itemHeight,
-		highlightColor:     color.RGBA{255, 255, 255, 255},
+		highlightColor:     color.RGBA{80, 80, 80, 255},
 		maxY:               -1,
+		selectionMode:      SelectRow,
+		selectedX:          -1,
 		selectedY:          -1,
 		selectedFunc:       onSelected,
 		recreateGrid:       true,

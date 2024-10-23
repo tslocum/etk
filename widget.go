@@ -54,6 +54,21 @@ type Widget interface {
 	Children() []Widget
 }
 
+// WithoutFocus wraps a widget to ignore focus.
+type WithoutFocus struct {
+	Widget
+}
+
+// Focus returns the focus state of the widget.
+func (w *WithoutFocus) Focus() bool {
+	return false
+}
+
+// SetFocus sets the focus state of the widget.
+func (w *WithoutFocus) SetFocus(focus bool) (accept bool) {
+	return false
+}
+
 // WithoutMouse wraps a widget to ignore all mouse events.
 type WithoutMouse struct {
 	Widget
