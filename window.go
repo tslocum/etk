@@ -108,6 +108,7 @@ func (w *Window) Show(index int) {
 
 	if index >= 0 && index < len(w.children) {
 		w.active = index
+		SetFocus(w.defaultFocus[index])
 	} else {
 		w.active = -1
 	}

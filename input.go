@@ -23,13 +23,8 @@ type Input struct {
 
 // NewInput returns a new Input widget.
 func NewInput(text string, onSelected func(text string) (handled bool)) *Input {
-	textColor := Style.TextColorDark
-	/*if TextColor == nil {
-		textColor = Style.InputColor
-	}*/
-
 	f := messeji.NewInputField(FontFace(Style.TextFont, Scale(Style.TextSize)), fontMutex)
-	f.SetForegroundColor(textColor)
+	f.SetForegroundColor(Style.TextColorLight)
 	f.SetBackgroundColor(transparent)
 	f.SetScrollBarColors(Style.ScrollAreaColor, Style.ScrollHandleColor)
 	f.SetScrollBorderSize(Scale(Style.ScrollBorderSize))

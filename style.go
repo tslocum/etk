@@ -72,7 +72,7 @@ var Style = &Attributes{
 	ScrollBorderBottom: color.RGBA{0, 0, 0, 255},
 	ScrollBorderLeft:   color.RGBA{240, 240, 240, 255},
 
-	InputBgColor: color.RGBA{0, 128, 0, 255},
+	InputBgColor: color.RGBA{0, 64, 0, 255},
 
 	ButtonBgColor:         color.RGBA{255, 255, 255, 255},
 	ButtonBgColorDisabled: color.RGBA{110, 110, 110, 255},
