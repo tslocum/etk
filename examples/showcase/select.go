@@ -1,0 +1,34 @@
+//go:build example
+
+package main
+
+import (
+	"code.rocket9labs.com/tslocum/etk"
+)
+
+func newSelectExample() (etk.Widget, etk.Widget) {
+	s := etk.NewSelect(etk.Scale(int(float64(etk.Style.TextSize)*1.5)), nil)
+	s.AddOption("Option 1")
+	s.AddOption("Option 2")
+	s.AddOption("Option 3")
+	s.AddOption("Option 4")
+
+	selectList := s.Children()[0]
+
+	f := etk.NewFrame()
+	f.SetPositionChildren(true)
+	f.SetMaxWidth(etk.Scale(200))
+	f.SetMaxHeight(etk.Scale(50))
+	f.AddChild(s)
+
+	outer := etk.NewFrame()
+	outer.SetPositionChildren(true)
+	outer.AddChild(f, etk.NewFrame(selectList))
+
+	selectDemo := etk.NewGrid()
+	selectDemo.SetColumnPadding(etk.Scale(50))
+	selectDemo.SetRowPadding(etk.Scale(50))
+	selectDemo.AddChildAt(outer, 0, 0, 1, 1)
+
+	return selectDemo, nil
+}

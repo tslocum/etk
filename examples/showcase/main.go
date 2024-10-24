@@ -62,10 +62,28 @@ func main() {
 		w.AddChildWithLabel(example, defaultFocus, "Input")
 	}
 
+	// List.
+	{
+		example, defaultFocus := newListExample()
+		w.AddChildWithLabel(example, defaultFocus, "List")
+	}
+
+	// Select.
+	{
+		example, defaultFocus := newSelectExample()
+		w.AddChildWithLabel(example, defaultFocus, "Select")
+	}
+
 	// Text.
 	{
 		example, defaultFocus := newTextExample()
 		w.AddChildWithLabel(example, defaultFocus, "Text")
+	}
+
+	// Window.
+	{
+		example, defaultFocus := newWindowExample()
+		w.AddChildWithLabel(example, defaultFocus, "Window")
 	}
 
 	w.Show(0)

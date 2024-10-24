@@ -19,6 +19,10 @@ type Select struct {
 
 // NewSelect returns a new Select widget.
 func NewSelect(itemHeight int, onSelect func(index int) (accept bool)) *Select {
+	textColor := Style.ButtonTextColor
+	if textColor.A == 0 {
+		textColor = Style.TextColorDark
+	}
 	s := &Select{
 		Box:      NewBox(),
 		label:    NewText(""),
@@ -26,7 +30,7 @@ func NewSelect(itemHeight int, onSelect func(index int) (accept bool)) *Select {
 	}
 	s.label.SetAutoResize(true)
 	s.label.SetVertical(AlignCenter)
-	s.label.SetForeground(Style.ButtonTextColor)
+	s.label.SetForeground(textColor)
 	s.SetBackground(Style.ButtonBgColor)
 	s.list = NewList(itemHeight, s.selectList)
 	s.list.SetBackground(Style.ButtonBgColor)
@@ -107,9 +111,14 @@ func (s *Select) AddOption(label string) {
 		s.updateLabel()
 	}
 
+	textColor := Style.ButtonTextColor
+	if textColor.A == 0 {
+		textColor = Style.TextColorDark
+	}
+
 	t := NewText(label)
 	t.SetVertical(AlignCenter)
-	t.SetForeground(Style.ButtonTextColor)
+	t.SetForeground(textColor)
 	s.list.AddChildAt(t, 0, len(s.items)-1)
 }
 
@@ -190,6 +199,8 @@ func (s *Select) HandleMouse(cursor image.Point, pressed bool, clicked bool) (ha
 func (s *Select) Draw(screen *ebiten.Image) error {
 	s.Lock()
 	defer s.Unlock()
+
+	screen.SubImage(s.label.rect).(*ebiten.Image).Fill(s.background)
 
 	// Draw label.
 	s.label.Draw(screen)

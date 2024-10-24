@@ -8,6 +8,7 @@ import (
 
 func newTextExample() (etk.Widget, etk.Widget) {
 	text := etk.NewText(loremIpsum)
+	text.SetPadding(etk.Scale(10))
 	text.SetFollow(false)
 
 	return text, nil
