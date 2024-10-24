@@ -21,14 +21,14 @@ func newSelectExample() (etk.Widget, etk.Widget) {
 	f.SetMaxHeight(etk.Scale(50))
 	f.AddChild(s)
 
-	outer := etk.NewFrame()
-	outer.SetPositionChildren(true)
-	outer.AddChild(f, etk.NewFrame(selectList))
-
 	selectDemo := etk.NewGrid()
 	selectDemo.SetColumnPadding(etk.Scale(50))
 	selectDemo.SetRowPadding(etk.Scale(50))
-	selectDemo.AddChildAt(outer, 0, 0, 1, 1)
+	selectDemo.AddChildAt(f, 0, 0, 1, 1)
 
-	return selectDemo, nil
+	outer := etk.NewFrame()
+	outer.SetPositionChildren(true)
+	outer.AddChild(selectDemo, etk.NewFrame(selectList))
+
+	return outer, nil
 }
