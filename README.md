@@ -29,6 +29,8 @@
 
 ## Demo
 
+Browse the [widget showcase](https://rocketnine.itch.io/etk?secret=etk) using your browser. 
+
 [Boxcars](https://code.rocket9labs.com/tslocum/boxcars) uses etk extensively and is available at https://play.bgammon.org
 
 [![Screenshot](https://code.rocket9labs.com/tslocum/boxcars/raw/branch/main/screenshot.png)](https://code.rocket9labs.com/tslocum/boxcars/src/branch/main/screenshot.png)
