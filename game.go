@@ -417,7 +417,10 @@ func update(w Widget, cursor image.Point, pressed bool, clicked bool, mouseHandl
 				pressedWidget = nil
 			}
 			shape := w.Cursor()
-			if shape != -1 && shape != cursorShape {
+			if shape == -1 {
+				shape = ebiten.CursorShapeDefault
+			}
+			if shape != cursorShape {
 				ebiten.SetCursorShape(shape)
 				cursorShape = shape
 			}
