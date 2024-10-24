@@ -13,17 +13,18 @@ import (
 // Button is a clickable button.
 type Button struct {
 	*Box
-	field        *messeji.TextField
-	textFont     *sfnt.Font
-	textSize     int
-	textAutoSize int
-	borderSize   int
-	borderTop    color.RGBA
-	borderRight  color.RGBA
-	borderBottom color.RGBA
-	borderLeft   color.RGBA
-	onSelected   func() error
-	pressed      bool
+	field         *messeji.TextField
+	btnBackground color.RGBA
+	textFont      *sfnt.Font
+	textSize      int
+	textAutoSize  int
+	borderSize    int
+	borderTop     color.RGBA
+	borderRight   color.RGBA
+	borderBottom  color.RGBA
+	borderLeft    color.RGBA
+	onSelected    func() error
+	pressed       bool
 }
 
 // NewButton returns a new Button widget.
@@ -40,16 +41,17 @@ func NewButton(label string, onSelected func() error) *Button {
 	f.SetScrollBarVisible(false)
 
 	b := &Button{
-		Box:          NewBox(),
-		field:        f,
-		textFont:     Style.TextFont,
-		textSize:     Scale(Style.TextSize),
-		onSelected:   onSelected,
-		borderSize:   Scale(Style.ButtonBorderSize),
-		borderTop:    Style.ButtonBorderTop,
-		borderRight:  Style.ButtonBorderRight,
-		borderBottom: Style.ButtonBorderBottom,
-		borderLeft:   Style.ButtonBorderLeft,
+		Box:           NewBox(),
+		field:         f,
+		btnBackground: Style.ButtonBgColor,
+		textFont:      Style.TextFont,
+		textSize:      Scale(Style.TextSize),
+		onSelected:    onSelected,
+		borderSize:    Scale(Style.ButtonBorderSize),
+		borderTop:     Style.ButtonBorderTop,
+		borderRight:   Style.ButtonBorderRight,
+		borderBottom:  Style.ButtonBorderBottom,
+		borderLeft:    Style.ButtonBorderLeft,
 	}
 	b.SetBackground(Style.ButtonBgColor)
 	b.resizeFont()
@@ -85,6 +87,23 @@ func (b *Button) SetBorderColors(top color.RGBA, right color.RGBA, bottom color.
 	b.borderRight = right
 	b.borderBottom = bottom
 	b.borderLeft = left
+}
+
+// SetForeground sets the color of the button label.
+func (b *Button) SetForeground(c color.RGBA) {
+	b.Lock()
+	defer b.Unlock()
+
+	b.field.SetForegroundColor(c)
+}
+
+// SetBackground sets the background color of the button label.
+func (b *Button) SetBackground(background color.RGBA) {
+	b.Lock()
+	defer b.Unlock()
+
+	b.btnBackground = background
+	b.field.SetBackgroundColor(b.btnBackground)
 }
 
 // Text returns the content of the text buffer.
@@ -175,7 +194,7 @@ func (b *Button) HandleMouse(cursor image.Point, pressed bool, clicked bool) (ha
 		if b.pressed && !pressed {
 			b.Lock()
 			b.pressed = false
-			b.background = Style.ButtonBgColor
+			b.background = b.btnBackground
 			b.Unlock()
 		}
 		return true, nil
@@ -183,7 +202,7 @@ func (b *Button) HandleMouse(cursor image.Point, pressed bool, clicked bool) (ha
 
 	b.Lock()
 	b.pressed = true
-	b.background = color.RGBA{uint8(float64(Style.ButtonBgColor.R) * 0.95), uint8(float64(Style.ButtonBgColor.G) * 0.95), uint8(float64(Style.ButtonBgColor.B) * 0.95), 255}
+	b.background = color.RGBA{uint8(float64(b.btnBackground.R) * 0.95), uint8(float64(b.btnBackground.G) * 0.95), uint8(float64(b.btnBackground.B) * 0.95), 255}
 	onSelected := b.onSelected
 	if onSelected == nil {
 		b.Unlock()

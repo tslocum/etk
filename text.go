@@ -58,7 +58,7 @@ func (t *Text) Foreground() color.RGBA {
 	return t.field.ForegroundColor()
 }
 
-// SetForegroundColor sets the color of the text within the field.
+// SetForeground sets the color of the text within the field.
 func (t *Text) SetForeground(c color.RGBA) {
 	t.Lock()
 	defer t.Unlock()

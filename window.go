@@ -35,7 +35,7 @@ func NewWindow() *Window {
 		font:      Style.TextFont,
 		fontSize:  Scale(Style.TextSize),
 		frameSize: Scale(4),
-		listSize:  Scale(128),
+		listSize:  Scale(172),
 		listH:     AlignEnd,
 		listV:     AlignCenter,
 		active:    -1,
@@ -183,6 +183,7 @@ func (w *Window) Draw(screen *ebiten.Image) error {
 			t := NewText(label)
 			t.SetFont(w.font, Scale(w.fontSize))
 			t.SetAutoResize(true)
+			t.SetVertical(AlignCenter)
 			w.list.AddChildAt(t, 0, i)
 			w.list.SetSelectedItem(0, w.active)
 		}

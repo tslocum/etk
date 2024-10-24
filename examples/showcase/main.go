@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"image/color"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -33,7 +34,101 @@ func main() {
 
 	w := etk.NewWindow()
 
-	// Input demo.
+	// Button.
+	{
+		var btn *etk.Button
+		var clicked int
+		onClick := func() error {
+			clicked++
+			label := "Clicked 1 time"
+			if clicked > 1 {
+				label = fmt.Sprintf("Clicked %d times", clicked)
+			}
+			btn.SetText(label)
+			return nil
+		}
+		btn = etk.NewButton("Click here", onClick)
+
+		f := etk.NewFrame()
+		f.SetPositionChildren(true)
+		f.SetMaxHeight(etk.Scale(100))
+		f.SetMaxWidth(etk.Scale(300))
+		f.AddChild(btn)
+
+		btnDemo := etk.NewGrid()
+		btnDemo.SetColumnPadding(etk.Scale(50))
+		btnDemo.SetRowPadding(etk.Scale(50))
+		btnDemo.AddChildAt(f, 0, 0, 1, 1)
+
+		w.AddChildWithLabel(btnDemo, nil, "Button")
+	}
+
+	// Checkbox.
+	{
+		var chk *etk.Checkbox
+		var label *etk.Button
+		onSelectChk := func() error {
+			if chk.Selected() {
+				label.SetText("Checked")
+			} else {
+				label.SetText("Unchecked")
+			}
+			return nil
+		}
+		onSelectLabel := func() error {
+			chk.SetSelected(!chk.Selected())
+			onSelectChk()
+			return nil
+		}
+		chk = etk.NewCheckbox(onSelectChk)
+		chk.SetBackground(color.RGBA{255, 255, 255, 255})
+		label = etk.NewButton("Unchecked", onSelectLabel)
+		label.SetHorizontal(etk.AlignStart)
+		label.SetVertical(etk.AlignCenter)
+		label.SetForeground(color.RGBA{255, 255, 255, 255})
+		label.SetBackground(color.RGBA{0, 0, 0, 0})
+		label.SetBorderColors(color.RGBA{0, 0, 0, 0}, color.RGBA{0, 0, 0, 0}, color.RGBA{0, 0, 0, 0}, color.RGBA{0, 0, 0, 0})
+
+		grid := etk.NewGrid()
+		grid.SetColumnSizes(etk.Scale(50), -1)
+		grid.AddChildAt(chk, 0, 0, 1, 1)
+		grid.AddChildAt(label, 1, 0, 1, 1)
+
+		f := etk.NewFrame()
+		f.SetPositionChildren(true)
+		f.SetMaxHeight(etk.Scale(50))
+		f.AddChild(grid)
+
+		btnDemo := etk.NewGrid()
+		btnDemo.SetColumnPadding(etk.Scale(50))
+		btnDemo.SetRowPadding(etk.Scale(50))
+		btnDemo.AddChildAt(f, 0, 0, 1, 1)
+
+		w.AddChildWithLabel(btnDemo, nil, "Checkbox")
+	}
+
+	// Flex.
+	{
+		newLabel := func(i int) *etk.Text {
+			t := etk.NewText(fmt.Sprintf("Item #%d", i))
+			t.SetPadding(etk.Scale(10))
+			return t
+		}
+
+		l1 := newLabel(1)
+		l2 := newLabel(2)
+		l3 := newLabel(3)
+		l4 := newLabel(4)
+		l5 := newLabel(5)
+
+		flexDemo := etk.NewFlex()
+		flexDemo.SetChildSize(etk.Scale(300), etk.Scale(75))
+		flexDemo.AddChild(l1, l2, l3, l4, l5)
+
+		w.AddChildWithLabel(flexDemo, nil, "Flex")
+	}
+
+	// Input.
 	buffer := etk.NewText("Press enter to append input below to this buffer.")
 	onselected := func(text string) (handled bool) {
 		buffer.Write([]byte("\nInput: " + text))
@@ -47,35 +142,6 @@ func main() {
 		inputDemo.AddChild(buffer, input)
 
 		w.AddChildWithLabel(inputDemo, input, "Input")
-	}
-
-	// Flex demo.
-	{
-		newButton := func(i int) *etk.Button {
-			return etk.NewButton(fmt.Sprintf("Button %d", i), func() error {
-				log.Printf("Pressed button %d", i)
-				return nil
-			})
-		}
-
-		b1 := newButton(1)
-		b2 := newButton(2)
-
-		topFlex := etk.NewFlex()
-		topFlex.AddChild(b1, b2)
-
-		b3 := newButton(3)
-		b4 := newButton(4)
-		b5 := newButton(5)
-
-		bottomFlex := etk.NewFlex()
-		bottomFlex.AddChild(b3, b4, b5)
-
-		flexDemo := etk.NewFlex()
-		flexDemo.SetVertical(true)
-		flexDemo.AddChild(topFlex, bottomFlex)
-
-		w.AddChildWithLabel(flexDemo, nil, "Flex")
 	}
 
 	w.Show(0)
