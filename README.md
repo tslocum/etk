@@ -22,7 +22,9 @@
   - Frame: Widget container. All child widgets are displayed at once. Child widgets are not repositioned by default.
   - Grid: Highly customizable cell-based layout. Each widget added to the Grid may span multiple cells.
   - Input: Text input widget. The Input widget is simply a Text widget that also accepts user input.
+  - Keyboard: On-screen keyboard.
   - List: List of widgets as selectable items.
+  - Select: Dropdown selection widget.
   - Sprite: Resizable image.
   - Text: Text display widget.
   - Window: Widget paging mechanism. Only one widget added to a window is displayed at a time.
