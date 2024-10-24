@@ -27,6 +27,8 @@ func main() {
 	}
 
 	ebiten.SetWindowTitle("etk widget showcase")
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	ebiten.SetWindowSize(800, 600)
 
 	g := newGame()
 

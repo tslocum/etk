@@ -33,6 +33,10 @@ const (
 	AlignEnd Alignment = 2
 )
 
+// DebounceResize is the minimum duration between screen layout changes.
+// This setting can greatly improve performance when resizing the window.
+var DebounceResize = 250 * time.Millisecond
+
 var root Widget
 
 var drawDebug bool
@@ -52,6 +56,8 @@ var (
 	cursorShape ebiten.CursorShapeType
 
 	foundFocused bool
+
+	lastResize time.Time
 
 	lastBackspaceRepeat time.Time
 
@@ -192,6 +198,10 @@ func ScreenSize() (width int, height int) {
 
 // Layout sets the current screen size and resizes the root widget.
 func Layout(outsideWidth int, outsideHeight int) {
+	if !lastResize.IsZero() && time.Since(lastResize) < DebounceResize && outsideWidth != 0 && outsideHeight != 0 {
+		return
+	}
+
 	outsideWidth, outsideHeight = Scale(outsideWidth), Scale(outsideHeight)
 	if outsideWidth != lastWidth || outsideHeight != lastHeight {
 		lastWidth, lastHeight = outsideWidth, outsideHeight
