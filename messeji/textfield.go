@@ -864,15 +864,16 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 		var lastSpace int
 		var bounds fixed.Rectangle26_6
 		var boundsWidth int
+	WRAPTEXT:
 		for start < l {
 			lastSpace = -1
-			for e := range line[start:] {
-				if unicode.IsSpace(rune(line[start+e])) {
+			for e, r := range line[start:] {
+				if unicode.IsSpace(r) {
 					lastSpace = start + e + 1
 				}
-				bounds, _ = font.BoundString(f.face, line[start:start+e+1])
+				bounds, _ = font.BoundString(f.face, line[start:start+e]+string(r))
 				boundsWidth = (bounds.Max.X - bounds.Min.X).Floor()
-				if boundsWidth > availableWidth || e == l-start-1 {
+				if boundsWidth > availableWidth {
 					original := e
 					if e != l-start-1 && e > 0 {
 						e--
@@ -898,9 +899,22 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 					j++
 
 					start = start + e + 1
-					break
+					continue WRAPTEXT
 				}
 			}
+
+			if len(f.bufferWrapped) <= j {
+				f.bufferWrapped = append(f.bufferWrapped, line[start:])
+			} else {
+				f.bufferWrapped[j] = line[start:]
+			}
+			if len(f.lineWidths) <= j {
+				f.lineWidths = append(f.lineWidths, boundsWidth)
+			} else {
+				f.lineWidths[j] = boundsWidth
+			}
+			j++
+			break
 		}
 	}
 
