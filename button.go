@@ -103,7 +103,7 @@ func (b *Button) SetBackground(background color.RGBA) {
 	defer b.Unlock()
 
 	b.btnBackground = background
-	b.field.SetBackgroundColor(b.btnBackground)
+	b.background = background
 }
 
 // Text returns the content of the text buffer.
@@ -200,9 +200,10 @@ func (b *Button) HandleMouse(cursor image.Point, pressed bool, clicked bool) (ha
 		return true, nil
 	}
 
+	const dim = 0.9
 	b.Lock()
 	b.pressed = true
-	b.background = color.RGBA{uint8(float64(b.btnBackground.R) * 0.95), uint8(float64(b.btnBackground.G) * 0.95), uint8(float64(b.btnBackground.B) * 0.95), 255}
+	b.background = color.RGBA{uint8(float64(b.btnBackground.R) * dim), uint8(float64(b.btnBackground.G) * dim), uint8(float64(b.btnBackground.B) * dim), 255}
 	onSelected := b.onSelected
 	if onSelected == nil {
 		b.Unlock()
