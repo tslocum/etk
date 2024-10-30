@@ -1119,10 +1119,10 @@ func (f *TextField) bufferModified() {
 	lastOffset := f.offset
 	if f.follow {
 		f.offset = -math.MaxInt
-		f.clampOffset()
-		if f.offset != lastOffset {
-			f.drawImage()
-		}
+	}
+	f.clampOffset()
+	if f.offset != lastOffset {
+		f.drawImage()
 	}
 
 	f.redraw = false
