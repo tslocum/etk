@@ -20,7 +20,7 @@ var testTextField *TextField
 
 func TestWrapContent(t *testing.T) {
 	testCases := []struct {
-		long     bool // Short or long text.
+		long     bool // Test data type.
 		wordWrap bool // Enable wordwrap.
 
 	}{
@@ -51,7 +51,7 @@ func TestWrapContent(t *testing.T) {
 	for _, c := range testCases {
 		var name string
 		if !c.long {
-			name = "short"
+			name = "loremipsum"
 		} else {
 			name = "long"
 		}
@@ -80,7 +80,7 @@ func TestWrapContent(t *testing.T) {
 
 func BenchmarkWrapContent(b *testing.B) {
 	testCases := []struct {
-		long     bool // Short or long text.
+		long     bool // Test data type.
 		wordWrap bool // Enable wordwrap.
 
 	}{
@@ -111,7 +111,7 @@ func BenchmarkWrapContent(b *testing.B) {
 	for _, c := range testCases {
 		var name string
 		if !c.long {
-			name = "short"
+			name = "loremipsum"
 		} else {
 			name = "long"
 		}

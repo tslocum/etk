@@ -838,7 +838,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 			line += f.suffix
 		}
 		l := len(line)
-		availableWidth := w - (f.padding * 2)
+		availableWidth := w - (f.padding * 2) - 5
 
 		f.wrapStart = j
 
@@ -858,89 +858,49 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 			continue
 		}
 
+		// Add characters one at a time until the line doesn't fit. When word
+		// wrapping is enabled, break the line at the last whitespace character.
 		var start int
-		var end int
+		var lastSpace int
+		var bounds fixed.Rectangle26_6
+		var boundsWidth int
 		for start < l {
-			end = l
-			var initialEnd int
-			var bounds fixed.Rectangle26_6
-			var boundsWidth int
-
-			// Chop the line in half until it fits.
-			for end > start {
-				initialEnd = end
-
-				bounds, _ := font.BoundString(f.face, line[start:end])
-				boundsWidth := (bounds.Max.X - bounds.Min.X).Floor()
-				if boundsWidth > availableWidth && end > start+1 {
-					delta := (end - start) / 2
-					if delta < 1 {
-						delta = 1
-					}
-					end -= delta
-				} else {
-					break
+			lastSpace = -1
+			for e := range line[start:] {
+				if unicode.IsSpace(rune(line[start+e])) {
+					lastSpace = start + e + 1
 				}
-			}
-
-			// Add characters until the line doesn't fit anymore.
-			lineEnd := end
-			var lastSpace = -1
-			for end < l {
-				initialEnd = end
-
-				bounds, _ := font.BoundString(f.face, line[start:end])
-				boundsWidth := (bounds.Max.X - bounds.Min.X).Floor()
-				if boundsWidth > availableWidth && end > start+1 {
-					break
-				}
-
-				lineEnd = end
-				end++
-				if unicode.IsSpace(rune(line[lineEnd])) {
-					lastSpace = lineEnd
-				}
-			}
-
-			// Apply word wrapping.
-			if f.wordWrap && lineEnd < l {
-				if lastSpace == -1 {
-					// Search for a space going backwards.
-					end = lineEnd
-					for offset := 1; offset < end-start-2; offset++ {
-						if unicode.IsSpace(rune(line[end-offset])) {
-							lastSpace = end - offset
-							break
-						}
-					}
-				}
-				if lastSpace != -1 {
-					end = lastSpace + 1
-				} else {
-					end = lineEnd
-				}
-			} else {
-				end = lineEnd
-			}
-
-			if boundsWidth == 0 || end != initialEnd {
-				bounds, _ = font.BoundString(f.face, line[start:end])
+				bounds, _ = font.BoundString(f.face, line[start:start+e+1])
 				boundsWidth = (bounds.Max.X - bounds.Min.X).Floor()
-			}
+				if boundsWidth > availableWidth || e == l-start-1 {
+					original := e
+					if e != l-start-1 && e > 0 {
+						e--
+					}
+					if f.wordWrap && lastSpace != -1 && start+e+1 < l {
+						e = lastSpace - start - 1
+					}
+					if e != original {
+						bounds, _ = font.BoundString(f.face, line[start:start+e+1])
+						boundsWidth = (bounds.Max.X - bounds.Min.X).Floor()
+					}
 
-			if len(f.bufferWrapped) <= j {
-				f.bufferWrapped = append(f.bufferWrapped, line[start:end])
-			} else {
-				f.bufferWrapped[j] = line[start:end]
-			}
-			if len(f.lineWidths) <= j {
-				f.lineWidths = append(f.lineWidths, boundsWidth)
-			} else {
-				f.lineWidths[j] = boundsWidth
-			}
-			j++
+					if len(f.bufferWrapped) <= j {
+						f.bufferWrapped = append(f.bufferWrapped, line[start:start+e+1])
+					} else {
+						f.bufferWrapped[j] = line[start : start+e+1]
+					}
+					if len(f.lineWidths) <= j {
+						f.lineWidths = append(f.lineWidths, boundsWidth)
+					} else {
+						f.lineWidths[j] = boundsWidth
+					}
+					j++
 
-			start = end
+					start = start + e + 1
+					break
+				}
+			}
 		}
 	}
 
