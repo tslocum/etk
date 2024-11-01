@@ -169,7 +169,8 @@ func (s *Select) _setMenuVisible(visible bool) {
 	if !visible {
 		s.background = Style.ButtonBgColor
 	} else {
-		s.background = color.RGBA{uint8(float64(Style.ButtonBgColor.R) * 0.95), uint8(float64(Style.ButtonBgColor.G) * 0.95), uint8(float64(Style.ButtonBgColor.B) * 0.95), 255}
+		const dim = 0.9
+		s.background = color.RGBA{uint8(float64(Style.ButtonBgColor.R) * dim), uint8(float64(Style.ButtonBgColor.G) * dim), uint8(float64(Style.ButtonBgColor.B) * dim), 255}
 	}
 }
 
