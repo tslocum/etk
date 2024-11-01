@@ -23,13 +23,15 @@ type Checkbox struct {
 
 // NewCheckbox returns a new Checkbox widget.
 func NewCheckbox(onSelect func() error) *Checkbox {
-	return &Checkbox{
+	c := &Checkbox{
 		Box:         NewBox(),
 		checkColor:  Style.TextColorDark,
 		borderSize:  2,
 		borderColor: Style.ButtonBorderBottom,
 		onSelect:    onSelect,
 	}
+	c.SetBackground(Style.CheckboxBgColor)
+	return c
 }
 
 // SetRect sets the position and size of the Checkbox. The checkbox is always

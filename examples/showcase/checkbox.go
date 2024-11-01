@@ -25,7 +25,6 @@ func newCheckboxExample() (etk.Widget, etk.Widget) {
 		return nil
 	}
 	chk = etk.NewCheckbox(onSelectChk)
-	chk.SetBackground(color.RGBA{255, 255, 255, 255})
 	label = etk.NewButton("Unchecked", onSelectLabel)
 	label.SetHorizontal(etk.AlignStart)
 	label.SetVertical(etk.AlignCenter)

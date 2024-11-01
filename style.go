@@ -18,12 +18,6 @@ type Attributes struct {
 
 	TextBgColor color.RGBA
 
-	ButtonBorderSize   int
-	ButtonBorderTop    color.RGBA
-	ButtonBorderRight  color.RGBA
-	ButtonBorderBottom color.RGBA
-	ButtonBorderLeft   color.RGBA
-
 	InputBorderSize      int
 	InputBorderFocused   color.RGBA
 	InputBorderUnfocused color.RGBA
@@ -42,6 +36,14 @@ type Attributes struct {
 	ButtonTextColor       color.RGBA
 	ButtonBgColor         color.RGBA
 	ButtonBgColorDisabled color.RGBA
+
+	ButtonBorderSize   int
+	ButtonBorderTop    color.RGBA
+	ButtonBorderRight  color.RGBA
+	ButtonBorderBottom color.RGBA
+	ButtonBorderLeft   color.RGBA
+
+	CheckboxBgColor color.RGBA
 }
 
 // Style is the current default attribute configuration. Integer values will be scaled.
@@ -52,12 +54,6 @@ var Style = &Attributes{
 	TextColorDark:  color.RGBA{0, 0, 0, 255},
 
 	TextBgColor: transparent,
-
-	ButtonBorderSize:   4,
-	ButtonBorderTop:    color.RGBA{220, 220, 220, 255},
-	ButtonBorderRight:  color.RGBA{0, 0, 0, 255},
-	ButtonBorderBottom: color.RGBA{0, 0, 0, 255},
-	ButtonBorderLeft:   color.RGBA{220, 220, 220, 255},
 
 	InputBorderSize:      2,
 	InputBorderFocused:   color.RGBA{220, 220, 220, 255},
@@ -76,4 +72,12 @@ var Style = &Attributes{
 
 	ButtonBgColor:         color.RGBA{255, 255, 255, 255},
 	ButtonBgColorDisabled: color.RGBA{110, 110, 110, 255},
+
+	ButtonBorderSize:   4,
+	ButtonBorderTop:    color.RGBA{220, 220, 220, 255},
+	ButtonBorderRight:  color.RGBA{0, 0, 0, 255},
+	ButtonBorderBottom: color.RGBA{0, 0, 0, 255},
+	ButtonBorderLeft:   color.RGBA{220, 220, 220, 255},
+
+	CheckboxBgColor: color.RGBA{255, 255, 255, 255},
 }
