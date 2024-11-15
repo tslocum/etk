@@ -3,14 +3,14 @@ package etk
 import (
 	"image/color"
 
-	"golang.org/x/image/font/sfnt"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 var transparent = color.RGBA{0, 0, 0, 0}
 
 // Attributes represents a default attribute configuration. Integer values will be scaled.
 type Attributes struct {
-	TextFont *sfnt.Font
+	TextFont *text.GoTextFaceSource
 	TextSize int
 
 	TextColorLight color.RGBA

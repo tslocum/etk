@@ -5,14 +5,14 @@ import (
 	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"golang.org/x/image/font/sfnt"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 // Window displays a single child widget at a time, and includes a list to
 // view other child widgets. Window.Show must be called after adding a widget.
 type Window struct {
 	*Box
-	font         *sfnt.Font
+	font         *text.GoTextFaceSource
 	fontSize     int
 	frameSize    int
 	list         *List
@@ -56,7 +56,7 @@ func (w *Window) SetRect(r image.Rectangle) {
 }
 
 // SetFont sets the font and text size of the window titles. Scaling is not applied.
-func (w *Window) SetFont(fnt *sfnt.Font, size int) {
+func (w *Window) SetFont(fnt *text.GoTextFaceSource, size int) {
 	w.Lock()
 	defer w.Unlock()
 

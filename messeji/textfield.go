@@ -11,9 +11,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	"golang.org/x/image/font"
-	"golang.org/x/image/math/fixed"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 // Alignment specifies how text is aligned within the field.
@@ -97,7 +95,7 @@ type TextField struct {
 	vertical Alignment
 
 	// face is the font face of the text within the field.
-	face font.Face
+	face *text.GoTextFace
 
 	// faceMutex is the lock which is held whenever utilizing the font face.
 	faceMutex *sync.Mutex
@@ -190,7 +188,7 @@ type TextField struct {
 }
 
 // NewTextField returns a new TextField. See type documentation for more info.
-func NewTextField(face font.Face, faceMutex *sync.Mutex) *TextField {
+func NewTextField(face *text.GoTextFace, faceMutex *sync.Mutex) *TextField {
 	if faceMutex == nil {
 		faceMutex = &sync.Mutex{}
 	}
@@ -423,7 +421,7 @@ func (f *TextField) SetBackgroundColor(c color.RGBA) {
 }
 
 // SetFont sets the font face of the text within the field.
-func (f *TextField) SetFont(face font.Face, mutex *sync.Mutex) {
+func (f *TextField) SetFont(face *text.GoTextFace, mutex *sync.Mutex) {
 	if mutex == nil {
 		mutex = &sync.Mutex{}
 	}
@@ -793,8 +791,8 @@ func (f *TextField) Draw(screen *ebiten.Image) {
 
 func (f *TextField) fontUpdated() {
 	m := f.face.Metrics()
-	f.lineHeight = m.Height.Ceil()
-	f.lineOffset = m.CapHeight.Ceil()
+	f.lineHeight = int(m.HAscent + m.HDescent)
+	f.lineOffset = int(m.HLineGap)
 	if f.lineOffset < 0 {
 		f.lineOffset *= -1
 	}
@@ -811,11 +809,11 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 
 	if f.singleLine || len(f.buffer) == 0 {
 		buffer := f.prefix + string(bytes.Join(f.buffer, nil)) + f.suffix
-		bounds, _ := font.BoundString(f.face, buffer)
+		w, _ := text.Measure(buffer, f.face, float64(f.lineHeight))
 
 		f.bufferWrapped = []string{buffer}
 		f.wrapStart = 0
-		f.lineWidths = append(f.lineWidths[:0], (bounds.Max.X - bounds.Min.X).Floor())
+		f.lineWidths = append(f.lineWidths[:0], int(w))
 
 		f.needWrap = -1
 		return
@@ -862,7 +860,6 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 		// wrapping is enabled, break the line at the last whitespace character.
 		var start int
 		var lastSpace int
-		var bounds fixed.Rectangle26_6
 		var boundsWidth int
 	WRAPTEXT:
 		for start < l {
@@ -871,8 +868,8 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 				if unicode.IsSpace(r) {
 					lastSpace = start + e + 1
 				}
-				bounds, _ = font.BoundString(f.face, line[start:start+e]+string(r))
-				boundsWidth = (bounds.Max.X - bounds.Min.X).Floor()
+				w, _ := text.Measure(line[start:start+e]+string(r), f.face, float64(f.lineHeight))
+				boundsWidth = int(w)
 				if boundsWidth > availableWidth {
 					original := e
 					if e != l-start-1 && e > 0 {
@@ -882,8 +879,8 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 						e = lastSpace - start - 1
 					}
 					if e != original {
-						bounds, _ = font.BoundString(f.face, line[start:start+e+1])
-						boundsWidth = (bounds.Max.X - bounds.Min.X).Floor()
+						w, _ := text.Measure(line[start:start+e+1], f.face, float64(f.lineHeight))
+						boundsWidth = int(w)
 					}
 
 					if len(f.bufferWrapped) <= j {
@@ -956,10 +953,16 @@ func (f *TextField) drawContent() (overflow bool) {
 	}
 	// Calculate buffer size (width for single-line fields or height for multi-line fields).
 	if f.singleLine {
-		bounds, _ := font.BoundString(f.face, f.bufferWrapped[firstVisible])
-		f.bufferSize = (bounds.Max.X - bounds.Min.X).Floor()
+		w, _ := text.Measure(f.bufferWrapped[firstVisible], f.face, float64(f.lineHeight))
+		f.bufferSize = int(w)
+		if f.bufferSize > fieldWidth-f.padding*2 {
+			overflow = true
+		}
 	} else {
 		f.bufferSize = (len(f.bufferWrapped)) * lineHeight
+		if f.bufferSize > fieldHeight-f.padding*2 {
+			overflow = true
+		}
 	}
 	for i := firstVisible; i <= lastVisible; i++ {
 		line := f.bufferWrapped[i]
@@ -970,10 +973,10 @@ func (f *TextField) drawContent() (overflow bool) {
 			}
 		}
 		lineX := f.padding
-		lineY := 1 + f.padding + f.lineOffset + lineHeight*i
+		lineY := 1 + f.padding + -f.lineOffset + lineHeight*i
 
 		// Calculate whether the line overflows the visible area.
-		lineOverflows := lineY < 0 || lineY >= h-(f.padding*2)
+		lineOverflows := lineY < 0 || lineY >= h-f.padding
 		if lineOverflows {
 			overflow = true
 		}
@@ -998,7 +1001,7 @@ func (f *TextField) drawContent() (overflow bool) {
 		}
 
 		// Align vertically.
-		totalHeight := f.lineOffset + lineHeight*(lines-1)
+		totalHeight := f.lineOffset + lineHeight*(lines)
 		if f.vertical == AlignCenter && totalHeight <= h {
 			lineY = fieldHeight/2 - totalHeight/2 + f.lineOffset + (lineHeight * (i))
 		} else if f.vertical == AlignEnd && totalHeight <= h {
@@ -1006,7 +1009,10 @@ func (f *TextField) drawContent() (overflow bool) {
 		}
 
 		// Draw line.
-		text.Draw(f.img, line, f.face, lineX, lineY, f.textColor)
+		op := &text.DrawOptions{}
+		op.GeoM.Translate(float64(lineX), float64(lineY))
+		op.ColorScale.ScaleWithColor(f.textColor)
+		text.Draw(f.img, line, f.face, op)
 	}
 
 	return overflow

@@ -3,6 +3,7 @@
 package game
 
 import (
+	"bytes"
 	"fmt"
 	"image"
 	"log"
@@ -13,8 +14,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 const initialText = `
@@ -28,24 +28,19 @@ Below is an InputField, which accepts keyboard input.
 `
 
 var (
-	mplusNormalFont font.Face
+	mplusNormalFont *text.GoTextFace
 	fontMutex       *sync.Mutex
 )
 
 func init() {
-	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	source, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
-	const dpi = 72
-	mplusNormalFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    28,
-		DPI:     dpi,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		log.Fatal(err)
+	mplusNormalFont = &text.GoTextFace{
+		Source: source,
+		Size:   24,
 	}
 }
 

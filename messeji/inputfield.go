@@ -5,7 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"golang.org/x/image/font"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 // InputField is a text input field. Call Update and Draw when your Game's
@@ -40,7 +40,7 @@ type InputField struct {
 }
 
 // NewInputField returns a new InputField. See type documentation for more info.
-func NewInputField(face font.Face, faceMutex *sync.Mutex) *InputField {
+func NewInputField(face *text.GoTextFace, faceMutex *sync.Mutex) *InputField {
 	f := &InputField{
 		TextField: NewTextField(face, faceMutex),
 	}

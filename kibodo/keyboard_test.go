@@ -1,15 +1,14 @@
 package kibodo
 
 import (
-	"log"
+	"bytes"
 	"runtime"
 	"testing"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
-	"golang.org/x/image/font/opentype"
-	"golang.org/x/image/font/sfnt"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 // TODO test presses registered
@@ -88,10 +87,10 @@ func NewDummyGame() *DummyGame {
 	return &DummyGame{}
 }
 
-func defaultFont() *sfnt.Font {
-	f, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+func defaultFont() *text.GoTextFaceSource {
+	source, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-	return f
+	return source
 }

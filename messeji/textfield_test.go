@@ -1,16 +1,15 @@
 package messeji
 
 import (
+	"bytes"
 	"embed"
 	"fmt"
 	"image"
-	"log"
 	"sync"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 //go:embed testdata
@@ -18,7 +17,25 @@ var testDataFS embed.FS
 
 var testTextField *TextField
 
+func testFace() (*text.GoTextFace, error) {
+	source, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
+	if err != nil {
+		return nil, err
+	}
+
+	face := &text.GoTextFace{
+		Source: source,
+		Size:   24,
+	}
+	return face, nil
+}
+
 func TestWrapContent(t *testing.T) {
+	face, err := testFace()
+	if err != nil {
+		t.Error(err)
+	}
+
 	testCases := []struct {
 		long     bool // Test data type.
 		wordWrap bool // Enable wordwrap.
@@ -28,22 +45,6 @@ func TestWrapContent(t *testing.T) {
 		{false, true},
 		{true, false},
 		{true, true},
-	}
-
-	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	const size = 24
-	const dpi = 72
-	face, err := opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    size,
-		DPI:     dpi,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	testRect := image.Rect(0, 0, 200, 400)
@@ -79,6 +80,11 @@ func TestWrapContent(t *testing.T) {
 }
 
 func BenchmarkWrapContent(b *testing.B) {
+	face, err := testFace()
+	if err != nil {
+		b.Error(err)
+	}
+
 	testCases := []struct {
 		long     bool // Test data type.
 		wordWrap bool // Enable wordwrap.
@@ -88,22 +94,6 @@ func BenchmarkWrapContent(b *testing.B) {
 		{false, true},
 		{true, false},
 		{true, true},
-	}
-
-	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	const size = 24
-	const dpi = 72
-	face, err := opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    size,
-		DPI:     dpi,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	testRect := image.Rect(0, 0, 200, 400)

@@ -6,8 +6,7 @@ import (
 
 	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/sfnt"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 // Button is a clickable button.
@@ -15,7 +14,7 @@ type Button struct {
 	*Box
 	field         *messeji.TextField
 	btnBackground color.RGBA
-	textFont      *sfnt.Font
+	textFont      *text.GoTextFaceSource
 	textSize      int
 	textAutoSize  int
 	borderSize    int
@@ -124,7 +123,7 @@ func (b *Button) SetText(text string) {
 }
 
 // SetFont sets the font and text size of button label. Scaling is not applied.
-func (b *Button) SetFont(fnt *sfnt.Font, size int) {
+func (b *Button) SetFont(fnt *text.GoTextFaceSource, size int) {
 	b.Lock()
 	defer b.Unlock()
 
@@ -145,7 +144,7 @@ func (b *Button) resizeFont() {
 	}
 
 	var autoSize int
-	var ff font.Face
+	var ff *text.GoTextFace
 	for autoSize = b.textSize; autoSize > 0; autoSize-- {
 		ff = FontFace(b.textFont, autoSize)
 		bounds := BoundString(ff, b.field.Text())

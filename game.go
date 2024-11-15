@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/color"
 	"io"
-	"log"
 	"math"
 	"sync"
 	"time"
@@ -13,9 +12,8 @@ import (
 	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
-	"golang.org/x/image/font/sfnt"
 	"golang.org/x/image/math/fixed"
 )
 
@@ -117,29 +115,11 @@ var (
 )
 
 // FontFace returns a face for the provided font and size. Scaling is not applied.
-func FontFace(fnt *sfnt.Font, size int) font.Face {
-	id := fmt.Sprintf("%p/%d", fnt, size)
-
-	fontCacheLock.Lock()
-	defer fontCacheLock.Unlock()
-
-	f := fontCache[id]
-	if f != nil {
-		return f
+func FontFace(source *text.GoTextFaceSource, size int) *text.GoTextFace {
+	return &text.GoTextFace{
+		Source: source,
+		Size:   float64(size),
 	}
-
-	const dpi = 72
-	f, err := opentype.NewFace(fnt, &opentype.FaceOptions{
-		Size:    float64(size),
-		DPI:     dpi,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fontCache[id] = f
-	return f
 }
 
 // SetRoot sets the root widget. The root widget and all of its children will
@@ -177,12 +157,12 @@ func int26ToRect(r fixed.Rectangle26_6) image.Rectangle {
 }
 
 // BoundString returns the bounds of the provided string.
-func BoundString(f font.Face, s string) image.Rectangle {
+func BoundString(f *text.GoTextFace, s string) image.Rectangle {
 	fontMutex.Lock()
 	defer fontMutex.Unlock()
 
-	bounds, _ := font.BoundString(f, s)
-	return int26ToRect(bounds)
+	w, h := text.Measure(s, f, 0)
+	return image.Rect(0, 0, int(w), int(h))
 }
 
 // SetDebug sets whether debug information is drawn on screen. When enabled,

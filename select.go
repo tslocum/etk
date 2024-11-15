@@ -119,6 +119,7 @@ func (s *Select) AddOption(label string) {
 	t := NewText(label)
 	t.SetVertical(AlignCenter)
 	t.SetForeground(textColor)
+	t.SetAutoResize(true)
 	s.list.AddChildAt(t, 0, len(s.items)-1)
 }
 

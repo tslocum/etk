@@ -6,15 +6,14 @@ import (
 
 	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/sfnt"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 // Text is a text display widget.
 type Text struct {
 	*Box
 	field         *messeji.TextField
-	textFont      *sfnt.Font
+	textFont      *text.GoTextFaceSource
 	textSize      int
 	textResize    bool
 	textAutoSize  int
@@ -193,7 +192,7 @@ func (t *Text) resizeFont() {
 	}
 
 	var autoSize int
-	var ff font.Face
+	var ff *text.GoTextFace
 	for autoSize = t.textSize; autoSize > 0; autoSize-- {
 		ff = FontFace(t.textFont, autoSize)
 		bounds := BoundString(ff, t.field.Text())
@@ -243,7 +242,7 @@ func (t *Text) FontSize() int {
 }
 
 // SetFont sets the font and text size of the field. Scaling is not applied.
-func (t *Text) SetFont(fnt *sfnt.Font, size int) {
+func (t *Text) SetFont(fnt *text.GoTextFaceSource, size int) {
 	t.Lock()
 	defer t.Unlock()
 

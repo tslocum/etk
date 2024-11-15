@@ -3,15 +3,11 @@ package kibodo
 import (
 	"image"
 	"image/color"
-	"log"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
-	"golang.org/x/image/font/sfnt"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 // Keyboard is an on-screen keyboard widget.
@@ -50,7 +46,7 @@ type Keyboard struct {
 
 	hideShortcuts []ebiten.Key
 
-	labelFont  font.Face
+	labelFont  *text.GoTextFace
 	lineHeight int
 	lineOffset int
 
@@ -62,12 +58,7 @@ type Keyboard struct {
 }
 
 // NewKeyboard returns a new Keyboard widget.
-func NewKeyboard(f *sfnt.Font) *Keyboard {
-	ff, err := fontFace(f, 64)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func NewKeyboard(f *text.GoTextFaceSource) *Keyboard {
 	k := &Keyboard{
 		alpha: 1.0,
 		op: &ebiten.DrawImageOptions{
@@ -80,7 +71,7 @@ func NewKeyboard(f *sfnt.Font) *Keyboard {
 		backgroundColor: color.RGBA{0, 0, 0, 255},
 		holdTouchID:     -1,
 		hideShortcuts:   []ebiten.Key{ebiten.KeyEscape},
-		labelFont:       ff,
+		labelFont:       fontFace(f, 64),
 		backspaceDelay:  500 * time.Millisecond,
 		backspaceRepeat: 75 * time.Millisecond,
 	}
@@ -88,13 +79,11 @@ func NewKeyboard(f *sfnt.Font) *Keyboard {
 	return k
 }
 
-func fontFace(f *sfnt.Font, size float64) (font.Face, error) {
-	const dpi = 72 // TODO
-	return opentype.NewFace(f, &opentype.FaceOptions{
-		Size:    size,
-		DPI:     dpi,
-		Hinting: font.HintingFull,
-	})
+func fontFace(source *text.GoTextFaceSource, size float64) *text.GoTextFace {
+	return &text.GoTextFace{
+		Source: source,
+		Size:   size,
+	}
 }
 
 // SetRect sets the position and size of the widget.
@@ -156,7 +145,7 @@ func (k *Keyboard) SetShowExtended(show bool) {
 }
 
 // SetLabelFont sets the key label font.
-func (k *Keyboard) SetLabelFont(face font.Face) {
+func (k *Keyboard) SetLabelFont(face *text.GoTextFace) {
 	k.labelFont = face
 	k.fontUpdated()
 
@@ -165,8 +154,11 @@ func (k *Keyboard) SetLabelFont(face font.Face) {
 
 func (k *Keyboard) fontUpdated() {
 	m := k.labelFont.Metrics()
-	k.lineHeight = m.Height.Round()
-	k.lineOffset = m.Ascent.Round()
+	k.lineHeight = int(m.HAscent + m.HDescent)
+	k.lineOffset = int(m.CapHeight)
+	if k.lineOffset < 0 {
+		k.lineOffset *= -1
+	}
 }
 
 // SetHideShortcuts sets the key shortcuts which, when pressed, will hide the
@@ -626,13 +618,17 @@ func (k *Keyboard) drawBackground() {
 					label = key.UpperLabel
 				}
 
-				bounds := text.BoundString(k.labelFont, label)
-				x := (key.w - bounds.Dx()) / 2
+				boundsW, boundsY := text.Measure(label, k.labelFont, float64(k.lineHeight))
+				x := key.w/2 - int(boundsW)/2
 				if x < 0 {
 					x = 0
 				}
-				y := halfLineHeight + (key.h-halfLineHeight)/2
-				text.Draw(keyImage, label, k.labelFont, key.x+x, key.y+y, color.White)
+				y := key.h/2 - int(boundsY)/2
+				_ = halfLineHeight
+				op := &text.DrawOptions{}
+				op.GeoM.Translate(float64(key.x+x), float64(key.y+y))
+				op.ColorScale.ScaleWithColor(color.White)
+				text.Draw(keyImage, label, k.labelFont, op)
 
 				// Draw border
 				keyImage.SubImage(image.Rect(key.x, key.y, key.x+key.w, key.y+1)).(*ebiten.Image).Fill(lightShade)

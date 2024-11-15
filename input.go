@@ -6,7 +6,7 @@ import (
 
 	"code.rocket9labs.com/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
-	"golang.org/x/image/font/sfnt"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 // Input is a text input widget. The Input widget is simply a Text widget that
@@ -187,7 +187,7 @@ func (i *Input) SetAutoHideScrollBar(autoHide bool) {
 }
 
 // SetFont sets the font and text size of the field. Scaling is not applied.
-func (t *Input) SetFont(fnt *sfnt.Font, size int) {
+func (t *Input) SetFont(fnt *text.GoTextFaceSource, size int) {
 	t.Lock()
 	defer t.Unlock()
 
