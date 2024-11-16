@@ -1,5 +1,5 @@
 # etk - Ebitengine Tool Kit
-[![GoDoc](https://code.rocket9labs.com/tslocum/godoc-static/raw/branch/master/badge.svg)](https://docs.rocket9labs.com/code.rocket9labs.com/tslocum/etk)
+[![GoDoc](https://code.rocket9labs.com/tslocum/godoc-static/raw/branch/main/badge.svg)](https://docs.rocket9labs.com/code.rocket9labs.com/tslocum/etk)
 [![Donate via LiberaPay](https://img.shields.io/liberapay/receives/rocket9labs.com.svg?logo=liberapay)](https://liberapay.com/rocket9labs.com)
 
 [Ebitengine](https://github.com/hajimehoshi/ebiten) tool kit for creating graphical user interfaces

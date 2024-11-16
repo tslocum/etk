@@ -951,6 +951,7 @@ func (f *TextField) drawContent() (overflow bool) {
 			lastVisible = len(f.bufferWrapped) - 1
 		}
 	}
+	numVisible := lastVisible - firstVisible
 	// Calculate buffer size (width for single-line fields or height for multi-line fields).
 	if f.singleLine {
 		w, _ := text.Measure(f.bufferWrapped[firstVisible], f.face, float64(f.lineHeight))
@@ -1003,9 +1004,9 @@ func (f *TextField) drawContent() (overflow bool) {
 		// Align vertically.
 		totalHeight := f.lineOffset + lineHeight*(lines)
 		if f.vertical == AlignCenter && totalHeight <= h {
-			lineY = fieldHeight/2 - totalHeight/2 + f.lineOffset + (lineHeight * (i))
+			lineY = fieldHeight/2 - totalHeight/2 + f.lineOffset + (lineHeight * (i)) - 2
 		} else if f.vertical == AlignEnd && totalHeight <= h {
-			lineY = (fieldHeight - lineHeight*i) - f.padding
+			lineY = fieldHeight - lineHeight*(numVisible+1-i) - f.padding
 		}
 
 		// Draw line.
