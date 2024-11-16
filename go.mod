@@ -18,8 +18,8 @@ require (
 	github.com/go-text/typesetting v0.2.0 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
-	golang.org/x/exp/shiny v0.0.0-20241009180824-f66d83c29e7c // indirect
-	golang.org/x/mobile v0.0.0-20241016134751-7ff83004ec2c // indirect
+	golang.org/x/exp/shiny v0.0.0-20241108190413-2d47ceb2692f // indirect
+	golang.org/x/mobile v0.0.0-20241108191957-fa514ef75a0f // indirect
 	golang.org/x/sync v0.9.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.20.0 // indirect

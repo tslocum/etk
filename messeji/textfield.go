@@ -94,11 +94,22 @@ type TextField struct {
 	// vertical is the vertical alignment of the text within field.
 	vertical Alignment
 
-	// face is the font face of the text within the field.
-	face *text.GoTextFace
+	autoResize bool
 
-	// faceMutex is the lock which is held whenever utilizing the font face.
-	faceMutex *sync.Mutex
+	// fontSource is the font face source of the text within the field.
+	fontSource *text.GoTextFaceSource
+
+	// fontFace is the font face of the text within the field.
+	fontFace *text.GoTextFace
+
+	// fontSize is the maximum font size of the text within the field.
+	fontSize int
+
+	// overrideFontSize is the actual font size of the text within the field.
+	overrideFontSize int
+
+	// fontMutex is the lock which is held whenever utilizing the font.
+	fontMutex *sync.Mutex
 
 	// lineHeight is the height of a single line of text.
 	lineHeight int
@@ -188,14 +199,15 @@ type TextField struct {
 }
 
 // NewTextField returns a new TextField. See type documentation for more info.
-func NewTextField(face *text.GoTextFace, faceMutex *sync.Mutex) *TextField {
-	if faceMutex == nil {
-		faceMutex = &sync.Mutex{}
+func NewTextField(fontSource *text.GoTextFaceSource, fontSize int, fontMutex *sync.Mutex) *TextField {
+	if fontMutex == nil {
+		fontMutex = &sync.Mutex{}
 	}
 
 	f := &TextField{
-		face:              face,
-		faceMutex:         faceMutex,
+		fontSource:        fontSource,
+		fontSize:          fontSize,
+		fontMutex:         fontMutex,
 		textColor:         initialForeground,
 		backgroundColor:   initialBackground,
 		padding:           initialPadding,
@@ -210,10 +222,10 @@ func NewTextField(face *text.GoTextFace, faceMutex *sync.Mutex) *TextField {
 		redraw:            true,
 	}
 
-	f.faceMutex.Lock()
-	defer f.faceMutex.Unlock()
+	f.fontMutex.Lock()
+	defer f.fontMutex.Unlock()
 
-	f.fontUpdated()
+	f.resizeFont()
 	return f
 }
 
@@ -243,6 +255,12 @@ func (f *TextField) SetRect(r image.Rectangle) {
 	}
 
 	f.r = r
+	f.resizeFont()
+}
+
+func (f *TextField) text() string {
+	f.processIncoming()
+	return string(bytes.Join(f.buffer, []byte("\n")))
 }
 
 // Text returns the text in the field.
@@ -250,9 +268,7 @@ func (f *TextField) Text() string {
 	f.Lock()
 	defer f.Unlock()
 
-	f.processIncoming()
-
-	return string(bytes.Join(f.buffer, []byte("\n")))
+	return f.text()
 }
 
 // SetText sets the text in the field.
@@ -268,6 +284,7 @@ func (f *TextField) SetText(text string) {
 	f.incoming = append(f.incoming[:0], []byte(text)...)
 	f.modified = true
 	f.redraw = true
+	f.resizeFont()
 }
 
 // SetLast sets the text of the last line of the field. Newline characters are
@@ -292,6 +309,7 @@ func (f *TextField) SetLast(text string) {
 
 	f.modified = true
 	f.redraw = true
+	f.resizeFont()
 }
 
 // SetPrefix sets the text shown before the content of the field.
@@ -303,6 +321,7 @@ func (f *TextField) SetPrefix(text string) {
 	f.needWrap = 0
 	f.wrapStart = 0
 	f.modified = true
+	f.resizeFont()
 }
 
 // SetSuffix sets the text shown after the content of the field.
@@ -314,6 +333,7 @@ func (f *TextField) SetSuffix(text string) {
 	f.needWrap = 0
 	f.wrapStart = 0
 	f.modified = true
+	f.resizeFont()
 }
 
 // SetFollow sets whether the field should automatically scroll to the end when
@@ -339,6 +359,7 @@ func (f *TextField) SetSingleLine(single bool) {
 	f.needWrap = 0
 	f.wrapStart = 0
 	f.modified = true
+	f.resizeFont()
 }
 
 // SetHorizontal sets the horizontal alignment of the text within the field.
@@ -392,6 +413,7 @@ func (f *TextField) SetLineHeight(height int) {
 	f.needWrap = 0
 	f.wrapStart = 0
 	f.modified = true
+	f.resizeFont()
 }
 
 // ForegroundColor returns the color of the text within the field.
@@ -421,7 +443,7 @@ func (f *TextField) SetBackgroundColor(c color.RGBA) {
 }
 
 // SetFont sets the font face of the text within the field.
-func (f *TextField) SetFont(face *text.GoTextFace, mutex *sync.Mutex) {
+func (f *TextField) SetFont(faceSource *text.GoTextFaceSource, size int, mutex *sync.Mutex) {
 	if mutex == nil {
 		mutex = &sync.Mutex{}
 	}
@@ -432,13 +454,25 @@ func (f *TextField) SetFont(face *text.GoTextFace, mutex *sync.Mutex) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	f.face = face
-	f.faceMutex = mutex
-	f.fontUpdated()
+	f.fontSource = faceSource
+	f.fontSize = size
+	f.fontMutex = mutex
+	f.overrideFontSize = 0
 
 	f.needWrap = 0
 	f.wrapStart = 0
 	f.modified = true
+	f.resizeFont()
+}
+
+// SetAutoResize sets whether the font is automatically scaled down when it is
+// too large to fit the entire text buffer on one line.
+func (f *TextField) SetAutoResize(resize bool) {
+	f.Lock()
+	defer f.Unlock()
+
+	f.autoResize = resize
+	f.resizeFont()
 }
 
 // Padding returns the amount of padding around the text within the field.
@@ -458,6 +492,7 @@ func (f *TextField) SetPadding(padding int) {
 	f.needWrap = 0
 	f.wrapStart = 0
 	f.modified = true
+	f.resizeFont()
 }
 
 // Visible returns whether the field is currently visible on the screen.
@@ -493,6 +528,7 @@ func (f *TextField) SetScrollBarWidth(width int) {
 	f.needWrap = 0
 	f.wrapStart = 0
 	f.modified = true
+	f.resizeFont()
 }
 
 // SetScrollBarColors sets the color of the scroll bar area and handle.
@@ -580,6 +616,53 @@ func (f *TextField) SetWordWrap(wrap bool) {
 	f.modified = true
 }
 
+func (f *TextField) resizeFont() {
+	if !f.autoResize {
+		if f.overrideFontSize == f.fontSize {
+			return
+		}
+		f.overrideFontSize = f.fontSize
+		f.fontFace = fontFace(f.fontSource, f.overrideFontSize)
+		f.fontUpdated()
+		f.bufferModified()
+		return
+	}
+
+	w, h := f.r.Dx()-f.padding*2, f.r.Dy()-f.padding*2
+	if w <= 0 || h <= 0 {
+		if f.overrideFontSize == f.fontSize {
+			return
+		}
+		f.overrideFontSize = f.fontSize
+		f.fontFace = fontFace(f.fontSource, f.overrideFontSize)
+		f.fontUpdated()
+		f.bufferModified()
+		return
+	}
+
+	buffer := f.text()
+
+	var size int
+	var ff *text.GoTextFace
+	var m text.Metrics
+	for size = f.fontSize; size > 1; size-- {
+		ff = fontFace(f.fontSource, size)
+		m = ff.Metrics()
+		bw, bh := text.Measure(buffer, ff, m.HAscent+m.HDescent)
+		if int(bw) <= w && int(bh) <= h {
+			break
+		}
+	}
+	if f.overrideFontSize == size {
+		return
+	}
+
+	f.overrideFontSize = size
+	f.fontFace = ff
+	f.fontUpdated()
+	f.bufferModified()
+}
+
 // SetHandleKeyboard sets a flag controlling whether keyboard input should be handled
 // by the field. This can be used to facilitate focus changes between multiple inputs.
 func (f *TextField) SetHandleKeyboard(handle bool) {
@@ -600,6 +683,7 @@ func (f *TextField) SetMask(r rune) {
 
 	f.maskRune = r
 	f.modified = true
+	f.resizeFont()
 }
 
 // Write writes to the field's buffer.
@@ -763,12 +847,12 @@ func (f *TextField) Draw(screen *ebiten.Image) {
 	defer f.Unlock()
 
 	if f.modified {
-		f.faceMutex.Lock()
+		f.fontMutex.Lock()
 
 		f.bufferModified()
 		f.modified = false
 
-		f.faceMutex.Unlock()
+		f.fontMutex.Unlock()
 	}
 
 	if !f.visible || rectIsZero(f.r) {
@@ -776,12 +860,12 @@ func (f *TextField) Draw(screen *ebiten.Image) {
 	}
 
 	if f.redraw {
-		f.faceMutex.Lock()
+		f.fontMutex.Lock()
 
 		f.drawImage()
 		f.redraw = false
 
-		f.faceMutex.Unlock()
+		f.fontMutex.Unlock()
 	}
 
 	op := &ebiten.DrawImageOptions{}
@@ -790,7 +874,7 @@ func (f *TextField) Draw(screen *ebiten.Image) {
 }
 
 func (f *TextField) fontUpdated() {
-	m := f.face.Metrics()
+	m := f.fontFace.Metrics()
 	f.lineHeight = int(m.HAscent + m.HDescent)
 	f.lineOffset = int(m.HLineGap)
 	if f.lineOffset < 0 {
@@ -807,9 +891,9 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 	}
 	f.wrapScrollBar = withScrollBar
 
-	if f.singleLine || len(f.buffer) == 0 {
+	if len(f.buffer) == 0 || (f.singleLine && !f.autoResize) {
 		buffer := f.prefix + string(bytes.Join(f.buffer, nil)) + f.suffix
-		w, _ := text.Measure(buffer, f.face, float64(f.lineHeight))
+		w, _ := text.Measure(buffer, f.fontFace, float64(f.lineHeight))
 
 		f.bufferWrapped = []string{buffer}
 		f.wrapStart = 0
@@ -836,7 +920,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 			line += f.suffix
 		}
 		l := len(line)
-		availableWidth := w - (f.padding * 2) - 5
+		availableWidth := w - (f.padding * 2) - 15
 
 		f.wrapStart = j
 
@@ -864,29 +948,31 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 	WRAPTEXT:
 		for start < l {
 			lastSpace = -1
-			for e, r := range line[start:] {
-				if unicode.IsSpace(r) {
-					lastSpace = start + e + 1
+			var e int
+			for _, r := range line[start:] {
+				if e > l-start {
+					e = l - start
 				}
-				w, _ := text.Measure(line[start:start+e]+string(r), f.face, float64(f.lineHeight))
+				runeLength := len(string(r))
+				if unicode.IsSpace(r) {
+					lastSpace = start + e
+				}
+				w, _ := text.Measure(line[start:start+e], f.fontFace, float64(f.lineHeight))
 				boundsWidth = int(w)
 				if boundsWidth > availableWidth {
-					original := e
-					if e != l-start-1 && e > 0 {
-						e--
+					if e > 0 {
+						e -= runeLength
 					}
-					if f.wordWrap && lastSpace != -1 && start+e+1 < l {
-						e = lastSpace - start - 1
+					if f.wordWrap && lastSpace != -1 && start+e+runeLength < l {
+						e = lastSpace - start
 					}
-					if e != original {
-						w, _ := text.Measure(line[start:start+e+1], f.face, float64(f.lineHeight))
-						boundsWidth = int(w)
-					}
+					w, _ := text.Measure(line[start:start+e], f.fontFace, float64(f.lineHeight))
+					boundsWidth = int(w)
 
 					if len(f.bufferWrapped) <= j {
-						f.bufferWrapped = append(f.bufferWrapped, line[start:start+e+1])
+						f.bufferWrapped = append(f.bufferWrapped, line[start:start+e])
 					} else {
-						f.bufferWrapped[j] = line[start : start+e+1]
+						f.bufferWrapped[j] = line[start : start+e]
 					}
 					if len(f.lineWidths) <= j {
 						f.lineWidths = append(f.lineWidths, boundsWidth)
@@ -895,11 +981,14 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 					}
 					j++
 
-					start = start + e + 1
+					start += e + runeLength
 					continue WRAPTEXT
 				}
+				e += runeLength
 			}
 
+			w, _ := text.Measure(line[start:], f.fontFace, float64(f.lineHeight))
+			boundsWidth = int(w)
 			if len(f.bufferWrapped) <= j {
 				f.bufferWrapped = append(f.bufferWrapped, line[start:])
 			} else {
@@ -954,7 +1043,7 @@ func (f *TextField) drawContent() (overflow bool) {
 	numVisible := lastVisible - firstVisible
 	// Calculate buffer size (width for single-line fields or height for multi-line fields).
 	if f.singleLine {
-		w, _ := text.Measure(f.bufferWrapped[firstVisible], f.face, float64(f.lineHeight))
+		w, _ := text.Measure(f.bufferWrapped[firstVisible], f.fontFace, float64(f.lineHeight))
 		f.bufferSize = int(w)
 		if f.bufferSize > fieldWidth-f.padding*2 {
 			overflow = true
@@ -1003,9 +1092,9 @@ func (f *TextField) drawContent() (overflow bool) {
 
 		// Align vertically.
 		totalHeight := f.lineOffset + lineHeight*(lines)
-		if f.vertical == AlignCenter && totalHeight <= h {
+		if f.vertical == AlignCenter && (f.autoResize || totalHeight <= h) {
 			lineY = fieldHeight/2 - totalHeight/2 + f.lineOffset + (lineHeight * (i)) - 2
-		} else if f.vertical == AlignEnd && totalHeight <= h {
+		} else if f.vertical == AlignEnd && (f.autoResize || totalHeight <= h) {
 			lineY = fieldHeight - lineHeight*(numVisible+1-i) - f.padding
 		}
 
@@ -1013,7 +1102,7 @@ func (f *TextField) drawContent() (overflow bool) {
 		op := &text.DrawOptions{}
 		op.GeoM.Translate(float64(lineX), float64(lineY))
 		op.ColorScale.ScaleWithColor(f.textColor)
-		text.Draw(f.img, line, f.face, op)
+		text.Draw(f.img, line, f.fontFace, op)
 	}
 
 	return overflow
@@ -1040,10 +1129,24 @@ func (f *TextField) clampOffset() {
 }
 
 func (f *TextField) showScrollBar() bool {
-	return !f.singleLine && f.scrollVisible && (f.overflow || !f.scrollAutoHide)
+	return !f.autoResize && !f.singleLine && f.scrollVisible && (f.overflow || !f.scrollAutoHide)
 }
 
 func (f *TextField) wrap() {
+	w, h := f.r.Dx(), f.r.Dy()
+
+	var newImage bool
+	if f.img == nil {
+		newImage = true
+	} else {
+		imgRect := f.img.Bounds()
+		imgW, imgH := imgRect.Dx(), imgRect.Dy()
+		newImage = imgW != w || imgH != h
+	}
+	if newImage {
+		f.img = ebiten.NewImage(w, h)
+	}
+
 	showScrollBar := f.showScrollBar()
 	f.wrapContent(showScrollBar)
 	f.overflow = f.drawContent()
@@ -1060,24 +1163,12 @@ func (f *TextField) drawImage() {
 		return
 	}
 
-	w, h := f.r.Dx(), f.r.Dy()
-
-	var newImage bool
-	if f.img == nil {
-		newImage = true
-	} else {
-		imgRect := f.img.Bounds()
-		imgW, imgH := imgRect.Dx(), imgRect.Dy()
-		newImage = imgW != w || imgH != h
-	}
-	if newImage {
-		f.img = ebiten.NewImage(w, h)
-	}
-
 	f.wrap()
 
 	// Draw scrollbar.
 	if f.showScrollBar() {
+		w, h := f.r.Dx(), f.r.Dy()
+
 		scrollAreaX, scrollAreaY := w-f.scrollWidth, 0
 		f.scrollRect = image.Rect(scrollAreaX, scrollAreaY, scrollAreaX+f.scrollWidth, h)
 
@@ -1151,4 +1242,11 @@ func (f *TextField) bufferModified() {
 
 func rectIsZero(r image.Rectangle) bool {
 	return r.Dx() == 0 || r.Dy() == 0
+}
+
+func fontFace(source *text.GoTextFaceSource, size int) *text.GoTextFace {
+	return &text.GoTextFace{
+		Source: source,
+		Size:   float64(size),
+	}
 }

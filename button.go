@@ -16,7 +16,6 @@ type Button struct {
 	btnBackground color.RGBA
 	textFont      *text.GoTextFaceSource
 	textSize      int
-	textAutoSize  int
 	borderSize    int
 	borderTop     color.RGBA
 	borderRight   color.RGBA
@@ -37,7 +36,7 @@ func NewButton(label string, onSelected func() error) *Button {
 	f.SetForegroundColor(textColor)
 	f.SetHorizontal(messeji.AlignCenter)
 	f.SetVertical(messeji.AlignCenter)
-	f.SetScrollBarVisible(false)
+	f.SetAutoResize(true)
 
 	b := &Button{
 		Box:           NewBox(),
@@ -53,7 +52,6 @@ func NewButton(label string, onSelected func() error) *Button {
 		borderLeft:    Style.ButtonBorderLeft,
 	}
 	b.SetBackground(Style.ButtonBgColor)
-	b.resizeFont()
 	return b
 }
 
@@ -62,7 +60,6 @@ func (b *Button) SetRect(r image.Rectangle) {
 	b.Box.rect = r
 
 	b.field.SetRect(r)
-	b.resizeFont()
 
 	for _, w := range b.children {
 		w.SetRect(r)
@@ -119,7 +116,6 @@ func (b *Button) SetText(text string) {
 	defer b.Unlock()
 
 	b.field.SetText(text)
-	b.resizeFont()
 }
 
 // SetFont sets the font and text size of button label. Scaling is not applied.
@@ -128,36 +124,7 @@ func (b *Button) SetFont(fnt *text.GoTextFaceSource, size int) {
 	defer b.Unlock()
 
 	b.textFont, b.textSize = fnt, size
-	b.resizeFont()
-}
-
-func (b *Button) resizeFont() {
-	w, h := b.rect.Dx()-b.field.Padding()*2, b.rect.Dy()-b.field.Padding()*2
-	if w == 0 || h == 0 {
-		if b.textAutoSize == b.textSize {
-			return
-		}
-		b.textAutoSize = b.textSize
-		ff := FontFace(b.textFont, b.textSize)
-		b.field.SetFont(ff, fontMutex)
-		return
-	}
-
-	var autoSize int
-	var ff *text.GoTextFace
-	for autoSize = b.textSize; autoSize > 0; autoSize-- {
-		ff = FontFace(b.textFont, autoSize)
-		bounds := BoundString(ff, b.field.Text())
-		if bounds.Dx() <= w && bounds.Dy() <= h {
-			break
-		}
-	}
-	if b.textAutoSize == autoSize {
-		return
-	}
-
-	b.field.SetFont(ff, fontMutex)
-	b.textAutoSize = autoSize
+	b.field.SetFont(b.textFont, b.textSize, fontMutex)
 }
 
 // SetHorizontal sets the horizontal alignment of the button label.

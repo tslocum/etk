@@ -15,8 +15,6 @@ type Text struct {
 	field         *messeji.TextField
 	textFont      *text.GoTextFaceSource
 	textSize      int
-	textResize    bool
-	textAutoSize  int
 	scrollVisible bool
 	children      []Widget
 }
@@ -35,7 +33,6 @@ func NewText(text string) *Text {
 		textSize:      Scale(Style.TextSize),
 		scrollVisible: true,
 	}
-	t.resizeFont()
 	return t
 }
 
@@ -46,7 +43,6 @@ func (t *Text) SetRect(r image.Rectangle) {
 
 	t.rect = r
 	t.field.SetRect(r)
-	t.resizeFont()
 }
 
 // Foreground return the color of the text within the field.
@@ -139,7 +135,6 @@ func (t *Text) Write(p []byte) (n int, err error) {
 	if err != nil {
 		return n, err
 	}
-	t.resizeFont()
 	return n, err
 }
 
@@ -157,7 +152,6 @@ func (t *Text) SetText(text string) {
 	defer t.Unlock()
 
 	t.field.SetText(text)
-	t.resizeFont()
 }
 
 // SetLast sets the text of the last line of the field.
@@ -166,52 +160,18 @@ func (t *Text) SetLast(text string) {
 	defer t.Unlock()
 
 	t.field.SetLast(text)
-	t.resizeFont()
 }
 
-func (t *Text) resizeFont() {
-	if !t.textResize {
-		if t.textAutoSize == t.textSize {
-			return
-		}
-		t.textAutoSize = t.textSize
-		ff := FontFace(t.textFont, t.textSize)
-		t.field.SetFont(ff, fontMutex)
-		return
-	}
+// SetAutoResize sets whether the font is automatically scaled down when it is
+// too large to fit the entire text buffer on one line.
+func (t *Text) SetAutoResize(resize bool) {
+	t.Lock()
+	defer t.Unlock()
 
-	w, h := t.rect.Dx()-t.field.Padding()*2, t.rect.Dy()-t.field.Padding()*2
-	if w == 0 || h == 0 {
-		if t.textAutoSize == t.textSize {
-			return
-		}
-		t.textAutoSize = t.textSize
-		ff := FontFace(t.textFont, t.textSize)
-		t.field.SetFont(ff, fontMutex)
-		return
-	}
-
-	var autoSize int
-	var ff *text.GoTextFace
-	for autoSize = t.textSize; autoSize > 0; autoSize-- {
-		ff = FontFace(t.textFont, autoSize)
-		bounds := BoundString(ff, t.field.Text())
-		if bounds.Dx() <= w && bounds.Dy() <= h {
-			break
-		}
-	}
-	if t.textAutoSize == autoSize {
-		return
-	}
-
-	t.field.SetFont(ff, fontMutex)
-	t.textAutoSize = autoSize
+	t.field.SetAutoResize(resize)
 }
 
 func (t *Text) scrollBarVisible() bool {
-	if t.textResize {
-		return false
-	}
 	return t.scrollVisible
 }
 
@@ -238,7 +198,7 @@ func (t *Text) FontSize() int {
 	t.Lock()
 	defer t.Unlock()
 
-	return t.textAutoSize
+	return t.textSize
 }
 
 // SetFont sets the font and text size of the field. Scaling is not applied.
@@ -247,18 +207,7 @@ func (t *Text) SetFont(fnt *text.GoTextFaceSource, size int) {
 	defer t.Unlock()
 
 	t.textFont, t.textSize = fnt, size
-	t.resizeFont()
-}
-
-// SetAutoResize sets whether the font is automatically scaled down when it is
-// too large to fit the entire text buffer on one line.
-func (t *Text) SetAutoResize(resize bool) {
-	t.Lock()
-	defer t.Unlock()
-
-	t.textResize = resize
-	t.resizeFont()
-	t.field.SetScrollBarVisible(t.scrollBarVisible())
+	t.field.SetFont(t.textFont, t.textSize, fontMutex)
 }
 
 // Padding returns the amount of padding around the text within the field.

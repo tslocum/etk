@@ -31,10 +31,8 @@ func testFace() (*text.GoTextFace, error) {
 }
 
 func TestWrapContent(t *testing.T) {
-	face, err := testFace()
-	if err != nil {
-		t.Error(err)
-	}
+	const fontSize = 24
+	fontSource := defaultFont()
 
 	testCases := []struct {
 		long     bool // Test data type.
@@ -69,7 +67,7 @@ func TestWrapContent(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
-			textField := NewTextField(face, &sync.Mutex{})
+			textField := NewTextField(fontSource, fontSize, &sync.Mutex{})
 			testTextField = textField
 			textField.SetRect(testRect)
 			textField.SetWordWrap(c.wordWrap)
@@ -80,10 +78,8 @@ func TestWrapContent(t *testing.T) {
 }
 
 func BenchmarkWrapContent(b *testing.B) {
-	face, err := testFace()
-	if err != nil {
-		b.Error(err)
-	}
+	const fontSize = 24
+	fontSource := defaultFont()
 
 	testCases := []struct {
 		long     bool // Test data type.
@@ -117,7 +113,7 @@ func BenchmarkWrapContent(b *testing.B) {
 			name += "/wrapWord"
 		}
 
-		textField := NewTextField(face, &sync.Mutex{})
+		textField := NewTextField(fontSource, fontSize, &sync.Mutex{})
 		testTextField = textField
 		textField.SetRect(testRect)
 		textField.SetWordWrap(c.wordWrap)
@@ -130,4 +126,12 @@ func BenchmarkWrapContent(b *testing.B) {
 			}
 		})
 	}
+}
+
+func defaultFont() *text.GoTextFaceSource {
+	source, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
+	if err != nil {
+		panic(err)
+	}
+	return source
 }

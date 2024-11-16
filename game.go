@@ -463,7 +463,7 @@ func draw(w Widget, screen *ebiten.Image) error {
 }
 
 func newText() *messeji.TextField {
-	f := messeji.NewTextField(FontFace(Style.TextFont, Scale(Style.TextSize)), fontMutex)
+	f := messeji.NewTextField(Style.TextFont, Scale(Style.TextSize), fontMutex)
 	f.SetForegroundColor(Style.TextColorLight)
 	f.SetBackgroundColor(transparent)
 	f.SetScrollBarColors(Style.ScrollAreaColor, Style.ScrollHandleColor)

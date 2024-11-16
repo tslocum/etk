@@ -23,7 +23,7 @@ type Input struct {
 
 // NewInput returns a new Input widget.
 func NewInput(text string, onSelected func(text string) (handled bool)) *Input {
-	f := messeji.NewInputField(FontFace(Style.TextFont, Scale(Style.TextSize)), fontMutex)
+	f := messeji.NewInputField(Style.TextFont, Scale(Style.TextSize), fontMutex)
 	f.SetForegroundColor(Style.TextColorLight)
 	f.SetBackgroundColor(transparent)
 	f.SetScrollBarColors(Style.ScrollAreaColor, Style.ScrollHandleColor)
@@ -191,7 +191,7 @@ func (t *Input) SetFont(fnt *text.GoTextFaceSource, size int) {
 	t.Lock()
 	defer t.Unlock()
 
-	t.field.SetFont(FontFace(fnt, size), fontMutex)
+	t.field.SetFont(fnt, size, fontMutex)
 }
 
 // Padding returns the amount of padding around the text within the field.

@@ -28,19 +28,16 @@ Below is an InputField, which accepts keyboard input.
 `
 
 var (
-	mplusNormalFont *text.GoTextFace
-	fontMutex       *sync.Mutex
+	fontSource *text.GoTextFaceSource
+	fontSize   = 24
+	fontMutex  *sync.Mutex
 )
 
 func init() {
-	source, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
+	var err error
+	fontSource, err = text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
 	if err != nil {
 		panic(err)
-	}
-
-	mplusNormalFont = &text.GoTextFace{
-		Source: source,
-		Size:   24,
 	}
 }
 
@@ -63,8 +60,8 @@ type game struct {
 // NewDemoGame returns a new messeji demo game.
 func NewDemoGame() *game {
 	g := &game{
-		buffer: messeji.NewTextField(mplusNormalFont, fontMutex),
-		input:  messeji.NewInputField(mplusNormalFont, fontMutex),
+		buffer: messeji.NewTextField(fontSource, fontSize, fontMutex),
+		input:  messeji.NewInputField(fontSource, fontSize, fontMutex),
 		op: &ebiten.DrawImageOptions{
 			Filter: ebiten.FilterNearest,
 		},

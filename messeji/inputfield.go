@@ -40,9 +40,9 @@ type InputField struct {
 }
 
 // NewInputField returns a new InputField. See type documentation for more info.
-func NewInputField(face *text.GoTextFace, faceMutex *sync.Mutex) *InputField {
+func NewInputField(fontSource *text.GoTextFaceSource, fontSize int, fontMutex *sync.Mutex) *InputField {
 	f := &InputField{
-		TextField: NewTextField(face, faceMutex),
+		TextField: NewTextField(fontSource, fontSize, fontMutex),
 	}
 	f.TextField.suffix = "_"
 	return f
