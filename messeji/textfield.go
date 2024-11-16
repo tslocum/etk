@@ -997,8 +997,6 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 				e += runeSize
 			}
 
-			w, _ := text.Measure(line[start:], f.fontFace, float64(f.lineHeight))
-			boundsWidth = int(w)
 			if len(f.bufferWrapped) <= j {
 				f.bufferWrapped = append(f.bufferWrapped, line[start:])
 			} else {

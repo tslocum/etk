@@ -17,22 +17,34 @@ var testDataFS embed.FS
 
 var testTextField *TextField
 
-func testFace() (*text.GoTextFace, error) {
+func defaultFont() *text.GoTextFaceSource {
 	source, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
+	return source
+}
 
-	face := &text.GoTextFace{
-		Source: source,
-		Size:   24,
+func cacheGlyphs(source *text.GoTextFaceSource, size int) {
+	testFiles := []string{"loremipsum", "long"}
+	for _, fileName := range testFiles {
+		content, err := testDataFS.ReadFile(fmt.Sprintf("testdata/%s.txt", fileName))
+		if err != nil {
+			panic("failed to open testdata")
+		}
+		face := &text.GoTextFace{
+			Source: source,
+			Size:   float64(size),
+		}
+		text.CacheGlyphs(string(content), face)
 	}
-	return face, nil
 }
 
 func TestWrapContent(t *testing.T) {
 	const fontSize = 24
 	fontSource := defaultFont()
+
+	cacheGlyphs(fontSource, fontSize)
 
 	testCases := []struct {
 		long     bool // Test data type.
@@ -81,6 +93,8 @@ func BenchmarkWrapContent(b *testing.B) {
 	const fontSize = 24
 	fontSource := defaultFont()
 
+	cacheGlyphs(fontSource, fontSize)
+
 	testCases := []struct {
 		long     bool // Test data type.
 		wordWrap bool // Enable wordwrap.
@@ -126,12 +140,4 @@ func BenchmarkWrapContent(b *testing.B) {
 			}
 		})
 	}
-}
-
-func defaultFont() *text.GoTextFaceSource {
-	source, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
-	if err != nil {
-		panic(err)
-	}
-	return source
 }

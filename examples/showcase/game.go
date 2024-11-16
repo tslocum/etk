@@ -16,6 +16,7 @@ type game struct {
 
 func newGame() *game {
 	etk.Style.TextFont = defaultFont()
+	text.CacheGlyphs(loremIpsum, etk.FontFace(etk.Style.TextFont, etk.Scale(etk.Style.TextSize)))
 	g := &game{}
 	return g
 }
