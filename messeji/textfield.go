@@ -944,6 +944,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 		// wrapping is enabled, break the line at the last whitespace character.
 		var start int
 		var lastSpace int
+		var lastSpaceSize int
 		var boundsWidth int
 	WRAPTEXT:
 		for start < l {
@@ -953,26 +954,31 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 				if e > l-start {
 					e = l - start
 				}
-				runeLength := len(string(r))
+				runeSize := len(string(r))
 				if unicode.IsSpace(r) {
-					lastSpace = start + e
+					lastSpace = e
+					lastSpaceSize = runeSize
 				}
 				w, _ := text.Measure(line[start:start+e], f.fontFace, float64(f.lineHeight))
 				boundsWidth = int(w)
 				if boundsWidth > availableWidth {
+					var addSpace bool
 					if e > 0 {
-						e -= runeLength
+						if e > 0 {
+							e -= runeSize
+						}
+						if f.wordWrap && lastSpace != -1 {
+							e = lastSpace - runeSize
+							addSpace = true
+						}
 					}
-					if f.wordWrap && lastSpace != -1 && start+e+runeLength < l {
-						e = lastSpace - start
-					}
-					w, _ := text.Measure(line[start:start+e], f.fontFace, float64(f.lineHeight))
+					w, _ := text.Measure(line[start:start+e+runeSize], f.fontFace, float64(f.lineHeight))
 					boundsWidth = int(w)
 
 					if len(f.bufferWrapped) <= j {
-						f.bufferWrapped = append(f.bufferWrapped, line[start:start+e])
+						f.bufferWrapped = append(f.bufferWrapped, line[start:start+e+runeSize])
 					} else {
-						f.bufferWrapped[j] = line[start : start+e]
+						f.bufferWrapped[j] = line[start : start+e+runeSize]
 					}
 					if len(f.lineWidths) <= j {
 						f.lineWidths = append(f.lineWidths, boundsWidth)
@@ -981,10 +987,14 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 					}
 					j++
 
-					start += e + runeLength
+					if addSpace {
+						e += lastSpaceSize
+					}
+
+					start += e + runeSize
 					continue WRAPTEXT
 				}
-				e += runeLength
+				e += runeSize
 			}
 
 			w, _ := text.Measure(line[start:], f.fontFace, float64(f.lineHeight))
