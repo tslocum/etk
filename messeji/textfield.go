@@ -640,27 +640,21 @@ func (f *TextField) resizeFont() {
 		return
 	}
 
-	buffer := f.text()
+	f.processIncoming()
 
-	var size int
-	var ff *text.GoTextFace
-	var m text.Metrics
-	for size = f.fontSize; size > 1; size-- {
-		ff = fontFace(f.fontSource, size)
-		m = ff.Metrics()
-		bw, bh := text.Measure(buffer, ff, m.HAscent+m.HDescent)
-		if int(bw) <= w && int(bh) <= h {
+	for size := f.fontSize; size > 0; size-- {
+		f.fontFace = fontFace(f.fontSource, size)
+		f.fontUpdated()
+		if f.lineHeight > h {
+			continue
+		}
+		f.needWrap = 0
+		f.wrapStart = 0
+		f.wrap()
+		if len(f.bufferWrapped) <= 1 {
 			break
 		}
 	}
-	if f.overrideFontSize == size {
-		return
-	}
-
-	f.overrideFontSize = size
-	f.fontFace = ff
-	f.fontUpdated()
-	f.bufferModified()
 }
 
 // SetHandleKeyboard sets a flag controlling whether keyboard input should be handled
@@ -920,7 +914,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 			line += f.suffix
 		}
 		l := len(line)
-		availableWidth := w - (f.padding * 2) - 15
+		availableWidth := w - (f.padding * 2)
 
 		f.wrapStart = j
 
@@ -946,20 +940,22 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 		var lastSpace int
 		var lastSpaceSize int
 		var boundsWidth int
+		var lastBoundsWidth int
 	WRAPTEXT:
 		for start < l {
 			lastSpace = -1
+			lastBoundsWidth = -1
 			var e int
 			for _, r := range line[start:] {
-				if e > l-start {
-					e = l - start
-				}
 				runeSize := len(string(r))
+				if e > l-start-runeSize {
+					e = l - start - runeSize
+				}
 				if unicode.IsSpace(r) {
 					lastSpace = e
 					lastSpaceSize = runeSize
 				}
-				w, _ := text.Measure(line[start:start+e], f.fontFace, float64(f.lineHeight))
+				w, _ := text.Measure(line[start:start+e+runeSize], f.fontFace, float64(f.lineHeight))
 				boundsWidth = int(w)
 				if boundsWidth > availableWidth {
 					var addSpace bool
@@ -968,17 +964,21 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 							e -= runeSize
 						}
 						if f.wordWrap && lastSpace != -1 {
-							e = lastSpace - runeSize
+							e = lastSpace
 							addSpace = true
 						}
 					}
-					w, _ := text.Measure(line[start:start+e+runeSize], f.fontFace, float64(f.lineHeight))
-					boundsWidth = int(w)
+					if lastBoundsWidth == -1 {
+						w, _ := text.Measure(line[start:start+e], f.fontFace, float64(f.lineHeight))
+						boundsWidth = int(w)
+					} else {
+						boundsWidth = lastBoundsWidth
+					}
 
 					if len(f.bufferWrapped) <= j {
-						f.bufferWrapped = append(f.bufferWrapped, line[start:start+e+runeSize])
+						f.bufferWrapped = append(f.bufferWrapped, line[start:start+e])
 					} else {
-						f.bufferWrapped[j] = line[start : start+e+runeSize]
+						f.bufferWrapped[j] = line[start : start+e]
 					}
 					if len(f.lineWidths) <= j {
 						f.lineWidths = append(f.lineWidths, boundsWidth)
@@ -991,9 +991,13 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 						e += lastSpaceSize
 					}
 
-					start += e + runeSize
+					start += e
+					if e == 0 {
+						start += runeSize
+					}
 					continue WRAPTEXT
 				}
+				lastBoundsWidth = boundsWidth
 				e += runeSize
 			}
 
