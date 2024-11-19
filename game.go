@@ -429,11 +429,18 @@ func draw(w Widget, screen *ebiten.Image) error {
 	}
 
 	r := w.Rect()
-	subScreen := screen.SubImage(r).(*ebiten.Image)
+	subScreen := screen
+	if w.Clip() {
+		subScreen = screen.SubImage(r).(*ebiten.Image)
+	}
 
 	background := w.Background()
 	if background.A > 0 {
-		subScreen.Fill(background)
+		if subScreen == screen {
+			screen.SubImage(r).(*ebiten.Image).Fill(background)
+		} else {
+			subScreen.Fill(background)
+		}
 	}
 
 	err := w.Draw(subScreen)

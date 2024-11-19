@@ -58,6 +58,13 @@ func (s *Select) SetRect(r image.Rectangle) {
 	s.list.SetRect(listRect)
 }
 
+// Clip returns whether the widget and its children are restricted to drawing
+// within the widget's rect area of the screen. For best performance, Clip
+// should return false unless clipping is actually needed.
+func (s *Select) Clip() bool {
+	return false
+}
+
 // SetHighlightColor sets the color used to highlight the currently selected item.
 func (s *Select) SetHighlightColor(c color.RGBA) {
 	s.list.SetHighlightColor(c)

@@ -161,6 +161,13 @@ func (l *List) SetVisible(visible bool) {
 	l.grid.SetVisible(visible)
 }
 
+// Clip returns whether the widget and its children are restricted to drawing
+// within the widget's rect area of the screen. For best performance, Clip
+// should return false unless clipping is actually needed.
+func (l *List) Clip() bool {
+	return true
+}
+
 // SetColumnSizes sets the size of each column. A size of -1 represents an equal
 // proportion of the available space.
 func (l *List) SetColumnSizes(size ...int) {

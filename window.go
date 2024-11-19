@@ -55,6 +55,13 @@ func (w *Window) SetRect(r image.Rectangle) {
 	w.modified = true
 }
 
+// Clip returns whether the widget and its children are restricted to drawing
+// within the widget's rect area of the screen. For best performance, Clip
+// should return false unless clipping is actually needed.
+func (w *Window) Clip() bool {
+	return false
+}
+
 // SetFont sets the font and text size of the window titles. Scaling is not applied.
 func (w *Window) SetFont(fnt *text.GoTextFaceSource, size int) {
 	w.Lock()

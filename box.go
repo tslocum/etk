@@ -82,6 +82,13 @@ func (b *Box) SetVisible(visible bool) {
 	b.visible = visible
 }
 
+// Clip returns whether the widget and its children are restricted to drawing
+// within the widget's rect area of the screen. For best performance, Clip
+// should return false unless clipping is actually needed.
+func (b *Box) Clip() bool {
+	return false
+}
+
 // Cursor returns the cursor shape shown when a mouse cursor hovers over the
 // widget, or -1 to let widgets beneath determine the cursor shape.
 func (b *Box) Cursor() ebiten.CursorShapeType {
