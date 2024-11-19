@@ -85,12 +85,18 @@ func (f *InputField) HandleKeyboardEvent(key ebiten.Key, r rune) (handled bool, 
 
 	// Handle rune event.
 	if r > 0 {
-		f.handleRunes([]rune{r})
+		ok := f.handleRunes([]rune{r})
+		if ok {
+			f.resizeFont()
+		}
 		return true, nil
 	}
 
 	// Handle key event.
-	f.handleKeys([]ebiten.Key{key})
+	ok := f.handleKeys([]ebiten.Key{key})
+	if ok {
+		f.resizeFont()
+	}
 	return true, nil
 }
 
@@ -207,6 +213,7 @@ func (f *InputField) Update() error {
 	f.rawKeyBuffer = f.rawKeyBuffer[:0]
 
 	if redraw {
+		f.resizeFont()
 		f.bufferModified()
 	}
 

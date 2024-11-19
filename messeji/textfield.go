@@ -267,6 +267,7 @@ func (f *TextField) SetRect(r image.Rectangle) {
 
 func (f *TextField) text() string {
 	f.processIncoming()
+	f.resizeFont()
 	return string(bytes.Join(f.buffer, []byte("\n")))
 }
 
@@ -554,6 +555,7 @@ func (f *TextField) SetScrollBorderSize(size int) {
 
 	f.scrollBorderSize = size
 	f.redraw = true
+	f.resizeFont()
 }
 
 // SetScrollBorderColor sets the color of the top, right, bottom and left border
@@ -582,6 +584,7 @@ func (f *TextField) SetScrollBarVisible(scrollVisible bool) {
 	f.needWrap = 0
 	f.wrapStart = 0
 	f.modified = true
+	f.resizeFont()
 }
 
 // SetAutoHideScrollBar sets whether the scroll bar is automatically hidden
@@ -598,6 +601,7 @@ func (f *TextField) SetAutoHideScrollBar(autoHide bool) {
 	f.needWrap = 0
 	f.wrapStart = 0
 	f.modified = true
+	f.resizeFont()
 }
 
 // WordWrap returns the current text wrap mode.
@@ -777,7 +781,7 @@ func (f *TextField) _handleMouseEvent(cursor image.Point, pressed bool, clicked 
 				f.scrollDragOffset = f.offset
 			}
 			if f.scrollDragPoint.X != -1 {
-				delta := f.scrollDragPoint.Y - cursor.Y
+				delta := f.scrollDragPoint.Y - p.Y
 				f.offset = f.scrollDragOffset - delta
 			} else { // Handle dragging the scroll bar handle.
 				dragY := cursor.Y - f.r.Min.Y - f.scrollWidth/4
@@ -1256,6 +1260,7 @@ func (f *TextField) processIncoming() {
 
 func (f *TextField) bufferModified() {
 	f.processIncoming()
+	f.resizeFont()
 
 	f.drawImage()
 

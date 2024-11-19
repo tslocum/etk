@@ -194,6 +194,15 @@ func (t *Input) SetFont(fnt *text.GoTextFaceSource, size int) {
 	t.field.SetFont(fnt, size, fontMutex)
 }
 
+// SetAutoResize sets whether the font is automatically scaled down when it is
+// too large to fit the entire text buffer on one line.
+func (t *Input) SetAutoResize(resize bool) {
+	t.Lock()
+	defer t.Unlock()
+
+	t.field.SetAutoResize(resize)
+}
+
 // Padding returns the amount of padding around the text within the field.
 func (i *Input) Padding() int {
 	i.Lock()
