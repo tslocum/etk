@@ -177,6 +177,12 @@ type TextField struct {
 	// scrollDrag is whether the scroll bar is currently being dragged.
 	scrollDrag bool
 
+	// scrollDragPoint is the point where the field is being dragged directly.
+	scrollDragPoint image.Point
+
+	// scrollDragOffset is the original offset when the field is being dragged directly.
+	scrollDragOffset int
+
 	// maskRune is the rune shown instead of the actual buffer contents.
 	maskRune rune
 
@@ -218,6 +224,7 @@ func NewTextField(fontSource *text.GoTextFaceSource, fontSize int, fontMutex *sy
 		wordWrap:          true,
 		scrollVisible:     true,
 		scrollAutoHide:    true,
+		scrollDragPoint:   image.Point{-1, -1},
 		visible:           true,
 		redraw:            true,
 	}
@@ -763,29 +770,41 @@ func (f *TextField) _handleMouseEvent(cursor image.Point, pressed bool, clicked 
 		return true, nil
 	} else if pressed || f.scrollDrag {
 		p := image.Point{cursor.X - f.r.Min.X, cursor.Y - f.r.Min.Y}
-		if pressed && p.In(f.scrollRect) {
-			dragY := cursor.Y - f.r.Min.Y - f.scrollWidth/4
-			if dragY < 0 {
-				dragY = 0
-			} else if dragY > f.scrollRect.Dy() {
-				dragY = f.scrollRect.Dy()
+		if pressed {
+			// Handle dragging the text field directly.
+			if !f.scrollDrag && !p.In(f.scrollRect) && f.scrollDragPoint.X == -1 && f.scrollDragPoint.Y == -1 {
+				f.scrollDragPoint = p
+				f.scrollDragOffset = f.offset
 			}
+			if f.scrollDragPoint.X != -1 {
+				delta := f.scrollDragPoint.Y - cursor.Y
+				f.offset = f.scrollDragOffset - delta
+			} else { // Handle dragging the scroll bar handle.
+				dragY := cursor.Y - f.r.Min.Y - f.scrollWidth/4
+				if dragY < 0 {
+					dragY = 0
+				} else if dragY > f.scrollRect.Dy() {
+					dragY = f.scrollRect.Dy()
+				}
 
-			pct := float64(dragY) / float64(f.scrollRect.Dy()-f.scrollWidth/2)
-			if pct < 0 {
-				pct = 0
-			} else if pct > 1 {
-				pct = 1
+				pct := float64(dragY) / float64(f.scrollRect.Dy()-f.scrollWidth/2)
+				if pct < 0 {
+					pct = 0
+				} else if pct > 1 {
+					pct = 1
+				}
+
+				h := f.r.Dy()
+				f.offset = -int(float64(f.bufferSize-h-f.lineOffset+f.padding*2) * pct)
 			}
-
-			h := f.r.Dy()
-			f.offset = -int(float64(f.bufferSize-h-f.lineOffset+f.padding*2) * pct)
 			f.clampOffset()
 
 			f.redraw = true
 			f.scrollDrag = true
 		} else if !pressed {
 			f.scrollDrag = false
+			f.scrollDragPoint = image.Point{-1, -1}
+			f.scrollDragOffset = 0
 		}
 	}
 	return true, nil
