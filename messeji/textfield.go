@@ -751,7 +751,7 @@ func (f *TextField) HandleMouseEvent(cursor image.Point, pressed bool, clicked b
 }
 
 func (f *TextField) _handleMouseEvent(cursor image.Point, pressed bool, clicked bool) (handled bool, err error) {
-	if !cursor.In(f.r) {
+	if !f.scrollDrag && !cursor.In(f.r) {
 		return false, nil
 	}
 

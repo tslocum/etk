@@ -1,6 +1,8 @@
 package kibodo
 
 import (
+	"time"
+
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -16,7 +18,9 @@ type Key struct {
 	w, h int
 
 	pressed        bool
+	pressedTime    time.Time
 	pressedTouchID ebiten.TouchID
+	repeatTime     time.Time
 }
 
 // Input represents the input event from a key press.

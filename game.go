@@ -219,7 +219,7 @@ func Update() error {
 		}
 	}
 
-	if activeTouchID == -1 {
+	if true || activeTouchID == -1 {
 		touchIDs = inpututil.AppendJustPressedTouchIDs(touchIDs[:0])
 		for _, id := range touchIDs {
 			x, y := ebiten.TouchPosition(id)
@@ -260,12 +260,14 @@ func Update() error {
 		}
 	}
 
-	if !pressed && !clicked && pressedWidget != nil {
-		_, err := pressedWidget.HandleMouse(cursor, false, false)
+	if pressedWidget != nil {
+		_, err := pressedWidget.HandleMouse(cursor, pressed, clicked)
 		if err != nil {
 			return err
 		}
-		pressedWidget = nil
+		if !pressed && !clicked {
+			pressedWidget = nil
+		}
 	}
 
 	mouseHandled, err := update(root, cursor, pressed, clicked, false)

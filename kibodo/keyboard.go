@@ -273,6 +273,13 @@ func (k *Keyboard) handleHideKey(inputKey ebiten.Key) bool {
 
 // Hit handles a key press.
 func (k *Keyboard) Hit(key *Key) {
+	now := time.Now()
+	if !key.pressedTime.IsZero() && now.Sub(key.pressedTime) < 50*time.Millisecond {
+		return
+	}
+	key.pressedTime = now
+	key.repeatTime = now.Add(k.backspaceDelay)
+
 	input := key.LowerInput
 	if k.shift {
 		input = key.UpperInput
@@ -298,21 +305,11 @@ func (k *Keyboard) HandleMouse(cursor image.Point, pressed bool, clicked bool) (
 		k.backgroundDirty = false
 	}
 
-	pressDuration := 50 * time.Millisecond
-	if k.wasPressed && !pressed && !clicked {
+	//pressDuration := 50 * time.Millisecond
+	if clicked {
 		var key *Key
 		if cursor.X != 0 || cursor.Y != 0 {
 			key = k.at(cursor.X, cursor.Y)
-		} else {
-		PRESSKEY:
-			for _, rowKeys := range k.keys {
-				for _, rowKey := range rowKeys {
-					if rowKey.pressed {
-						key = rowKey
-						break PRESSKEY
-					}
-				}
-			}
 		}
 		for _, rowKeys := range k.keys {
 			for _, rowKey := range rowKeys {
@@ -326,48 +323,23 @@ func (k *Keyboard) HandleMouse(cursor image.Point, pressed bool, clicked bool) (
 			key.pressed = true
 
 			k.Hit(key)
-
-			go func() {
-				time.Sleep(pressDuration)
-
-				key.pressed = false
-				if k.scheduleFrameFunc != nil {
-					k.scheduleFrameFunc()
-				}
-			}()
 		}
-		k.wasPressed = false
+		k.wasPressed = true
 	} else if pressed {
 		key := k.at(cursor.X, cursor.Y)
 		if key != nil {
-			if !key.pressed {
-				input := key.LowerInput
-				if k.shift {
-					input = key.UpperInput
-				}
-
-				// Repeat backspace and delete operations.
-				if input.Key == ebiten.KeyBackspace || input.Key == ebiten.KeyDelete {
-					k.backspaceLast = time.Now().Add(k.backspaceDelay)
-				}
-				go func() {
-					t := time.NewTicker(k.backspaceRepeat)
-					for {
-						<-t.C
-
-						if !key.pressed {
-							t.Stop()
-							return
-						}
-
-						if (input.Key == ebiten.KeyBackspace || input.Key == ebiten.KeyDelete) && time.Since(k.backspaceLast) >= k.backspaceRepeat {
-							k.backspaceLast = time.Now()
-							k.inputEvents = append(k.inputEvents, &Input{Key: input.Key})
-						}
-					}
-
-				}()
+			// Repeat backspace and delete operations.
+			input := key.LowerInput
+			if k.shift {
+				input = key.UpperInput
 			}
+			if input.Key == ebiten.KeyBackspace || input.Key == ebiten.KeyDelete {
+				for time.Since(key.repeatTime) >= k.backspaceRepeat {
+					k.inputEvents = append(k.inputEvents, &Input{Key: input.Key})
+					key.repeatTime = key.repeatTime.Add(k.backspaceRepeat)
+				}
+			}
+
 			key.pressed = true
 			k.wasPressed = true
 
@@ -378,6 +350,15 @@ func (k *Keyboard) HandleMouse(cursor image.Point, pressed bool, clicked bool) (
 					}
 					rowKey.pressed = false
 				}
+			}
+		}
+	} else if k.wasPressed {
+		for _, rowKeys := range k.keys {
+			for _, rowKey := range rowKeys {
+				if !rowKey.pressed {
+					continue
+				}
+				rowKey.pressed = false
 			}
 		}
 	}
@@ -416,12 +397,14 @@ func (k *Keyboard) Update() error {
 			}
 		}
 	}
+
 	// Handle mouse input
+	var key *Key
 	pressDuration := 50 * time.Millisecond
-	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
 
-		key := k.at(x, y)
+		key = k.at(x, y)
 		if key != nil {
 			for _, rowKeys := range k.keys {
 				for _, rowKey := range rowKeys {
@@ -441,10 +424,12 @@ func (k *Keyboard) Update() error {
 				}
 			}()
 		}
+
+		k.wasPressed = true
 	} else if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
 
-		key := k.at(x, y)
+		key = k.at(x, y)
 		if key != nil {
 			if !key.pressed {
 				input := key.LowerInput
@@ -454,25 +439,11 @@ func (k *Keyboard) Update() error {
 
 				// Repeat backspace and delete operations.
 				if input.Key == ebiten.KeyBackspace || input.Key == ebiten.KeyDelete {
-					k.backspaceLast = time.Now().Add(k.backspaceDelay)
-				}
-				go func() {
-					t := time.NewTicker(k.backspaceRepeat)
-					for {
-						<-t.C
-
-						if !key.pressed {
-							t.Stop()
-							return
-						}
-
-						if (input.Key == ebiten.KeyBackspace || input.Key == ebiten.KeyDelete) && time.Since(k.backspaceLast) >= k.backspaceRepeat {
-							k.backspaceLast = time.Now()
-							k.inputEvents = append(k.inputEvents, &Input{Key: input.Key})
-						}
+					for time.Since(key.repeatTime) >= k.backspaceRepeat {
+						k.inputEvents = append(k.inputEvents, &Input{Key: input.Key})
+						key.repeatTime = key.repeatTime.Add(k.backspaceRepeat)
 					}
-
-				}()
+				}
 			}
 			key.pressed = true
 
@@ -485,20 +456,24 @@ func (k *Keyboard) Update() error {
 				}
 			}
 		}
+
+		k.wasPressed = true
 	}
+
 	// Handle touch input
 	if k.holdTouchID != -1 {
 		x, y := ebiten.TouchPosition(k.holdTouchID)
 		if x == 0 && y == 0 {
 			k.holdTouchID = -1
 		} else {
-			key := k.at(x, y)
+			key = k.at(x, y)
 			if key != k.holdKey {
 				k.holdTouchID = -1
 				return nil
 			}
 			//k.Hold(key)
 			k.holdKey = key
+			k.wasPressed = true
 		}
 	}
 	if k.holdTouchID == -1 {
@@ -506,7 +481,7 @@ func (k *Keyboard) Update() error {
 		for _, id := range k.touchIDs {
 			x, y := ebiten.TouchPosition(id)
 
-			key := k.at(x, y)
+			key = k.at(x, y)
 			if key != nil {
 				input := key.LowerInput
 				if k.shift {
@@ -533,46 +508,25 @@ func (k *Keyboard) Update() error {
 					if input.Key == ebiten.KeyBackspace || input.Key == ebiten.KeyDelete {
 						k.backspaceLast = time.Now().Add(k.backspaceDelay)
 					}
-
-					go func() {
-						var touchIDs []ebiten.TouchID
-						t := time.NewTicker(pressDuration)
-						for range t.C {
-							touchIDs = ebiten.AppendTouchIDs(touchIDs[:0])
-
-							var found bool
-							for _, touchID := range touchIDs {
-								if id == touchID {
-									found = true
-									break
-								}
-							}
-
-							if found {
-								tx, ty := ebiten.TouchPosition(id)
-								if tx != 0 || ty != 0 {
-									x, y = tx, ty
-								}
-							}
-
-							if !found {
-								key.pressed = false
-								if k.scheduleFrameFunc != nil {
-									k.scheduleFrameFunc()
-								}
-								t.Stop()
-								return
-							}
-
-							// Repeat backspace and delete operations.
-							if (input.Key == ebiten.KeyBackspace || input.Key == ebiten.KeyDelete) && time.Since(k.backspaceLast) >= k.backspaceRepeat {
-								k.backspaceLast = time.Now()
-								k.inputEvents = append(k.inputEvents, &Input{Key: input.Key})
-							}
+				} else {
+					// Repeat backspace and delete operations.
+					if input.Key == ebiten.KeyBackspace || input.Key == ebiten.KeyDelete {
+						for time.Since(k.backspaceLast) >= k.backspaceRepeat {
+							k.inputEvents = append(k.inputEvents, &Input{Key: input.Key})
+							k.backspaceLast = k.backspaceLast.Add(k.backspaceRepeat)
 						}
-					}()
+					}
 				}
+				k.wasPressed = true
 			}
+		}
+	}
+	for _, rowKeys := range k.keys {
+		for _, rowKey := range rowKeys {
+			if rowKey == key || !rowKey.pressed {
+				continue
+			}
+			rowKey.pressed = false
 		}
 	}
 	return nil
