@@ -68,7 +68,7 @@ func (s *Sprite) Draw(screen *ebiten.Image) error {
 	if s.imgBounds.Dx() == s.rect.Dx() && s.imgBounds.Dy() == s.rect.Dy() {
 		screen.DrawImage(s.img, op)
 		return nil
-	} else if s.thumbBounds.Dx() != s.rect.Dx() || s.thumbBounds.Dy() != s.rect.Dy() {
+	} else if s.thumbBounds.Dx() != s.rect.Dx() || s.thumbBounds.Dy() != s.rect.Dy() || s.thumb == nil {
 		scale, yScale := float64(s.rect.Dx())/float64(s.imgBounds.Dx()), float64(s.rect.Dy())/float64(s.imgBounds.Dy())
 		if yScale < scale {
 			scale = yScale
