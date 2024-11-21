@@ -76,6 +76,12 @@ func main() {
 		w.AddChildWithLabel(example, defaultFocus, "Select")
 	}
 
+	// Sprite.
+	{
+		example, defaultFocus := newSpriteExample()
+		w.AddChildWithLabel(example, defaultFocus, "Sprite")
+	}
+
 	// Text.
 	{
 		example, defaultFocus := newTextExample()
