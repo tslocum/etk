@@ -104,6 +104,7 @@ func (s *Sprite) Draw(screen *ebiten.Image) error {
 			s.thumb = ebiten.NewImage(s.rect.Dx(), s.rect.Dy())
 		}
 		s.thumb.DrawImage(s.img, thumbOp)
+		s.thumbBounds = s.thumb.Bounds()
 	}
 	screen.DrawImage(s.thumb, op)
 	return nil
