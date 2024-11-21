@@ -63,12 +63,16 @@ func (s *Sprite) Draw(screen *ebiten.Image) error {
 	s.Lock()
 	defer s.Unlock()
 
+	if s.rect.Dx() == 0 || s.rect.Dy() == 0 {
+		return nil // The Sprite has no size. Don't draw anything.
+	}
+
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(s.rect.Min.X), float64(s.rect.Min.Y))
 	if s.imgBounds.Dx() == s.rect.Dx() && s.imgBounds.Dy() == s.rect.Dy() {
 		screen.DrawImage(s.img, op)
 		return nil
-	} else if s.thumbBounds.Dx() != s.rect.Dx() || s.thumbBounds.Dy() != s.rect.Dy() || s.thumb == nil {
+	} else if s.thumb == nil || s.thumbBounds.Dx() != s.rect.Dx() || s.thumbBounds.Dy() != s.rect.Dy() {
 		scale, yScale := float64(s.rect.Dx())/float64(s.imgBounds.Dx()), float64(s.rect.Dy())/float64(s.imgBounds.Dy())
 		if yScale < scale {
 			scale = yScale
