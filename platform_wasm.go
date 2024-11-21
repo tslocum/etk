@@ -3,6 +3,7 @@
 package etk
 
 import (
+	"fmt"
 	"syscall/js"
 )
 
@@ -25,4 +26,21 @@ func clipboardBuffer() []byte {
 		return nil
 	}))
 	return <-result
+}
+
+// Open opens a file, directory or URI using the default application registered
+// in the OS to handle it. Only URIs are supported on WebAssembly.
+func Open(target string) error {
+	window := js.Global().Get("window")
+	if !window.Truthy() {
+		return fmt.Errorf("failed to get window object")
+	} else if !window.Get("open").Truthy() {
+		return fmt.Errorf("failed to get window.open")
+	}
+	windowProxy := window.Call("open", target)
+	if !windowProxy.Truthy() || !windowProxy.Get("focus").Truthy() {
+		return nil
+	}
+	windowProxy.Call("focus", nil)
+	return nil
 }
