@@ -34,11 +34,6 @@ type Widget interface {
 	// SetVisible sets the visibility of the widget.
 	SetVisible(visible bool)
 
-	// Clip returns whether the widget and its children are restricted to drawing
-	// within the widget's rect area of the screen. For best performance, Clip
-	// should return false unless clipping is actually needed.
-	Clip() bool
-
 	// Cursor returns the cursor shape shown when a mouse cursor hovers over
 	// the widget, or -1 to let widgets beneath determine the cursor shape.
 	Cursor() ebiten.CursorShapeType
@@ -47,8 +42,14 @@ type Widget interface {
 	HandleKeyboard(ebiten.Key, rune) (handled bool, err error)
 
 	// HandleMouse is called when a mouse event occurs. Only mouse events that
-	// are on top of the widget are passed to the widget.
+	// are on top of the widget are passed to the widget, except after clicking
+	// within the widget and then dragging the cursor outside of the widget.
 	HandleMouse(cursor image.Point, pressed bool, clicked bool) (handled bool, err error)
+
+	// Clip returns whether the widget and its children are restricted to drawing
+	// within the widget's rect area of the screen. For best performance, Clip
+	// should return false unless clipping is actually needed.
+	Clip() bool
 
 	// Draw draws the widget on the screen.
 	Draw(screen *ebiten.Image) error
