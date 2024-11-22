@@ -72,7 +72,7 @@ func NewList(itemHeight int, onSelected func(index int) (accept bool)) *List {
 	return &List{
 		grid:               NewGrid(),
 		itemHeight:         itemHeight,
-		highlightColor:     color.RGBA{80, 80, 80, 255},
+		highlightColor:     color.RGBA{128, 128, 128, 255},
 		maxY:               -1,
 		selectionMode:      SelectRow,
 		selectedX:          -1,
@@ -107,8 +107,6 @@ func (l *List) SetRect(r image.Rectangle) {
 	if l.showScrollBar() {
 		r.Max.X -= l.scrollWidth
 	}
-	l.grid.SetRect(r)
-	l.selectionUpdated()
 	l.recreateGrid = true
 }
 
@@ -230,7 +228,6 @@ func (l *List) SetSelectedItem(x int, y int) {
 	defer l.Unlock()
 
 	l.selectedX, l.selectedY = x, y
-	l.selectionUpdated()
 }
 
 // SetScrollBarWidth sets the width of the scroll bar.
@@ -334,34 +331,18 @@ func (l *List) Rows() int {
 }
 
 func (l *List) showScrollBar() bool {
-	return len(l.items) > l.grid.rect.Dy()/l.itemHeight
+	return len(l.items) > l.rect.Dy()/l.itemHeight
 }
 
 // clampOffset clamps the list offset.
 func (l *List) clampOffset(offset int) int {
-	if offset >= len(l.items)-(l.grid.rect.Dy()/l.itemHeight) {
-		offset = len(l.items) - (l.grid.rect.Dy() / l.itemHeight)
+	if offset >= len(l.items)*l.itemHeight-l.rect.Dy() {
+		offset = len(l.items)*l.itemHeight - l.rect.Dy()
 	}
 	if offset < 0 {
 		offset = 0
 	}
 	return offset
-}
-
-func (l *List) selectionUpdated() {
-	if l.selectedY < l.offset {
-		l.offset = l.selectedY
-		l.recreateGrid = true
-		return
-	}
-	visible := l.grid.rect.Dy()/l.itemHeight - 1
-	if visible < 1 {
-		visible = 1
-	}
-	if l.selectedY > l.offset+visible {
-		l.offset = l.selectedY - visible
-		l.recreateGrid = true
-	}
 }
 
 // Cursor returns the cursor shape shown when a mouse cursor hovers over the
@@ -394,7 +375,6 @@ func (l *List) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) 
 			y = l.selectedY + y
 			if y >= 0 && y <= l.maxY {
 				l.selectedY = y
-				l.selectionUpdated()
 			}
 		}
 		for _, leftKey := range Bindings.MoveLeftKeyboard {
@@ -444,7 +424,7 @@ func (l *List) HandleMouse(cursor image.Point, pressed bool, clicked bool) (hand
 		} else if scroll > maxScroll {
 			scroll = maxScroll
 		}
-		offset := l.clampOffset(l.offset - int(math.Round(scroll)))
+		offset := l.clampOffset(l.offset - int(math.Round(scroll))*3*l.itemHeight)
 		if offset != l.offset {
 			l.offset = offset
 			l.recreateGrid = true
@@ -453,7 +433,7 @@ func (l *List) HandleMouse(cursor image.Point, pressed bool, clicked bool) (hand
 
 	if l.showScrollBar() && (pressed || l.scrollDrag) {
 		if pressed && cursor.In(l.scrollRect) {
-			dragY := cursor.Y - l.grid.rect.Min.Y
+			dragY := cursor.Y - l.rect.Min.Y
 			if dragY < 0 {
 				dragY = 0
 			} else if dragY > l.scrollRect.Dy() {
@@ -468,7 +448,7 @@ func (l *List) HandleMouse(cursor image.Point, pressed bool, clicked bool) (hand
 			}
 
 			lastOffset := l.offset
-			offset := l.clampOffset(int(math.Round(float64(len(l.items)-(l.grid.rect.Dy()/l.itemHeight)) * pct)))
+			offset := l.clampOffset(int(math.Round(float64(len(l.items)*l.itemHeight-l.rect.Dy()) * pct)))
 			if offset != lastOffset {
 				l.offset = offset
 				l.recreateGrid = true
@@ -483,7 +463,7 @@ func (l *List) HandleMouse(cursor image.Point, pressed bool, clicked bool) (hand
 	if !clicked || (cursor.X == 0 && cursor.Y == 0) {
 		return true, nil
 	}
-	selected := l.offset + (cursor.Y-l.grid.rect.Min.Y)/l.itemHeight
+	selected := (l.offset + cursor.Y - l.rect.Min.Y) / l.itemHeight
 	if selected >= 0 && selected <= l.maxY {
 		lastSelected := l.selectedY
 		l.selectedY = selected
@@ -498,8 +478,6 @@ func (l *List) HandleMouse(cursor image.Point, pressed bool, clicked bool) (hand
 				return true, nil
 			}
 		}
-
-		l.selectionUpdated()
 
 		if selected == lastSelected && time.Since(l.selectedTime) <= Bindings.DoubleClickThreshold {
 			confirmedFunc := l.confirmedFunc
@@ -517,42 +495,54 @@ func (l *List) HandleMouse(cursor image.Point, pressed bool, clicked bool) (hand
 	return true, nil
 }
 
+func (l *List) _recreateCrid(screen *ebiten.Image) {
+	maxY := l.rect.Dy()/l.itemHeight + 1
+	if maxY < 2 {
+		maxY = 2
+	}
+	l.offset = l.clampOffset(l.offset)
+
+	l.grid.Clear()
+	rowSizes := make([]int, l.maxY+1)
+	for i := range rowSizes {
+		rowSizes[i] = l.itemHeight
+	}
+	l.grid.SetRowSizes(rowSizes...)
+	var y int
+	for i := range l.items {
+		if i*l.itemHeight < l.offset-l.itemHeight+1 {
+			continue
+		} else if y > maxY {
+			break
+		}
+		for x := range l.items[i] {
+			w := l.items[i][x]
+			if w == nil {
+				continue
+			}
+			l.grid.AddChildAt(w, x, y, 1, 1)
+		}
+		y++
+	}
+
+	r := l.rect
+	if l.showScrollBar() {
+		r.Max.X -= l.scrollWidth
+	}
+	remainder := l.offset % l.itemHeight
+	r.Min.Y = l.rect.Min.Y - remainder
+	l.grid.SetRect(r)
+
+	l.recreateGrid = false
+}
+
 // Draw draws the widget on the screen.
 func (l *List) Draw(screen *ebiten.Image) error {
 	l.Lock()
 	defer l.Unlock()
 
 	if l.recreateGrid {
-		maxY := l.grid.rect.Dy()/l.itemHeight + 1
-		l.offset = l.clampOffset(l.offset)
-		l.grid.Clear()
-		rowSizes := make([]int, l.maxY+1)
-		for i := range rowSizes {
-			rowSizes[i] = l.itemHeight
-		}
-		l.grid.SetRowSizes(rowSizes...)
-		var y int
-		for i := range l.items {
-			if i < l.offset {
-				continue
-			} else if y >= maxY {
-				break
-			}
-			for x := range l.items[i] {
-				w := l.items[i][x]
-				if w == nil {
-					continue
-				}
-				l.grid.AddChildAt(w, x, y, 1, 1)
-			}
-			y++
-		}
-		r := l.rect
-		if l.showScrollBar() {
-			r.Max.X -= l.scrollWidth
-		}
-		l.grid.SetRect(r)
-		l.recreateGrid = false
+		l._recreateCrid(screen)
 	}
 
 	// Draw grid.
@@ -564,8 +554,8 @@ func (l *List) Draw(screen *ebiten.Image) error {
 	// Highlight selection.
 	drawHighlight := l.selectionMode != SelectNone && l.selectedY >= 0
 	if drawHighlight {
-		x, y := l.grid.rect.Min.X, l.grid.rect.Min.Y+(l.selectedY-l.offset)*l.itemHeight
-		w, h := l.grid.rect.Dx(), l.itemHeight
+		x, y := l.rect.Min.X, l.rect.Min.Y+l.selectedY*l.itemHeight-l.offset
+		w, h := l.rect.Dx(), l.itemHeight
 		r := clampRect(image.Rect(x, y, x+w, y+h), l.rect)
 		if r.Dx() > 0 && r.Dy() > 0 {
 			screen.SubImage(r).(*ebiten.Image).Fill(l.highlightColor)
@@ -595,7 +585,7 @@ func (l *List) Draw(screen *ebiten.Image) error {
 	}
 
 	scrollX, scrollY := l.rect.Min.X+w-l.scrollWidth, l.rect.Min.Y
-	pct := float64(-l.offset) / float64(len(l.items)-(l.rect.Dy()/l.itemHeight))
+	pct := float64(-l.offset) / float64(len(l.items)*l.itemHeight-l.rect.Dy())
 	scrollY -= int(float64(h-scrollBarH) * pct)
 	scrollBarRect := image.Rect(scrollX, scrollY, scrollX+l.scrollWidth, scrollY+scrollBarH)
 
