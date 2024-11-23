@@ -1107,7 +1107,7 @@ func (f *TextField) drawContent() (overflow bool) {
 		}
 
 		// Skip drawing off-screen lines.
-		if lineY < 0 {
+		if lineY < -lineHeight {
 			continue
 		}
 
