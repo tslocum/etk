@@ -488,7 +488,7 @@ func rectAtOrigin(r image.Rectangle) image.Rectangle {
 func _clamp(x int, y int, boundary image.Rectangle) (int, int) {
 	if x < boundary.Min.X {
 		x = boundary.Min.X
-	} else if y > boundary.Max.X {
+	} else if x > boundary.Max.X {
 		x = boundary.Max.X
 	}
 	if y < boundary.Min.Y {
