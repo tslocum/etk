@@ -1,5 +1,5 @@
 # etk - Ebitengine Tool Kit
-[![GoDoc](https://code.rocket9labs.com/tslocum/godoc-static/raw/branch/main/badge.svg)](https://docs.rocket9labs.com/code.rocket9labs.com/tslocum/etk)
+[![GoDoc](https://codeberg.org/tslocum/godoc-static/raw/branch/main/badge.svg)](https://docs.rocket9labs.com/codeberg.org/tslocum/etk)
 [![Donate via LiberaPay](https://img.shields.io/liberapay/receives/rocket9labs.com.svg?logo=liberapay)](https://liberapay.com/rocket9labs.com)
 
 [Ebitengine](https://github.com/hajimehoshi/ebiten) tool kit for creating graphical user interfaces
@@ -33,18 +33,18 @@
 
 Browse the [widget showcase](https://rocketnine.itch.io/etk?secret=etk) using your browser. 
 
-[Boxcars](https://code.rocket9labs.com/tslocum/boxcars) uses etk extensively and is available at https://play.bgammon.org
+[Boxcars](https://codeberg.org/tslocum/boxcars) uses etk extensively and is available at https://play.bgammon.org
 
-[![Screenshot](https://code.rocket9labs.com/tslocum/boxcars/raw/branch/main/screenshot.png)](https://code.rocket9labs.com/tslocum/boxcars/src/branch/main/screenshot.png)
+[![Screenshot](https://codeberg.org/tslocum/boxcars/raw/branch/main/screenshot.png)](https://codeberg.org/tslocum/boxcars/src/branch/main/screenshot.png)
 
 ## Examples
 
-See the [examples](https://code.rocket9labs.com/tslocum/etk/src/branch/main/examples) folder.
+See the [examples](https://codeberg.org/tslocum/etk/src/branch/main/examples) folder.
 
 ## Documentation
 
-Documentation is available via [godoc](https://docs.rocket9labs.com/code.rocket9labs.com/tslocum/etk).
+Documentation is available via [godoc](https://docs.rocket9labs.com/codeberg.org/tslocum/etk).
 
 ## Support
 
-Please share issues and suggestions [here](https://code.rocket9labs.com/tslocum/etk/issues).
+Please share issues and suggestions [here](https://codeberg.org/tslocum/etk/issues).

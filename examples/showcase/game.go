@@ -5,7 +5,7 @@ package main
 import (
 	"bytes"
 
-	"code.rocket9labs.com/tslocum/etk"
+	"codeberg.org/tslocum/etk"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"

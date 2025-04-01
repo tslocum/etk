@@ -3,7 +3,7 @@
 package main
 
 import (
-	"code.rocket9labs.com/tslocum/etk"
+	"codeberg.org/tslocum/etk"
 )
 
 func newInputExample() (etk.Widget, etk.Widget) {

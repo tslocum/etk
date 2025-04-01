@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 
-	"code.rocket9labs.com/tslocum/etk"
+	"codeberg.org/tslocum/etk"
 )
 
 func newButtonExample() (etk.Widget, etk.Widget) {

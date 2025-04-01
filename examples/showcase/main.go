@@ -8,7 +8,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
-	"code.rocket9labs.com/tslocum/etk"
+	"codeberg.org/tslocum/etk"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 

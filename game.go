@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"code.rocket9labs.com/tslocum/etk/messeji"
+	"codeberg.org/tslocum/etk/messeji"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"code.rocket9labs.com/tslocum/etk"
+	"codeberg.org/tslocum/etk"
 )
 
 func newGridExample() (etk.Widget, etk.Widget) {

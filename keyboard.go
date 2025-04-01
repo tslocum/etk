@@ -3,7 +3,7 @@ package etk
 import (
 	"image"
 
-	"code.rocket9labs.com/tslocum/etk/kibodo"
+	"codeberg.org/tslocum/etk/kibodo"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 

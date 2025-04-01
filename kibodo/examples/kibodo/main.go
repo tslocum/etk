@@ -5,7 +5,7 @@ package main
 import (
 	"log"
 
-	"code.rocket9labs.com/tslocum/etk/kibodo/examples/kibodo/game"
+	"codeberg.org/tslocum/etk/kibodo/examples/kibodo/game"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 

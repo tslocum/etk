@@ -2,7 +2,7 @@
 
 package etk
 
-import "code.rocket9labs.com/tslocum/clipboard"
+import "golang.design/x/clipboard"
 
 func clipboardBuffer() []byte {
 	return clipboard.Read(clipboard.FmtText)

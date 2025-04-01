@@ -5,7 +5,7 @@ package main
 import (
 	"log"
 
-	"code.rocket9labs.com/tslocum/etk/messeji/examples/messeji/game"
+	"codeberg.org/tslocum/etk/messeji/examples/messeji/game"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 

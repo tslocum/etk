@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"code.rocket9labs.com/tslocum/etk/kibodo"
+	"codeberg.org/tslocum/etk/kibodo"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"

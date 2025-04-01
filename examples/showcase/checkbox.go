@@ -5,7 +5,7 @@ package main
 import (
 	"image/color"
 
-	"code.rocket9labs.com/tslocum/etk"
+	"codeberg.org/tslocum/etk"
 )
 
 func newCheckboxExample() (etk.Widget, etk.Widget) {
