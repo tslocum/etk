@@ -5,7 +5,11 @@ import (
 	"image"
 	"image/color"
 	"io"
+	"log"
 	"math"
+	"os"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -77,34 +81,38 @@ const (
 var deviceScale float64
 
 // ScaleFactor returns the device scale factor. When running on Android, this function
-// may only be called during or after the first Layout call made by Ebitengine.
+// may only be called during or after the first Layout call made by Ebitengine. The
+// device scale factor may be overriden by setting the environment variable ETK_SCALE
+// to a positive number.
 func ScaleFactor() float64 {
 	if deviceScale == 0 {
-		monitor := ebiten.Monitor()
-		if monitor != nil {
-			deviceScale = monitor.DeviceScaleFactor()
+		envScale := os.Getenv("ETK_SCALE")
+		if envScale != "" {
+			envFloat, err := strconv.ParseFloat(strings.TrimSpace(envScale), 64)
+			if err != nil || envFloat < 0 {
+				log.Fatal("Error: ETK_SCALE is set to an invalid value. Set ETK_SCALE to a positive number to override the scale factor, or 0 to use the device's default scale factor.")
+			}
+			deviceScale = envFloat
+		} else {
+			monitor := ebiten.Monitor()
+			if monitor != nil {
+				deviceScale = monitor.DeviceScaleFactor()
+			}
+			if deviceScale <= 0 {
+				deviceScale = ebiten.DeviceScaleFactor()
+			}
 		}
-		if deviceScale <= 0 {
-			deviceScale = ebiten.DeviceScaleFactor()
-		}
-
 	}
 	return deviceScale
 }
 
 // Scale applies the device scale factor to the provided value and returns the result.
 // When running on Android, this function may only be called during or after the first
-// Layout call made by Ebitengine.
+// Layout call made by Ebitengine. The device scale factor may be overriden by setting
+// the environment variable ETK_SCALE to a positive number.
 func Scale(v int) int {
 	if deviceScale == 0 {
-		monitor := ebiten.Monitor()
-		if monitor != nil {
-			deviceScale = monitor.DeviceScaleFactor()
-		}
-		if deviceScale <= 0 {
-			deviceScale = ebiten.DeviceScaleFactor()
-		}
-
+		deviceScale = ScaleFactor()
 	}
 	return int(float64(v) * deviceScale)
 }
