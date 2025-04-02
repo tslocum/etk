@@ -18,7 +18,7 @@ func newListExample() (etk.Widget, etk.Widget) {
 
 	ff := etk.FontFace(etk.Style.TextFont, fontSize)
 	m := ff.Metrics()
-	l := etk.NewList(int(m.HAscent+m.HDescent), onSelected)
+	l := etk.NewList(etk.Scale(int(m.HAscent+m.HDescent)), onSelected)
 	for i := 0; i < 100; i++ {
 		t := etk.NewText(fmt.Sprintf("Item #%d", i+1))
 		t.SetVertical(etk.AlignCenter)
