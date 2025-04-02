@@ -22,8 +22,7 @@ func newGame() *game {
 }
 
 func (g *game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	etk.Layout(outsideWidth, outsideHeight)
-	return outsideWidth, outsideHeight
+	return etk.Layout(outsideWidth, outsideHeight)
 }
 
 func (g *game) Update() error {

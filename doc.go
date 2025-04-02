@@ -56,7 +56,8 @@ in the order they are returned.
 
 # Environment Variables
 
-Set ETK_SCALE to a positive number to override the device scale factor.
+Set ETK_SCALE to a positive number to override the device scale factor. Applications
+may also set this environment variable to 1 at runtime to disable automatic scaling.
 
 # Subpackages
 

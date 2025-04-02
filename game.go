@@ -184,10 +184,11 @@ func ScreenSize() (width int, height int) {
 	return lastWidth, lastHeight
 }
 
-// Layout sets the current screen size and resizes the root widget.
-func Layout(outsideWidth int, outsideHeight int) {
+// Layout sets the screen size and applies device scaling, resizes the root
+// widget and returns the scaled screen size.
+func Layout(outsideWidth int, outsideHeight int) (scaledWidth int, scaledHeight int) {
 	if !lastResize.IsZero() && time.Since(lastResize) < ResizeDebounce && outsideWidth != 0 && outsideHeight != 0 {
-		return
+		return lastWidth, lastHeight
 	}
 
 	outsideWidth, outsideHeight = Scale(outsideWidth), Scale(outsideHeight)
@@ -196,9 +197,10 @@ func Layout(outsideWidth int, outsideHeight int) {
 	}
 
 	if root == nil {
-		return
+		return outsideWidth, outsideHeight
 	}
 	root.SetRect(image.Rect(0, 0, outsideWidth, outsideHeight))
+	return outsideWidth, outsideHeight
 }
 
 // Update handles user input and passes it to the focused or clicked widget.
