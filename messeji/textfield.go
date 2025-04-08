@@ -924,8 +924,28 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 	if withScrollBar {
 		w -= f.scrollWidth
 	}
-	bufferLen := len(f.buffer)
 	j := f.wrapStart
+	bufferLen := len(f.buffer)
+
+	var lineCursor int // Marks the beginning of the remaining line.
+	var wordCursor int // Marks the beginning of the word being measured.
+	var charCursor int // Marks the position of the character being measured.
+	var lineWidth int  // Width of the wrapped line segment so far.
+	saveWrappedLine := func(wrapped string, width int) {
+		if len(f.bufferWrapped) <= j {
+			f.bufferWrapped = append(f.bufferWrapped, wrapped)
+		} else {
+			f.bufferWrapped[j] = wrapped
+		}
+		if len(f.lineWidths) <= j {
+			f.lineWidths = append(f.lineWidths, width)
+		} else {
+			f.lineWidths[j] = width
+		}
+		j++
+
+		lineWidth = 0
+	}
 	for i := f.needWrap; i < bufferLen; i++ {
 		var line string
 		if i == 0 {
@@ -942,7 +962,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 		f.wrapStart = j
 
 		// BoundString returns 0 for strings containing only whitespace.
-		if strings.TrimSpace(line) == "" {
+		if len(strings.TrimSpace(line)) == 0 {
 			if len(f.bufferWrapped) <= j {
 				f.bufferWrapped = append(f.bufferWrapped, "")
 			} else {
@@ -957,85 +977,68 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 			continue
 		}
 
-		// Add characters one at a time until the line doesn't fit. When word
-		// wrapping is enabled, break the line at the last whitespace character.
-		var start int
-		var lastSpace int
-		var lastSpaceSize int
-		var boundsWidth int
-		var lastBoundsWidth int
-	WRAPTEXT:
-		for start < l {
-			lastSpace = -1
-			lastBoundsWidth = -1
-			var e int
-			for _, r := range line[start:] {
-				runeSize := len(string(r))
-				if e > l-start-runeSize {
-					e = l - start - runeSize
+		lineCursor = 0
+	WRAPLINE:
+		for lineCursor < l {
+			wordCursor = lineCursor
+			for wordCursor < l {
+				nextSpace := strings.IndexFunc(line[wordCursor:], unicode.IsSpace)
+				if nextSpace == 0 {
+					if lineWidth == 0 && wordCursor > 0 {
+						lineCursor++
+						wordCursor++
+						continue
+					}
+					nextSpace = strings.IndexFunc(line[wordCursor+1:], unicode.IsSpace)
+					if nextSpace == -1 {
+						nextSpace = len(line[wordCursor:])
+					} else {
+						nextSpace++
+					}
 				}
-				if unicode.IsSpace(r) {
-					lastSpace = e
-					lastSpaceSize = runeSize
+				if nextSpace == -1 {
+					nextSpace = len(line[wordCursor:])
 				}
-				w, _ := text.Measure(line[start:start+e+runeSize], f.fontFace, float64(f.lineHeight))
-				boundsWidth = int(w)
-				if boundsWidth > availableWidth {
-					var addSpace bool
-					if e > 0 {
-						if e > 0 {
-							e -= runeSize
+
+				w, _ := text.Measure(line[wordCursor:wordCursor+nextSpace], f.fontFace, float64(f.lineHeight))
+				boundsWidth := int(w)
+				if lineWidth+boundsWidth > availableWidth {
+					// Break at last word.
+					if f.wordWrap && lineWidth > 0 {
+						saveWrappedLine(line[lineCursor:wordCursor], lineWidth)
+						lineCursor = wordCursor
+						continue WRAPLINE
+					}
+
+					// Break at character of current word.
+					var charWidth int
+					charCursor = wordCursor
+					for _, r := range line[wordCursor:] {
+						runeSize := len(string(r))
+						w, _ := text.Measure(line[wordCursor:charCursor+runeSize], f.fontFace, float64(f.lineHeight))
+						boundsWidth := int(w)
+						if lineWidth+boundsWidth > availableWidth {
+							if charWidth == 0 {
+								charWidth = boundsWidth
+							}
+							if lineCursor == charCursor {
+								charCursor += runeSize
+							}
+							break
 						}
-						if f.wordWrap && lastSpace != -1 {
-							e = lastSpace
-							addSpace = true
-						}
+						charWidth = boundsWidth
+						charCursor += runeSize
 					}
-					if lastBoundsWidth == -1 {
-						w, _ := text.Measure(line[start:start+e], f.fontFace, float64(f.lineHeight))
-						boundsWidth = int(w)
-					} else {
-						boundsWidth = lastBoundsWidth
-					}
-
-					if len(f.bufferWrapped) <= j {
-						f.bufferWrapped = append(f.bufferWrapped, line[start:start+e])
-					} else {
-						f.bufferWrapped[j] = line[start : start+e]
-					}
-					if len(f.lineWidths) <= j {
-						f.lineWidths = append(f.lineWidths, boundsWidth)
-					} else {
-						f.lineWidths[j] = boundsWidth
-					}
-					j++
-
-					if addSpace {
-						e += lastSpaceSize
-					}
-
-					start += e
-					if e == 0 {
-						start += runeSize
-					}
-					continue WRAPTEXT
+					saveWrappedLine(line[lineCursor:charCursor], lineWidth+charWidth)
+					lineCursor = charCursor
+					continue WRAPLINE
 				}
-				lastBoundsWidth = boundsWidth
-				e += runeSize
-			}
+				lineWidth += boundsWidth
 
-			if len(f.bufferWrapped) <= j {
-				f.bufferWrapped = append(f.bufferWrapped, line[start:])
-			} else {
-				f.bufferWrapped[j] = line[start:]
+				wordCursor += nextSpace
 			}
-			if len(f.lineWidths) <= j {
-				f.lineWidths = append(f.lineWidths, boundsWidth)
-			} else {
-				f.lineWidths[j] = boundsWidth
-			}
-			j++
-			break
+			saveWrappedLine(line[lineCursor:wordCursor], lineWidth)
+			lineCursor = wordCursor
 		}
 	}
 
