@@ -93,7 +93,8 @@ func ScaleFactor() float64 {
 				log.Fatal("Error: ETK_SCALE is set to an invalid value. Set ETK_SCALE to a positive number to override the scale factor, or 0 to use the device's default scale factor.")
 			}
 			deviceScale = envFloat
-		} else {
+		}
+		if deviceScale == 0 {
 			monitor := ebiten.Monitor()
 			if monitor != nil {
 				deviceScale = monitor.DeviceScaleFactor()
