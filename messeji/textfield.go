@@ -220,7 +220,6 @@ func NewTextField(fontSource *text.GoTextFaceSource, fontSize int, fontMutex *sy
 		scrollWidth:       initialScrollWidth,
 		scrollAreaColor:   initialScrollArea,
 		scrollHandleColor: initialScrollHandle,
-		follow:            true,
 		wordWrap:          true,
 		scrollVisible:     true,
 		scrollAutoHide:    true,
@@ -345,12 +344,20 @@ func (f *TextField) SetSuffix(text string) {
 }
 
 // SetFollow sets whether the field should automatically scroll to the end when
-// content is added to the buffer.
+// content is added to the buffer. When following is enabled, the buffer is
+// scrolled to the end. When following is disabled, the buffer is scrolled to
+// the top.
 func (f *TextField) SetFollow(follow bool) {
 	f.Lock()
 	defer f.Unlock()
 
 	f.follow = follow
+	if !follow {
+		f.offset = 0
+	} else {
+		f.offset = -math.MaxInt
+		f.clampOffset()
+	}
 }
 
 // SetSingleLine sets whether the field displays all text on a single line.
@@ -656,7 +663,12 @@ func (f *TextField) resizeFont() {
 	for size := f.fontSize; size > 0; size-- {
 		f.fontFace = fontFace(f.fontSource, size)
 		f.fontUpdated()
-		if f.lineHeight > h {
+		lineHeight := f.overrideLineHeight
+		if lineHeight == 0 {
+			lineHeight = f.lineHeight
+		}
+		f.overrideFontSize = size
+		if lineHeight > h {
 			continue
 		}
 		f.needWrap = 0
@@ -763,7 +775,11 @@ func (f *TextField) _handleMouseEvent(cursor image.Point, pressed bool, clicked 
 		} else if scroll > maxScroll {
 			scroll = maxScroll
 		}
-		const offsetAmount = 25
+		lineHeight := f.overrideLineHeight
+		if lineHeight == 0 {
+			lineHeight = f.lineHeight
+		}
+		offsetAmount := float64(lineHeight * 3)
 		f.offset += int(scroll * offsetAmount)
 		f.clampOffset()
 		f.redraw = true
@@ -908,9 +924,13 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 	}
 	f.wrapScrollBar = withScrollBar
 
+	lineHeight := f.overrideLineHeight
+	if lineHeight == 0 {
+		lineHeight = f.lineHeight
+	}
 	if len(f.buffer) == 0 || (f.singleLine && !f.autoResize) {
 		buffer := f.prefix + string(bytes.Join(f.buffer, nil)) + f.suffix
-		w, _ := text.Measure(buffer, f.fontFace, float64(f.lineHeight))
+		w, _ := text.Measure(buffer, f.fontFace, float64(lineHeight))
 
 		f.bufferWrapped = []string{buffer}
 		f.wrapStart = 0
@@ -1000,7 +1020,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 					nextSpace = len(line[wordCursor:])
 				}
 
-				w, _ := text.Measure(line[wordCursor:wordCursor+nextSpace], f.fontFace, float64(f.lineHeight))
+				w, _ := text.Measure(line[wordCursor:wordCursor+nextSpace], f.fontFace, float64(lineHeight))
 				boundsWidth := int(w)
 				if lineWidth+boundsWidth > availableWidth {
 					// Break at last word.
@@ -1015,7 +1035,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 					charCursor = wordCursor
 					for _, r := range line[wordCursor:] {
 						runeSize := len(string(r))
-						w, _ := text.Measure(line[wordCursor:charCursor+runeSize], f.fontFace, float64(f.lineHeight))
+						w, _ := text.Measure(line[wordCursor:charCursor+runeSize], f.fontFace, float64(lineHeight))
 						boundsWidth := int(w)
 						if lineWidth+boundsWidth > availableWidth {
 							if charWidth == 0 {
@@ -1072,8 +1092,8 @@ func (f *TextField) drawContent() (overflow bool) {
 	firstVisible = 0
 	lastVisible = len(f.bufferWrapped) - 1
 	if !f.singleLine {
-		firstVisible = (f.offset * -1) / f.lineHeight
-		lastVisible = firstVisible + (f.r.Dy() / f.lineHeight) + 1
+		firstVisible = (f.offset * -1) / lineHeight
+		lastVisible = firstVisible + (f.r.Dy() / lineHeight) + 1
 		if lastVisible > len(f.bufferWrapped)-1 {
 			lastVisible = len(f.bufferWrapped) - 1
 		}
@@ -1081,7 +1101,7 @@ func (f *TextField) drawContent() (overflow bool) {
 	numVisible := lastVisible - firstVisible
 	// Calculate buffer size (width for single-line fields or height for multi-line fields).
 	if f.singleLine {
-		w, _ := text.Measure(f.bufferWrapped[firstVisible], f.fontFace, float64(f.lineHeight))
+		w, _ := text.Measure(f.bufferWrapped[firstVisible], f.fontFace, float64(lineHeight))
 		f.bufferSize = int(w)
 		if f.bufferSize > fieldWidth-f.padding*2 {
 			overflow = true
@@ -1151,10 +1171,7 @@ func (f *TextField) clampOffset() {
 	if f.singleLine {
 		fieldSize = f.r.Dx()
 	}
-	minSize := -(f.bufferSize - fieldSize + f.padding*2)
-	if !f.singleLine {
-		minSize += f.lineOffset
-	}
+	minSize := -(f.bufferSize - fieldSize + f.padding*2 + f.lineOffset)
 	if minSize > 0 {
 		minSize = 0
 	}
@@ -1215,8 +1232,13 @@ func (f *TextField) drawImage() {
 			scrollBarH = 4
 		}
 
+		fieldSize := f.r.Dy()
+		if f.singleLine {
+			fieldSize = f.r.Dx()
+		}
+
 		scrollX, scrollY := w-f.scrollWidth, 0
-		pct := float64(-f.offset) / float64(f.bufferSize-h-f.lineOffset+f.padding*2)
+		pct := float64(-f.offset) / float64(f.bufferSize-fieldSize+f.padding*2+f.lineOffset)
 		scrollY += int(float64(h-scrollBarH) * pct)
 		scrollBarRect := image.Rect(scrollX, scrollY, scrollX+f.scrollWidth, scrollY+scrollBarH)
 

@@ -8,6 +8,7 @@ import (
 
 func newInputExample() (etk.Widget, etk.Widget) {
 	buffer := etk.NewText("Press enter to append input below to this buffer.")
+	buffer.SetFollow(true)
 	buffer.SetPadding(etk.Scale(10))
 	onselected := func(text string) (handled bool) {
 		buffer.Write([]byte("\nInput: " + text))

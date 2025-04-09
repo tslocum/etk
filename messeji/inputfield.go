@@ -44,6 +44,7 @@ func NewInputField(fontSource *text.GoTextFaceSource, fontSize int, fontMutex *s
 	f := &InputField{
 		TextField: NewTextField(fontSource, fontSize, fontMutex),
 	}
+	f.TextField.SetFollow(true)
 	f.TextField.suffix = "_"
 	return f
 }

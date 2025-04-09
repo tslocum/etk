@@ -210,6 +210,16 @@ func (t *Text) SetFont(fnt *text.GoTextFaceSource, size int) {
 	t.field.SetFont(t.textFont, t.textSize, fontMutex)
 }
 
+// SetLineHeight sets the height of each line. The line height is normally
+// detected automatically and you will not need to call SetLineHeight.
+// Set to 0 to restore default line height.
+func (t *Text) SetLineHeight(lineHeight int) {
+	t.Lock()
+	defer t.Unlock()
+
+	t.field.SetLineHeight(lineHeight)
+}
+
 // Padding returns the amount of padding around the text within the field.
 func (t *Text) Padding() int {
 	t.Lock()

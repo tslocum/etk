@@ -9,7 +9,6 @@ import (
 func newWindowExample() (etk.Widget, etk.Widget) {
 	text := etk.NewText(windowLabel)
 	text.SetPadding(etk.Scale(10))
-	text.SetFollow(false)
 
 	return text, nil
 }

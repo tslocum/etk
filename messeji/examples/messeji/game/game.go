@@ -67,8 +67,9 @@ func NewDemoGame() *game {
 		},
 	}
 
-	g.buffer.SetText(strings.TrimSpace(initialText))
+	g.buffer.SetFollow(true)
 	g.buffer.SetPadding(7)
+	g.buffer.SetText(strings.TrimSpace(initialText))
 
 	g.input.SetHandleKeyboard(true)
 	g.input.SetSelectedFunc(func() (accept bool) {
