@@ -1057,6 +1057,9 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 
 				wordCursor += nextSpace
 			}
+			if lineCursor == l {
+				continue WRAPLINE
+			}
 			saveWrappedLine(line[lineCursor:wordCursor], lineWidth)
 			lineCursor = wordCursor
 		}
