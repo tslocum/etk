@@ -38,8 +38,10 @@ type Widget interface {
 	// the widget, or -1 to let widgets beneath determine the cursor shape.
 	Cursor() ebiten.CursorShapeType
 
-	// HandleKeyboard is called when a keyboard event occurs.
-	HandleKeyboard(ebiten.Key, rune) (handled bool, err error)
+	// HandleKeyboard is called when a keyboard event occurs. Either a key or a
+	// rune is set, specifying the pressed key. When a key is set, its value is
+	// greater than or equal to 0. When a rune is set, the value of key is -1.
+	HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error)
 
 	// HandleMouse is called when a mouse event occurs. Only mouse events that
 	// are on top of the widget are passed to the widget, except after clicking

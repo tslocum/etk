@@ -1,5 +1,5 @@
 # messeji
-[![GoDoc](https://codeberg.org/tslocum/godoc-static/raw/branch/master/badge.svg)](https://docs.rocket9labs.com/codeberg.org/tslocum/etk/messeji)
+[![GoDoc](https://codeberg.org/tslocum/godoc-static/raw/branch/master/badge.svg)](https://pkg.go.dev/codeberg.org/tslocum/etk/messeji#section-documentation)
 [![Donate](https://img.shields.io/liberapay/receives/rocket9labs.com.svg?logo=liberapay)](https://liberapay.com/rocket9labs.com)
 
 Text widgets for [Ebitengine](https://github.com/hajimehoshi/ebiten)
@@ -14,7 +14,7 @@ The code for this demo is located in `examples/messeji`.
 
 ## Documentation
 
-Documentation is available via [godoc](https://docs.rocket9labs.com/codeberg.org/tslocum/etk/messeji).
+Documentation is available via [godoc](https://pkg.go.dev/codeberg.org/tslocum/etk/messeji#section-documentation).
 
 ## Support
 

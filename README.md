@@ -1,5 +1,5 @@
 # etk - Ebitengine Tool Kit
-[![GoDoc](https://codeberg.org/tslocum/godoc-static/raw/branch/main/badge.svg)](https://docs.rocket9labs.com/codeberg.org/tslocum/etk)
+[![GoDoc](https://codeberg.org/tslocum/godoc-static/raw/branch/main/badge.svg)](https://pkg.go.dev/codeberg.org/tslocum/etk#section-documentation)
 [![Donate via LiberaPay](https://img.shields.io/liberapay/receives/rocket9labs.com.svg?logo=liberapay)](https://liberapay.com/rocket9labs.com)
 
 [Ebitengine](https://github.com/hajimehoshi/ebiten) tool kit for creating graphical user interfaces
@@ -43,7 +43,7 @@ See the [examples](https://codeberg.org/tslocum/etk/src/branch/main/examples) fo
 
 ## Documentation
 
-Documentation is available via [godoc](https://docs.rocket9labs.com/codeberg.org/tslocum/etk).
+Documentation is available via [godoc](https://pkg.go.dev/codeberg.org/tslocum/etk#section-documentation).
 
 ## Support
 
