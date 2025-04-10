@@ -78,6 +78,13 @@ const (
 	backspaceRepeatTime = 75 * time.Millisecond
 )
 
+func init() {
+	envDebug := os.Getenv("ETK_DEBUG")
+	if strings.TrimSpace(envDebug) == "1" {
+		SetDebug(true)
+	}
+}
+
 var deviceScale float64
 
 // ScaleFactor returns the device scale factor. When running on Android, this function

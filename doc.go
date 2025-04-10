@@ -59,6 +59,9 @@ in the order they are returned.
 Set ETK_SCALE to a positive number to override the device scale factor. Applications
 may also set this environment variable to 1 at runtime to disable automatic scaling.
 
+Set ETK_DEBUG to 1 to draw an outline around all visible widgets. This is equivalent
+to calling SetDebug(true).
+
 # Subpackages
 
 There are two subpackages in etk: messeji and kibodo. These are available for
