@@ -16,14 +16,15 @@ import (
 //go:embed asset/lenna.png
 var assetLenna []byte
 
-func newSpriteExample() (etk.Widget, etk.Widget) {
+func newSpriteExample() (string, etk.Widget, etk.Widget) {
 	sourceImg, _, err := image.Decode(bytes.NewReader(assetLenna))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	s := etk.NewSprite(ebiten.NewImageFromImage(sourceImg))
-	s.SetHorizontal(etk.AlignStart)
-	s.SetVertical(etk.AlignStart)
-	return s, nil
+	sprite := etk.NewSprite(ebiten.NewImageFromImage(sourceImg))
+	sprite.SetHorizontal(etk.AlignStart)
+	sprite.SetVertical(etk.AlignStart)
+
+	return "sprite", sprite, nil
 }

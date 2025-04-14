@@ -8,22 +8,21 @@ import (
 	"codeberg.org/tslocum/etk"
 )
 
-func newFlexExample() (etk.Widget, etk.Widget) {
+func newFlexExample() (string, etk.Widget, etk.Widget) {
 	newLabel := func(i int) *etk.Text {
 		t := etk.NewText(fmt.Sprintf("Item #%d", i))
 		t.SetPadding(etk.Scale(10))
 		return t
 	}
+	label1 := newLabel(1)
+	label2 := newLabel(2)
+	label3 := newLabel(3)
+	label4 := newLabel(4)
+	label5 := newLabel(5)
 
-	l1 := newLabel(1)
-	l2 := newLabel(2)
-	l3 := newLabel(3)
-	l4 := newLabel(4)
-	l5 := newLabel(5)
+	flex := etk.NewFlex()
+	flex.SetChildSize(etk.Scale(300), etk.Scale(75))
+	flex.AddChild(label1, label2, label3, label4, label5)
 
-	flexDemo := etk.NewFlex()
-	flexDemo.SetChildSize(etk.Scale(300), etk.Scale(75))
-	flexDemo.AddChild(l1, l2, l3, l4, l5)
-
-	return flexDemo, nil
+	return "flex", flex, nil
 }

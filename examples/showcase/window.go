@@ -6,11 +6,11 @@ import (
 	"codeberg.org/tslocum/etk"
 )
 
-func newWindowExample() (etk.Widget, etk.Widget) {
+func newWindowExample() (string, etk.Widget, etk.Widget) {
 	text := etk.NewText(windowLabel)
 	text.SetPadding(etk.Scale(10))
 
-	return text, nil
+	return "window", text, nil
 }
 
 const windowLabel = `This widget showcase utilizes a Window.

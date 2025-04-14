@@ -8,8 +8,8 @@ import (
 	"codeberg.org/tslocum/etk"
 )
 
-func newButtonExample() (etk.Widget, etk.Widget) {
-	var btn *etk.Button
+func newButtonExample() (string, etk.Widget, etk.Widget) {
+	var button *etk.Button
 	var clicked int
 	onClick := func() error {
 		clicked++
@@ -17,21 +17,21 @@ func newButtonExample() (etk.Widget, etk.Widget) {
 		if clicked > 1 {
 			label = fmt.Sprintf("Clicked %d times", clicked)
 		}
-		btn.SetText(label)
+		button.SetText(label)
 		return nil
 	}
-	btn = etk.NewButton("Click here", onClick)
+	button = etk.NewButton("Click here", onClick)
 
-	f := etk.NewFrame()
-	f.SetPositionChildren(true)
-	f.SetMaxHeight(etk.Scale(100))
-	f.SetMaxWidth(etk.Scale(300))
-	f.AddChild(btn)
+	frame := etk.NewFrame()
+	frame.SetPositionChildren(true)
+	frame.SetMaxHeight(etk.Scale(100))
+	frame.SetMaxWidth(etk.Scale(300))
+	frame.AddChild(button)
 
-	btnDemo := etk.NewGrid()
-	btnDemo.SetColumnPadding(etk.Scale(50))
-	btnDemo.SetRowPadding(etk.Scale(50))
-	btnDemo.AddChildAt(f, 0, 0, 1, 1)
+	buttonGrid := etk.NewGrid()
+	buttonGrid.SetColumnPadding(etk.Scale(50))
+	buttonGrid.SetRowPadding(etk.Scale(50))
+	buttonGrid.AddChildAt(frame, 0, 0, 1, 1)
 
-	return btnDemo, nil
+	return "button", buttonGrid, nil
 }

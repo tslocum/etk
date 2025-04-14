@@ -8,23 +8,24 @@ import (
 	"codeberg.org/tslocum/etk"
 )
 
-func newCheckboxExample() (etk.Widget, etk.Widget) {
-	var chk *etk.Checkbox
+func newCheckboxExample() (string, etk.Widget, etk.Widget) {
+	var checkbox *etk.Checkbox
 	var label *etk.Button
-	onSelectChk := func() error {
-		if chk.Selected() {
+	onSelectCheckbox := func() error {
+		if checkbox.Selected() {
 			label.SetText("Checked")
 		} else {
 			label.SetText("Unchecked")
 		}
 		return nil
 	}
+	checkbox = etk.NewCheckbox(onSelectCheckbox)
+
 	onSelectLabel := func() error {
-		chk.SetSelected(!chk.Selected())
-		onSelectChk()
+		checkbox.SetSelected(!checkbox.Selected())
+		onSelectCheckbox()
 		return nil
 	}
-	chk = etk.NewCheckbox(onSelectChk)
 	label = etk.NewButton("Unchecked", onSelectLabel)
 	label.SetHorizontal(etk.AlignStart)
 	label.SetVertical(etk.AlignCenter)
@@ -34,18 +35,18 @@ func newCheckboxExample() (etk.Widget, etk.Widget) {
 
 	grid := etk.NewGrid()
 	grid.SetColumnSizes(etk.Scale(50), -1)
-	grid.AddChildAt(chk, 0, 0, 1, 1)
+	grid.AddChildAt(checkbox, 0, 0, 1, 1)
 	grid.AddChildAt(label, 1, 0, 1, 1)
 
-	f := etk.NewFrame()
-	f.SetPositionChildren(true)
-	f.SetMaxHeight(etk.Scale(50))
-	f.AddChild(grid)
+	frame := etk.NewFrame()
+	frame.SetPositionChildren(true)
+	frame.SetMaxHeight(etk.Scale(50))
+	frame.AddChild(grid)
 
-	btnDemo := etk.NewGrid()
-	btnDemo.SetColumnPadding(etk.Scale(50))
-	btnDemo.SetRowPadding(etk.Scale(50))
-	btnDemo.AddChildAt(f, 0, 0, 1, 1)
+	checkboxGrid := etk.NewGrid()
+	checkboxGrid.SetColumnPadding(etk.Scale(50))
+	checkboxGrid.SetRowPadding(etk.Scale(50))
+	checkboxGrid.AddChildAt(frame, 0, 0, 1, 1)
 
-	return btnDemo, nil
+	return "checkbox", checkboxGrid, nil
 }
