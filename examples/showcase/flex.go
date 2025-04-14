@@ -4,14 +4,18 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 
 	"codeberg.org/tslocum/etk"
 )
 
 func newFlexExample() (string, etk.Widget, etk.Widget) {
 	newLabel := func(i int) *etk.Text {
+		const shadeStep = 32
+		shadeValue := uint8(shadeStep * i)
 		t := etk.NewText(fmt.Sprintf("Item #%d", i))
 		t.SetPadding(etk.Scale(10))
+		t.SetBackground(color.RGBA{shadeValue, shadeValue, shadeValue, 255})
 		return t
 	}
 	label1 := newLabel(1)
