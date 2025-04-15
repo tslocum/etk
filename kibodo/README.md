@@ -6,7 +6,7 @@ On-screen keyboard widget for [Ebitengine](https://github.com/hajimehoshi/ebiten
 
 ## Demo
 
-[**Try kibodo**](https://kibodo.rocket9labs.com)
+See [examples/kibodo](https://codeberg.org/tslocum/etk/src/branch/main/kibodo/examples/kibodo).
 
 ## Documentation
 

@@ -8,9 +8,7 @@ Text widgets for [Ebitengine](https://github.com/hajimehoshi/ebiten)
 
 ## Demo
 
-[**Try messeji**](https://messeji.rocket9labs.com)
-
-The code for this demo is located in `examples/messeji`.
+See [examples/messeji](https://codeberg.org/tslocum/etk/src/branch/main/messeji/examples/messeji).
 
 ## Documentation
 
