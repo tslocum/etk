@@ -1,5 +1,5 @@
 # kibodo
-[![GoDoc](https://codeberg.org/tslocum/godoc-static/raw/branch/master/badge.svg)](https://pkg.go.dev/codeberg.org/tslocum/etk/kibodo#section-documentation)
+[![GoDoc](https://codeberg.org/tslocum/godoc-static/raw/branch/main/badge.svg)](https://pkg.go.dev/codeberg.org/tslocum/etk/kibodo#section-documentation)
 [![Donate](https://img.shields.io/liberapay/receives/rocket9labs.com.svg?logo=liberapay)](https://liberapay.com/rocket9labs.com)
 
 On-screen keyboard widget for [Ebitengine](https://github.com/hajimehoshi/ebiten)
