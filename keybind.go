@@ -32,7 +32,7 @@ type Shortcuts struct {
 
 // Bindings is the current keyboard, mouse and gamepad input configurations.
 var Bindings = &Shortcuts{
-	DoubleClickThreshold: 200 * time.Millisecond,
+	DoubleClickThreshold: 500 * time.Millisecond,
 
 	MoveLeftKeyboard:  []ebiten.Key{ebiten.KeyLeft},
 	MoveRightKeyboard: []ebiten.Key{ebiten.KeyRight},
