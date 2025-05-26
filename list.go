@@ -465,19 +465,17 @@ func (l *List) HandleMouse(cursor image.Point, pressed bool, clicked bool) (hand
 	}
 	selected := (l.offset + cursor.Y - l.rect.Min.Y) / l.itemHeight
 	if selected >= 0 && selected <= l.maxY {
-		lastSelected := l.selectedY
-		l.selectedY = selected
-
 		selectedFunc := l.selectedFunc
 		if selectedFunc != nil {
 			l.Unlock()
-			accept := selectedFunc(l.selectedY)
+			accept := selectedFunc(selected)
 			l.Lock()
 			if !accept {
-				l.selectedY = lastSelected
 				return true, nil
 			}
 		}
+		lastSelected := l.selectedY
+		l.selectedY = selected
 
 		if selected == lastSelected && time.Since(l.selectedTime) <= Bindings.DoubleClickThreshold {
 			confirmedFunc := l.confirmedFunc
