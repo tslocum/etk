@@ -18,6 +18,7 @@
 - Tools in the kit:
   - Box: Building block for creating custom widgets.
   - Button: Clickable button.
+  - FilePicker: File and directory creation and selection dialog.
   - Flex: Flexible stack-based layout. Each Flex widget may be oriented horizontally or vertically.
   - Frame: Widget container. All child widgets are displayed at once. Child widgets are not repositioned by default.
   - Grid: Highly customizable cell-based layout. Each widget added to the Grid may span multiple cells.

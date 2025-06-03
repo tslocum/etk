@@ -9,6 +9,7 @@ based on official widgets.
 The following official widgets are available:
   - [Box] - Building block for creating other widgets.
   - [Button] - Clickable button.
+  - [FilePicker] - File and directory creation and selection dialog.
   - [Flex] - Flexible stack-based layout. Each Flex widget may be oriented horizontally or vertically.
   - [Frame] - Widget container. All child widgets are displayed at once. Child widgets are not repositioned by default.
   - [Grid] - Highly customizable cell-based layout. Widgets added to the Grid may span multiple cells.
