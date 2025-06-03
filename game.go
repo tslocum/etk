@@ -138,9 +138,14 @@ func FontFace(source *text.GoTextFaceSource, size int) *text.GoTextFace {
 	}
 }
 
-// SetRoot sets the root widget. The root widget and all of its children will
-// be drawn on the screen and receive user input. The root widget will also be
-// focused. To temporarily disable etk, set a nil root widget.
+// Root returns the root widget. The root widget and all of its children are
+// be drawn on the screen and receive user input. The root widget may be nil.
+func Root() Widget {
+	return root
+}
+
+// SetRoot sets the root widget. See [Root] for a description of the root widget.
+// The root widget is focused automatically. Set a nil root widget to disable etk.
 func SetRoot(w Widget) {
 	root = w
 	if root != nil && (lastWidth != 0 || lastHeight != 0) {

@@ -63,6 +63,7 @@ func NewFilePicker(mode FilePickerMode, dir string, extensions []string, onResul
 	f.List.SetConfirmedFunc(f.onListConfirmed)
 
 	f.inputField = NewInput("", f.onInputSelected)
+	f.inputField.SetVertical(AlignCenter)
 	return f
 }
 
