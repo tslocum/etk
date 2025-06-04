@@ -37,6 +37,7 @@ func (s *Sprite) SetImage(img *ebiten.Image) {
 	defer s.Unlock()
 
 	s.img = img
+	s.imgBounds = s.img.Bounds()
 	s.thumbBounds = image.Rectangle{}
 }
 
