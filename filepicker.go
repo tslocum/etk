@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -65,6 +66,16 @@ func NewFilePicker(mode FilePickerMode, dir string, extensions []string, onResul
 	f.inputField = NewInput("", f.onInputSelected)
 	f.inputField.SetVertical(AlignCenter)
 	return f
+}
+
+func (f *FilePicker) SetFocus(focus bool) (accept bool) {
+	if focus {
+		go func() {
+			time.Sleep(10 * time.Millisecond)
+			SetFocus(f.inputField)
+		}()
+	}
+	return false
 }
 
 func (f *FilePicker) handleResult(index int) {
@@ -236,7 +247,7 @@ func (f *FilePicker) rebuild() {
 	f.Grid.SetRowSizes(rowSizes...)
 	f.Grid.AddChildAt(f.dirLabel, 0, 0, 2, 1)
 	f.Grid.AddChildAt(dividerA, 0, 1, 2, 1)
-	f.Grid.AddChildAt(f.List, 0, 2, 2, 1)
+	f.Grid.AddChildAt(&WithoutFocus{f.List}, 0, 2, 2, 1)
 	f.Grid.AddChildAt(dividerB, 0, 3, 2, 1)
 	y = 4
 	if showInput {
