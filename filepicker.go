@@ -84,7 +84,9 @@ func (f *FilePicker) handleResult(index int) {
 	if modeCreate {
 		path = f.dir
 		name := f.inputField.Text()
-		if len(f.extensions) == 1 && !strings.HasSuffix(strings.ToLower(name), f.extensions[0]) {
+		if name == "" {
+			name = f.entries[index]
+		} else if len(f.extensions) == 1 && !strings.HasSuffix(strings.ToLower(name), f.extensions[0]) {
 			name += f.extensions[0]
 		}
 		path = filepath.Join(path, name)
@@ -108,6 +110,16 @@ func (f *FilePicker) handleSelected(index int) {
 	}
 	modeCreate := f.mode == ModeCreateDir || f.mode == ModeCreateFile
 	if modeCreate {
+		if strings.TrimSpace(f.inputField.Text()) == "" {
+			isDir := strings.HasSuffix(f.entries[index], "/")
+			if isDir != (f.mode == ModeCreateDir) {
+				if isDir {
+					f.dir = path
+					f.needRebuild = true
+				}
+				return
+			}
+		}
 		f.handleResult(index)
 		return
 	}
