@@ -32,7 +32,7 @@ func NewSelect(itemHeight int, onSelect func(index int) (accept bool)) *Select {
 	s.label.SetVertical(AlignCenter)
 	s.label.SetForeground(textColor)
 	s.SetBackground(Style.ButtonBgColor)
-	s.list = NewList(itemHeight, s.selectList)
+	s.list = NewList(itemHeight, s.selectList, nil)
 	s.list.SetBackground(Style.ButtonBgColor)
 	s.list.SetDrawBorder(true)
 	s.list.SetVisible(false)

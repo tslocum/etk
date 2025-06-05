@@ -68,7 +68,7 @@ var (
 )
 
 // NewList returns a new List widget.
-func NewList(itemHeight int, onSelected func(index int) (accept bool)) *List {
+func NewList(itemHeight int, onSelected func(index int) (accept bool), onConfirmed func(index int)) *List {
 	return &List{
 		grid:               NewGrid(),
 		itemHeight:         itemHeight,
@@ -78,6 +78,7 @@ func NewList(itemHeight int, onSelected func(index int) (accept bool)) *List {
 		selectedX:          -1,
 		selectedY:          -1,
 		selectedFunc:       onSelected,
+		confirmedFunc:      onConfirmed,
 		recreateGrid:       true,
 		scrollWidth:        initialScrollWidth,
 		scrollAreaColor:    initialScrollArea,

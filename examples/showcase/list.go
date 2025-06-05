@@ -18,7 +18,7 @@ func newListExample() (string, etk.Widget, etk.Widget) {
 
 	ff := etk.FontFace(etk.Style.TextFont, fontSize)
 	m := ff.Metrics()
-	list := etk.NewList(etk.Scale(int(m.HAscent+m.HDescent)), onSelected)
+	list := etk.NewList(etk.Scale(int(m.HAscent+m.HDescent)), onSelected, nil)
 
 	for i := 0; i < 100; i++ {
 		t := etk.NewText(fmt.Sprintf("Item #%d", i+1))

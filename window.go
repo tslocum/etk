@@ -41,7 +41,7 @@ func NewWindow() *Window {
 		active:    -1,
 		firstDraw: true,
 	}
-	w.list = NewList(int(float64(Scale(Style.TextSize))*1.5), w.selectItem)
+	w.list = NewList(int(float64(Scale(Style.TextSize))*1.5), w.selectItem, nil)
 	w.listWidget = &WithoutFocus{w.list}
 	return w
 }

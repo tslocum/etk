@@ -60,8 +60,7 @@ func NewFilePicker(mode FilePickerMode, dir string, extensions []string, onResul
 	f.dirLabel.SetVertical(AlignCenter)
 	f.dirLabel.SetAutoResize(true)
 
-	f.List = NewList(itemHeight, f.onListSelected)
-	f.List.SetConfirmedFunc(f.onListConfirmed)
+	f.List = NewList(itemHeight, f.onListSelected, f.onListConfirmed)
 
 	f.inputField = NewInput("", f.onInputSelected)
 	f.inputField.SetVertical(AlignCenter)
