@@ -8,7 +8,6 @@ import (
 	"sort"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -69,10 +68,7 @@ func NewFilePicker(mode FilePickerMode, dir string, extensions []string, onResul
 
 func (f *FilePicker) SetFocus(focus bool) (accept bool) {
 	if focus {
-		go func() {
-			time.Sleep(10 * time.Millisecond)
-			SetFocus(f.inputField)
-		}()
+		SetFocus(f.inputField)
 	}
 	return false
 }
