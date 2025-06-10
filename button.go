@@ -21,12 +21,12 @@ type Button struct {
 	borderRight   color.RGBA
 	borderBottom  color.RGBA
 	borderLeft    color.RGBA
-	onSelected    func() error
+	onSelect      func() error
 	pressed       bool
 }
 
 // NewButton returns a new Button widget.
-func NewButton(label string, onSelected func() error) *Button {
+func NewButton(label string, onSelect func() error) *Button {
 	textColor := Style.ButtonTextColor
 	if textColor.A == 0 {
 		textColor = Style.TextColorDark
@@ -44,7 +44,7 @@ func NewButton(label string, onSelected func() error) *Button {
 		btnBackground: Style.ButtonBgColor,
 		textFont:      Style.TextFont,
 		textSize:      Scale(Style.TextSize),
-		onSelected:    onSelected,
+		onSelect:      onSelect,
 		borderSize:    Scale(Style.ButtonBorderSize),
 		borderTop:     Style.ButtonBorderTop,
 		borderRight:   Style.ButtonBorderRight,
@@ -170,14 +170,14 @@ func (b *Button) HandleMouse(cursor image.Point, pressed bool, clicked bool) (ha
 	b.Lock()
 	b.pressed = true
 	b.background = color.RGBA{uint8(float64(b.btnBackground.R) * dim), uint8(float64(b.btnBackground.G) * dim), uint8(float64(b.btnBackground.B) * dim), 255}
-	onSelected := b.onSelected
-	if onSelected == nil {
+	onSelect := b.onSelect
+	if onSelect == nil {
 		b.Unlock()
 		return true, nil
 	}
 	b.Unlock()
 
-	return true, onSelected()
+	return true, onSelect()
 }
 
 // Draw draws the button on the screen.

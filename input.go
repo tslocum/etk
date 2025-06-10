@@ -14,8 +14,8 @@ import (
 type Input struct {
 	*Box
 	field           *messeji.InputField
-	onChanged       func(text string, r rune) (accept bool)
-	onConfirmed     func(text string) (handled bool)
+	onChange        func(text string, r rune) (accept bool)
+	onConfirm       func(text string) (handled bool)
 	cursor          string
 	borderSize      int
 	borderFocused   color.RGBA
@@ -24,7 +24,7 @@ type Input struct {
 }
 
 // NewInput returns a new Input widget.
-func NewInput(text string, onChanged func(text string, r rune) (accept bool), onConfirmed func(text string) (handled bool)) *Input {
+func NewInput(text string, onChange func(text string, r rune) (accept bool), onConfirm func(text string) (handled bool)) *Input {
 	f := messeji.NewInputField(Style.TextFont, Scale(Style.TextSize), fontMutex)
 	f.SetForegroundColor(Style.TextColorLight)
 	f.SetBackgroundColor(transparent)
@@ -39,8 +39,8 @@ func NewInput(text string, onChanged func(text string, r rune) (accept bool), on
 	i := &Input{
 		Box:             NewBox(),
 		field:           f,
-		onChanged:       onChanged,
-		onConfirmed:     onConfirmed,
+		onChange:        onChange,
+		onConfirm:       onConfirm,
 		cursor:          "_",
 		borderSize:      Scale(Style.InputBorderSize),
 		borderFocused:   Style.InputBorderFocused,
@@ -48,14 +48,14 @@ func NewInput(text string, onChanged func(text string, r rune) (accept bool), on
 	}
 	i.SetBackground(Style.InputBgColor)
 	f.SetChangedFunc(func(r rune) (accept bool) {
-		if i.onChanged != nil {
-			return i.onChanged(f.Text()+string(r), r)
+		if i.onChange != nil {
+			return i.onChange(f.Text()+string(r), r)
 		}
 		return true
 	})
 	f.SetSelectedFunc(func() (accept bool) {
-		if i.onConfirmed != nil {
-			return i.onConfirmed(f.Text())
+		if i.onConfirm != nil {
+			return i.onConfirm(f.Text())
 		}
 		return true
 	})
@@ -264,20 +264,20 @@ func (i *Input) SetMask(r rune) {
 	i.field.SetMask(r)
 }
 
-// SetChangedFunc sets the handler called when the text input changes.
-func (i *Input) SetChangedFunc(onChanged func(text string, r rune) (accept bool)) {
+// SetChangeFunc sets the handler called when the text input changes.
+func (i *Input) SetChangeFunc(onChange func(text string, r rune) (accept bool)) {
 	i.Lock()
 	defer i.Unlock()
 
-	i.onChanged = onChanged
+	i.onChange = onChange
 }
 
-// SetConfirmedFunc sets the handler called when the text input is confirmed.
-func (i *Input) SetConfirmedFunc(onConfirmed func(text string) (handled bool)) {
+// SetConfirmFunc sets the handler called when the text input is confirmed.
+func (i *Input) SetConfirmFunc(onConfirm func(text string) (handled bool)) {
 	i.Lock()
 	defer i.Unlock()
 
-	i.onConfirmed = onConfirmed
+	i.onConfirm = onConfirm
 }
 
 // Cursor returns the cursor shape shown when a mouse cursor hovers over the

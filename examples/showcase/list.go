@@ -11,14 +11,14 @@ import (
 
 func newListExample() (string, etk.Widget, etk.Widget) {
 	const fontSize = 32
-	onSelected := func(index int) (accept bool) {
+	onChange := func(index int) (accept bool) {
 		log.Printf("Selected item at index %d", index)
 		return true
 	}
 
 	ff := etk.FontFace(etk.Style.TextFont, fontSize)
 	m := ff.Metrics()
-	list := etk.NewList(etk.Scale(int(m.HAscent+m.HDescent)), onSelected, nil)
+	list := etk.NewList(etk.Scale(int(m.HAscent+m.HDescent)), onChange, nil)
 
 	for i := 0; i < 100; i++ {
 		t := etk.NewText(fmt.Sprintf("Item #%d", i+1))

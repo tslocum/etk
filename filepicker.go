@@ -302,10 +302,10 @@ func (f *FilePicker) SetExtensions(extensions []string) {
 	f.needRebuild = true
 }
 
-// SetOnResult sets the FilePicker result handler. When a file or directory is
+// SetResultFunc sets the FilePicker result handler. When a file or directory is
 // selected, depending on the FilePicker mode, the path to the file or directory
 // is provided. When the FilePicker is canceled, a blank path is provided.
-func (f *FilePicker) SetOnResult(onResult func(path string) error) {
+func (f *FilePicker) SetResultFunc(onResult func(path string) error) {
 	f.Lock()
 	defer f.Unlock()
 

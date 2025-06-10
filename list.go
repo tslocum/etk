@@ -36,8 +36,8 @@ type List struct {
 	selectionMode        SelectionMode
 	selectedX, selectedY int
 	selectedTime         time.Time
-	selectedFunc         func(index int) (accept bool)
-	confirmedFunc        func(index int)
+	onChange             func(index int) (accept bool)
+	onConfirm            func(index int)
 	items                [][]Widget
 	offset               int
 	recreateGrid         bool
@@ -68,7 +68,7 @@ var (
 )
 
 // NewList returns a new List widget.
-func NewList(itemHeight int, onSelected func(index int) (accept bool), onConfirmed func(index int)) *List {
+func NewList(itemHeight int, onChange func(index int) (accept bool), onConfirm func(index int)) *List {
 	return &List{
 		grid:               NewGrid(),
 		itemHeight:         itemHeight,
@@ -77,8 +77,8 @@ func NewList(itemHeight int, onSelected func(index int) (accept bool), onConfirm
 		selectionMode:      SelectRow,
 		selectedX:          -1,
 		selectedY:          -1,
-		selectedFunc:       onSelected,
-		confirmedFunc:      onConfirmed,
+		onChange:           onChange,
+		onConfirm:          onConfirm,
 		recreateGrid:       true,
 		scrollWidth:        initialScrollWidth,
 		scrollAreaColor:    initialScrollArea,
@@ -271,23 +271,23 @@ func (l *List) SetScrollBorderColors(top color.RGBA, right color.RGBA, bottom co
 	l.scrollBorderLeft = left
 }
 
-// SetSelectedFunc sets a handler which is called when a list item is selected.
+// SetChangeFunc sets a handler which is called when the selected item changes.
 // Providing a nil function value will remove the existing handler (if set).
 // The handler may return false to return the selection to its original state.
-func (l *List) SetSelectedFunc(f func(index int) (accept bool)) {
+func (l *List) SetChangeFunc(onChange func(index int) (accept bool)) {
 	l.Lock()
 	defer l.Unlock()
 
-	l.selectedFunc = f
+	l.onChange = onChange
 }
 
-// SetConfirmedFunc sets a handler which is called when the list selection is confirmed.
+// SetConfirmFunc sets a handler which is called when the list selection is confirmed.
 // Providing a nil function value will remove the existing handler (if set).
-func (l *List) SetConfirmedFunc(f func(index int)) {
+func (l *List) SetConfirmFunc(onConfirm func(index int)) {
 	l.Lock()
 	defer l.Unlock()
 
-	l.confirmedFunc = f
+	l.onConfirm = onConfirm
 }
 
 // Children returns the children of the widget. Children are drawn in the
@@ -361,10 +361,10 @@ func (l *List) HandleKeyboard(key ebiten.Key, r rune) (handled bool, err error) 
 		// Handle confirmation.
 		for _, confirmKey := range Bindings.ConfirmKeyboard {
 			if key == confirmKey {
-				confirmedFunc := l.confirmedFunc
-				if confirmedFunc != nil {
+				onConfirm := l.onConfirm
+				if onConfirm != nil {
 					l.Unlock()
-					confirmedFunc(l.selectedY)
+					onConfirm(l.selectedY)
 					l.Lock()
 				}
 				return true, nil
@@ -466,10 +466,10 @@ func (l *List) HandleMouse(cursor image.Point, pressed bool, clicked bool) (hand
 	}
 	selected := (l.offset + cursor.Y - l.rect.Min.Y) / l.itemHeight
 	if selected >= 0 && selected <= l.maxY {
-		selectedFunc := l.selectedFunc
-		if selectedFunc != nil {
+		onChange := l.onChange
+		if onChange != nil {
 			l.Unlock()
-			accept := selectedFunc(selected)
+			accept := onChange(selected)
 			l.Lock()
 			if !accept {
 				return true, nil
@@ -479,10 +479,10 @@ func (l *List) HandleMouse(cursor image.Point, pressed bool, clicked bool) (hand
 		l.selectedY = selected
 
 		if selected == lastSelected && time.Since(l.selectedTime) <= Bindings.DoubleClickThreshold {
-			confirmedFunc := l.confirmedFunc
-			if confirmedFunc != nil {
+			onConfirm := l.onConfirm
+			if onConfirm != nil {
 				l.Unlock()
-				confirmedFunc(l.selectedY)
+				onConfirm(l.selectedY)
 				l.Lock()
 			}
 			l.selectedTime = time.Time{}

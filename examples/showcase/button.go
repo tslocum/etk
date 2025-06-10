@@ -10,17 +10,17 @@ import (
 
 func newButtonExample() (string, etk.Widget, etk.Widget) {
 	var button *etk.Button
-	var clicked int
-	onClick := func() error {
-		clicked++
+	var i int
+	onSelect := func() error {
+		i++
 		label := "Clicked 1 time"
-		if clicked > 1 {
-			label = fmt.Sprintf("Clicked %d times", clicked)
+		if i > 1 {
+			label = fmt.Sprintf("Clicked %d times", i)
 		}
 		button.SetText(label)
 		return nil
 	}
-	button = etk.NewButton("Click here", onClick)
+	button = etk.NewButton("Click here", onSelect)
 
 	frame := etk.NewFrame()
 	frame.SetPositionChildren(true)
