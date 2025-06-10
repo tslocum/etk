@@ -61,7 +61,7 @@ func NewFilePicker(mode FilePickerMode, dir string, extensions []string, onResul
 
 	f.List = NewList(itemHeight, f.onListSelected, f.onListConfirmed)
 
-	f.inputField = NewInput("", f.onInputSelected)
+	f.inputField = NewInput("", nil, f.onInputConfirmed)
 	f.inputField.SetVertical(AlignCenter)
 	return f
 }
@@ -145,7 +145,7 @@ func (f *FilePicker) onListConfirmed(index int) {
 	f.handleResult(index)
 }
 
-func (f *FilePicker) onInputSelected(text string) (handled bool) {
+func (f *FilePicker) onInputConfirmed(text string) (handled bool) {
 	_, index := f.List.SelectedItem()
 	f.handleSelected(index)
 	return true

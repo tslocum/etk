@@ -14,6 +14,8 @@ import (
 type Input struct {
 	*Box
 	field           *messeji.InputField
+	onChanged       func(text string, r rune) (accept bool)
+	onConfirmed     func(text string) (handled bool)
 	cursor          string
 	borderSize      int
 	borderFocused   color.RGBA
@@ -22,7 +24,7 @@ type Input struct {
 }
 
 // NewInput returns a new Input widget.
-func NewInput(text string, onSelected func(text string) (handled bool)) *Input {
+func NewInput(text string, onChanged func(text string, r rune) (accept bool), onConfirmed func(text string) (handled bool)) *Input {
 	f := messeji.NewInputField(Style.TextFont, Scale(Style.TextSize), fontMutex)
 	f.SetForegroundColor(Style.TextColorLight)
 	f.SetBackgroundColor(transparent)
@@ -33,19 +35,30 @@ func NewInput(text string, onSelected func(text string) (handled bool)) *Input {
 	f.SetSuffix("")
 	f.SetText(text)
 	f.SetHandleKeyboard(true)
-	f.SetSelectedFunc(func() (accept bool) {
-		return onSelected(f.Text())
-	})
 
 	i := &Input{
 		Box:             NewBox(),
 		field:           f,
+		onChanged:       onChanged,
+		onConfirmed:     onConfirmed,
 		cursor:          "_",
 		borderSize:      Scale(Style.InputBorderSize),
 		borderFocused:   Style.InputBorderFocused,
 		borderUnfocused: Style.InputBorderUnfocused,
 	}
 	i.SetBackground(Style.InputBgColor)
+	f.SetChangedFunc(func(r rune) (accept bool) {
+		if i.onChanged != nil {
+			return i.onChanged(f.Text()+string(r), r)
+		}
+		return true
+	})
+	f.SetSelectedFunc(func() (accept bool) {
+		if i.onConfirmed != nil {
+			return i.onConfirmed(f.Text())
+		}
+		return true
+	})
 	return i
 }
 
@@ -249,6 +262,22 @@ func (i *Input) SetMask(r rune) {
 	defer i.Unlock()
 
 	i.field.SetMask(r)
+}
+
+// SetChangedFunc sets the handler called when the text input changes.
+func (i *Input) SetChangedFunc(onChanged func(text string, r rune) (accept bool)) {
+	i.Lock()
+	defer i.Unlock()
+
+	i.onChanged = onChanged
+}
+
+// SetConfirmedFunc sets the handler called when the text input is confirmed.
+func (i *Input) SetConfirmedFunc(onConfirmed func(text string) (handled bool)) {
+	i.Lock()
+	defer i.Unlock()
+
+	i.onConfirmed = onConfirmed
 }
 
 // Cursor returns the cursor shape shown when a mouse cursor hovers over the

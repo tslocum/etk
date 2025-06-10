@@ -11,11 +11,11 @@ func newInputExample() (string, etk.Widget, etk.Widget) {
 	buffer.SetFollow(true)
 	buffer.SetPadding(etk.Scale(10))
 
-	onselected := func(text string) (handled bool) {
+	onConfirmed := func(text string) (handled bool) {
 		buffer.Write([]byte("\nInput: " + text))
 		return true
 	}
-	input := etk.NewInput("", onselected)
+	input := etk.NewInput("", nil, onConfirmed)
 	input.SetPadding(etk.Scale(10))
 
 	inputFlex := etk.NewFlex()
