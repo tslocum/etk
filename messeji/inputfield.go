@@ -108,7 +108,6 @@ func (f *InputField) handleRunes(runes []rune) bool {
 			f.Unlock()
 			accept := f.changedFunc(r)
 			f.Lock()
-
 			if !accept {
 				continue
 			}
@@ -128,6 +127,15 @@ func (f *InputField) handleKeys(keys []ebiten.Key) bool {
 		case ebiten.KeyBackspace:
 			l := len(f.buffer)
 			if l > 0 {
+				if f.changedFunc != nil {
+					f.Unlock()
+					accept := f.changedFunc(0)
+					f.Lock()
+					if !accept {
+						continue
+					}
+				}
+
 				var rewrap bool
 				if len(f.incoming) != 0 {
 					line := string(f.incoming)

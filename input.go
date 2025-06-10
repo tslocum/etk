@@ -49,7 +49,11 @@ func NewInput(text string, onChange func(text string, r rune) (accept bool), onC
 	i.SetBackground(Style.InputBgColor)
 	f.SetChangedFunc(func(r rune) (accept bool) {
 		if i.onChange != nil {
-			return i.onChange(f.Text()+string(r), r)
+			text := f.Text()
+			if r == 0 && len(text) > 0 {
+				return i.onChange(text[:len(text)-1], 0)
+			}
+			return i.onChange(text+string(r), r)
 		}
 		return true
 	})
@@ -264,7 +268,8 @@ func (i *Input) SetMask(r rune) {
 	i.field.SetMask(r)
 }
 
-// SetChangeFunc sets the handler called when the text input changes.
+// SetChangeFunc sets the handler called when the text input changes. When the
+// backspace key is pressed, the current text and a rune value of 0 is passed.
 func (i *Input) SetChangeFunc(onChange func(text string, r rune) (accept bool)) {
 	i.Lock()
 	defer i.Unlock()
