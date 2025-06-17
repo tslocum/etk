@@ -128,6 +128,8 @@ func (f *Flex) reposition() {
 			}
 			childWidth = (r.Dx() - gapSpace) / len(f.children)
 		}
+	} else if childWidth > r.Dx() {
+		childWidth = r.Dx()
 	}
 	childHeight := f.childHeight
 	if childHeight == 0 {
@@ -140,6 +142,8 @@ func (f *Flex) reposition() {
 		} else {
 			childHeight = r.Dy()
 		}
+	} else if childHeight > r.Dy() {
+		childHeight = r.Dy()
 	}
 
 	rects := make([]image.Rectangle, len(f.children))
