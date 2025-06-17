@@ -663,18 +663,30 @@ func (f *TextField) resizeFont() {
 	for size := f.fontSize; size > 0; size-- {
 		f.fontFace = fontFace(f.fontSource, size)
 		f.fontUpdated()
+
 		lineHeight := f.overrideLineHeight
 		if lineHeight == 0 {
 			lineHeight = f.lineHeight
 		}
-		f.overrideFontSize = size
 		if lineHeight > h {
 			continue
 		}
+
+		f.overrideFontSize = size
 		f.needWrap = 0
 		f.wrapStart = 0
-		f.wrap()
-		if len(f.bufferWrapped) <= 1 {
+		wrappedChar := f.wrap()
+		if wrappedChar {
+			continue
+		}
+
+		var overflow bool
+		if f.singleLine {
+			overflow = len(f.bufferWrapped) > 1
+		} else {
+			overflow = f.bufferSize > h
+		}
+		if !overflow {
 			break
 		}
 	}
@@ -915,12 +927,12 @@ func (f *TextField) fontUpdated() {
 	}
 }
 
-func (f *TextField) wrapContent(withScrollBar bool) {
+func (f *TextField) wrapContent(withScrollBar bool) (wrappedChar bool) {
 	if withScrollBar != f.wrapScrollBar {
 		f.needWrap = 0
 		f.wrapStart = 0
 	} else if f.needWrap == -1 {
-		return
+		return wrappedChar
 	}
 	f.wrapScrollBar = withScrollBar
 
@@ -937,7 +949,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 		f.lineWidths = append(f.lineWidths[:0], int(w))
 
 		f.needWrap = -1
-		return
+		return wrappedChar
 	}
 
 	w := f.r.Dx()
@@ -1051,6 +1063,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 					}
 					saveWrappedLine(line[lineCursor:charCursor], lineWidth+charWidth)
 					lineCursor = charCursor
+					wrappedChar = true
 					continue WRAPLINE
 				}
 				lineWidth += boundsWidth
@@ -1070,6 +1083,7 @@ func (f *TextField) wrapContent(withScrollBar bool) {
 	}
 
 	f.needWrap = -1
+	return wrappedChar
 }
 
 // drawContent draws the text buffer to img.
@@ -1190,7 +1204,7 @@ func (f *TextField) showScrollBar() bool {
 	return !f.autoResize && !f.singleLine && f.scrollVisible && (f.overflow || !f.scrollAutoHide)
 }
 
-func (f *TextField) wrap() {
+func (f *TextField) wrap() (wrappedChar bool) {
 	w, h := f.r.Dx(), f.r.Dy()
 
 	var newImage bool
@@ -1206,12 +1220,13 @@ func (f *TextField) wrap() {
 	}
 
 	showScrollBar := f.showScrollBar()
-	f.wrapContent(showScrollBar)
+	wrappedChar = f.wrapContent(showScrollBar)
 	f.overflow = f.drawContent()
 	if f.showScrollBar() != showScrollBar {
-		f.wrapContent(!showScrollBar)
+		wrappedChar = f.wrapContent(!showScrollBar)
 		f.drawContent()
 	}
+	return wrappedChar
 }
 
 // drawImage draws the field to img (caching it for future draws).
