@@ -230,10 +230,25 @@ func Update() error {
 	var clicked bool
 	var touchInput bool
 
+	if activeTouchID == -1 {
+		touchIDs = inpututil.AppendJustPressedTouchIDs(touchIDs[:0])
+		for _, id := range touchIDs {
+			x, y := ebiten.TouchPosition(id)
+			if x > 0 || y > 0 {
+				activeTouchID = id
+
+				clicked = true
+				touchInput = true
+				break
+			}
+		}
+	}
+
 	if activeTouchID != -1 {
 		x, y := ebiten.TouchPosition(activeTouchID)
-		if x != 0 || y != 0 {
+		if x > 0 || y > 0 {
 			cursor = image.Point{x, y}
+			lastX, lastY = x, y
 
 			pressed = true
 			touchInput = true
@@ -242,32 +257,16 @@ func Update() error {
 		}
 	}
 
-	if true || activeTouchID == -1 {
-		touchIDs = inpututil.AppendJustPressedTouchIDs(touchIDs[:0])
-		for _, id := range touchIDs {
-			x, y := ebiten.TouchPosition(id)
-			if x != 0 || y != 0 {
-				cursor = image.Point{x, y}
-
-				pressed = true
-				clicked = true
-				touchInput = true
-
-				activeTouchID = id
-				break
-			}
-		}
-	}
-
 	// Handle mouse input.
 
 	if !touchInput {
 		x, y := ebiten.CursorPosition()
-		cursor = image.Point{x, y}
 
-		if lastX == -math.MaxInt && lastY == -math.MaxInt {
+		cursor = image.Point{x, y}
+		if x > 0 || y > 0 {
 			lastX, lastY = x, y
 		}
+
 		for _, binding := range Bindings.ConfirmMouse {
 			pressed = ebiten.IsMouseButtonPressed(binding)
 			if pressed {
@@ -284,13 +283,20 @@ func Update() error {
 	}
 
 	if pressedWidget != nil {
-		_, err := pressedWidget.HandleMouse(cursor, pressed, clicked)
+		c := cursor
+		if c.X <= 0 && c.Y <= 0 && lastX != -math.MaxInt && lastY != -math.MaxInt {
+			c = image.Point{lastX, lastY}
+		}
+		_, err := pressedWidget.HandleMouse(c, pressed, clicked)
 		if err != nil {
 			return err
 		}
 		if !pressed && !clicked {
 			pressedWidget = nil
+			lastX, lastY = -math.MaxInt, -math.MaxInt
 		}
+	} else if lastX != -math.MaxInt && lastY != -math.MaxInt && !pressed && !clicked {
+		lastX, lastY = -math.MaxInt, -math.MaxInt
 	}
 
 	mouseHandled, err := update(root, cursor, pressed, clicked, false)
