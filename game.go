@@ -6,7 +6,6 @@ import (
 	"image/color"
 	"io"
 	"log"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -46,7 +45,8 @@ var drawDebug bool
 var (
 	lastWidth, lastHeight int
 
-	lastX, lastY = -math.MaxInt, -math.MaxInt
+	lastX, lastY             int
+	lastCursorX, lastCursorY int
 
 	touchIDs      []ebiten.TouchID
 	activeTouchID = ebiten.TouchID(-1)
@@ -222,7 +222,7 @@ func Update() error {
 		return nil
 	}
 
-	var cursor image.Point
+	cursor := image.Point{lastX, lastY}
 
 	// Handle touch input.
 
@@ -247,9 +247,8 @@ func Update() error {
 	if activeTouchID != -1 {
 		x, y := ebiten.TouchPosition(activeTouchID)
 		if x > 0 || y > 0 {
-			cursor = image.Point{x, y}
+			cursor.X, cursor.Y = x, y
 			lastX, lastY = x, y
-
 			pressed = true
 			touchInput = true
 		} else {
@@ -262,9 +261,10 @@ func Update() error {
 	if !touchInput {
 		x, y := ebiten.CursorPosition()
 
-		cursor = image.Point{x, y}
-		if x > 0 || y > 0 {
+		if (x > 0 || y > 0) && (x != lastCursorX || y != lastCursorY) {
+			cursor.X, cursor.Y = x, y
 			lastX, lastY = x, y
+			lastCursorX, lastCursorY = x, y
 		}
 
 		for _, binding := range Bindings.ConfirmMouse {
@@ -284,8 +284,8 @@ func Update() error {
 
 	if pressedWidget != nil {
 		c := cursor
-		if c.X <= 0 && c.Y <= 0 && lastX != -math.MaxInt && lastY != -math.MaxInt {
-			c = image.Point{lastX, lastY}
+		if c.X <= 0 && c.Y <= 0 {
+			c.X, c.Y = lastX, lastY
 		}
 		_, err := pressedWidget.HandleMouse(c, pressed, clicked)
 		if err != nil {
@@ -293,10 +293,7 @@ func Update() error {
 		}
 		if !pressed && !clicked {
 			pressedWidget = nil
-			lastX, lastY = -math.MaxInt, -math.MaxInt
 		}
-	} else if lastX != -math.MaxInt && lastY != -math.MaxInt && !pressed && !clicked {
-		lastX, lastY = -math.MaxInt, -math.MaxInt
 	}
 
 	mouseHandled, err := update(root, cursor, pressed, clicked, false)

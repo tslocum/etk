@@ -835,7 +835,7 @@ func (f *TextField) _handleMouseEvent(cursor image.Point, pressed bool, clicked 
 			f.scrollDrag = true
 		} else if !pressed {
 			f.scrollDrag = false
-			f.scrollDragPoint = image.Point{-1, -1}
+			f.scrollDragPoint.X, f.scrollDragPoint.Y = -1, -1
 			f.scrollDragOffset = 0
 		}
 	}
