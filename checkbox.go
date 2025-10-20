@@ -5,7 +5,7 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/llgcode/draw2d/draw2dimg"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 // Checkbox is a toggleable Checkbox.
@@ -16,7 +16,6 @@ type Checkbox struct {
 	checkColor  color.RGBA
 	borderSize  int
 	borderColor color.RGBA
-	baseImg     *image.RGBA
 	img         *ebiten.Image
 	onSelect    func() error
 }
@@ -140,7 +139,6 @@ func (c *Checkbox) updateImage() {
 		}
 	}
 	if initializeImg {
-		c.baseImg = image.NewRGBA(rectAtOrigin(r))
 		c.img = ebiten.NewImage(newSize, newSize)
 	}
 
@@ -152,16 +150,21 @@ func (c *Checkbox) updateImage() {
 	if !c.selected {
 		return
 	}
-	gc := draw2dimg.NewGraphicContext(c.baseImg)
-	gc.SetStrokeColor(c.checkColor)
-	gc.SetLineWidth(float64(c.borderSize))
-	gc.MoveTo(0, 0)
-	gc.LineTo(float64(r.Dx()), float64(r.Dy()))
-	gc.MoveTo(0, float64(r.Dy()))
-	gc.LineTo(float64(r.Dx()), 0)
-	gc.Stroke()
-	c.img.DrawImage(ebiten.NewImageFromImage(c.baseImg), nil)
+	strokeOp := &vector.StrokeOptions{}
+	strokeOp.LineJoin = vector.LineJoinRound
+	strokeOp.LineCap = vector.LineCapButt
+	strokeOp.Width = float32(c.borderSize)
 
+	strokePathOp := &vector.DrawPathOptions{}
+	strokePathOp.AntiAlias = true
+	strokePathOp.ColorScale.ScaleWithColor(c.checkColor)
+
+	path := &vector.Path{}
+	path.MoveTo(0, 0)
+	path.LineTo(float32(r.Dx()), float32(r.Dy()))
+	path.MoveTo(0, float32(r.Dy()))
+	path.LineTo(float32(r.Dx()), 0)
+	vector.StrokePath(c.img, path, strokeOp, strokePathOp)
 }
 
 // Draw draws the Checkbox on the screen.
