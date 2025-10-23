@@ -46,7 +46,9 @@ type Keyboard struct {
 
 	hideShortcuts []ebiten.Key
 
-	labelFont  *text.GoTextFace
+	fontSource *text.GoTextFaceSource
+	fontSize   int
+	fontFace   *text.GoTextFace
 	lineHeight int
 	lineOffset int
 
@@ -58,7 +60,7 @@ type Keyboard struct {
 }
 
 // NewKeyboard returns a new Keyboard widget.
-func NewKeyboard(f *text.GoTextFaceSource) *Keyboard {
+func NewKeyboard(fontSource *text.GoTextFaceSource, fontSize int) *Keyboard {
 	k := &Keyboard{
 		alpha: 1.0,
 		op: &ebiten.DrawImageOptions{
@@ -71,7 +73,9 @@ func NewKeyboard(f *text.GoTextFaceSource) *Keyboard {
 		backgroundColor: color.RGBA{0, 0, 0, 255},
 		holdTouchID:     -1,
 		hideShortcuts:   []ebiten.Key{ebiten.KeyEscape},
-		labelFont:       fontFace(f, 64),
+		fontSource:      fontSource,
+		fontSize:        fontSize,
+		fontFace:        fontFace(fontSource, fontSize),
 		backspaceDelay:  500 * time.Millisecond,
 		backspaceRepeat: 75 * time.Millisecond,
 	}
@@ -79,10 +83,10 @@ func NewKeyboard(f *text.GoTextFaceSource) *Keyboard {
 	return k
 }
 
-func fontFace(source *text.GoTextFaceSource, size float64) *text.GoTextFace {
+func fontFace(source *text.GoTextFaceSource, size int) *text.GoTextFace {
 	return &text.GoTextFace{
 		Source: source,
-		Size:   size,
+		Size:   float64(size),
 	}
 }
 
@@ -118,7 +122,7 @@ func (k *Keyboard) SetKeys(keys [][]*Key) {
 	}
 }
 
-// SetExtendedKeys sets the keys of the keyboard when the .
+// SetExtendedKeys sets the keys of the keyboard when the symbol key is pressed.
 func (k *Keyboard) SetExtendedKeys(keys [][]*Key) {
 	k.extendedKeys = keys
 
@@ -144,16 +148,18 @@ func (k *Keyboard) SetShowExtended(show bool) {
 	k.backgroundDirty = true
 }
 
-// SetLabelFont sets the key label font.
-func (k *Keyboard) SetLabelFont(face *text.GoTextFace) {
-	k.labelFont = face
+// SetFont sets the key label font.
+func (k *Keyboard) SetFont(fontSource *text.GoTextFaceSource, fontSize int) {
+	k.fontSource = fontSource
+	k.fontSize = fontSize
+	k.fontFace = fontFace(fontSource, fontSize)
 	k.fontUpdated()
 
 	k.backgroundDirty = true
 }
 
 func (k *Keyboard) fontUpdated() {
-	m := k.labelFont.Metrics()
+	m := k.fontFace.Metrics()
 	k.lineHeight = int(m.HAscent + m.HDescent)
 	k.lineOffset = int(m.CapHeight)
 	if k.lineOffset < 0 {
@@ -545,8 +551,6 @@ func (k *Keyboard) drawBackground() {
 	k.backgroundLower.Fill(k.backgroundColor)
 	k.backgroundUpper.Fill(k.backgroundColor)
 
-	halfLineHeight := k.lineHeight / 2
-
 	lightShade := color.RGBA{150, 150, 150, 255}
 	darkShade := color.RGBA{30, 30, 30, 255}
 
@@ -572,17 +576,27 @@ func (k *Keyboard) drawBackground() {
 					label = key.UpperLabel
 				}
 
-				boundsW, boundsY := text.Measure(label, k.labelFont, float64(k.lineHeight))
-				x := key.w/2 - int(boundsW)/2
-				if x < 0 {
-					x = 0
+				var x, y int
+				size := k.fontSize
+				f := k.fontFace
+				for {
+					boundsW, boundsY := text.Measure(label, f, float64(k.lineHeight))
+					x = key.w/2 - int(boundsW)/2
+					if x < 0 {
+						x = 0
+					}
+					y = key.h/2 - int(boundsY)/2
+					if (int(boundsW) <= key.w && int(boundsY) <= key.h) || size == 1 {
+						break
+					}
+					// Scale font size until key label fits.
+					size--
+					f = fontFace(k.fontSource, size)
 				}
-				y := key.h/2 - int(boundsY)/2
-				_ = halfLineHeight
 				op := &text.DrawOptions{}
 				op.GeoM.Translate(float64(key.x+x), float64(key.y+y))
 				op.ColorScale.ScaleWithColor(color.White)
-				text.Draw(keyImage, label, k.labelFont, op)
+				text.Draw(keyImage, label, f, op)
 
 				// Draw border
 				keyImage.SubImage(image.Rect(key.x, key.y, key.x+key.w, key.y+1)).(*ebiten.Image).Fill(lightShade)

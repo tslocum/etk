@@ -5,6 +5,7 @@ import (
 
 	"codeberg.org/tslocum/etk/kibodo"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 // Keyboard is an on-screen keyboard widget. User input is automatically passed
@@ -17,7 +18,7 @@ type Keyboard struct {
 
 // NewKeyboard returns a new Keyboard widget.
 func NewKeyboard() *Keyboard {
-	k := kibodo.NewKeyboard(Style.TextFont)
+	k := kibodo.NewKeyboard(Style.TextFont, Scale(Style.TextSize))
 	k.Show()
 	return &Keyboard{
 		Box: NewBox(),
@@ -64,6 +65,13 @@ func (k *Keyboard) SetKeys(keys [][]*kibodo.Key) {
 	k.Lock()
 	defer k.Unlock()
 	k.k.SetKeys(keys)
+}
+
+// SetFont sets the key label font.
+func (k *Keyboard) SetFont(fontSource *text.GoTextFaceSource, fontSize int) {
+	k.Lock()
+	defer k.Unlock()
+	k.k.SetFont(fontSource, fontSize)
 }
 
 // SetExtendedKeys sets the keys of the keyboard when the .

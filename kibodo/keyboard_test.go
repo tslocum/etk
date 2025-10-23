@@ -61,7 +61,7 @@ func BenchmarkKeyboard_Press(b *testing.B) {
 }
 
 func newTestKeyboard() *Keyboard {
-	k := NewKeyboard(defaultFont())
+	k := NewKeyboard(defaultFont(), 64)
 	k.SetRect(0, 0, 300, 100)
 
 	return k

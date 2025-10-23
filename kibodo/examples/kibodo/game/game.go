@@ -32,7 +32,7 @@ var spinner = []byte(`-\|/`)
 
 // NewDemoGame returns a new kibodo demo game.
 func NewDemoGame() *game {
-	k := kibodo.NewKeyboard(defaultFont())
+	k := kibodo.NewKeyboard(defaultFont(), 64)
 	k.SetPassThroughPhysicalInput(true)
 	k.SetKeys(kibodo.KeysQWERTY)
 
