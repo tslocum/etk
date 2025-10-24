@@ -20,6 +20,9 @@ type Grid struct {
 	cellPositions [][2]int
 	cellSpans     [][2]int
 
+	numColumns int
+	numRows    int
+
 	updated bool
 }
 
@@ -75,6 +78,30 @@ func (g *Grid) SetRowPadding(padding int) {
 
 	g.rowPadding = padding
 	g.updated = true
+}
+
+// Columns returns the number of columns in the grid, including empty columns.
+func (g *Grid) Columns() int {
+	g.Lock()
+	defer g.Unlock()
+
+	if g.updated {
+		g.reposition()
+		g.updated = false
+	}
+	return g.numColumns
+}
+
+// Rows returns the number of rows in the grid, including empty rows.
+func (g *Grid) Rows() int {
+	g.Lock()
+	defer g.Unlock()
+
+	if g.updated {
+		g.reposition()
+		g.updated = false
+	}
+	return g.numRows
 }
 
 // AddChild adds a widget to the Grid at 0,0. To add widgets to a Grid, you
@@ -263,6 +290,9 @@ func (g *Grid) reposition() {
 			y += rowHeights[i] + g.rowPadding
 		}
 	}
+
+	// Cache column and row count.
+	g.numColumns, g.numRows = numColumns, numRows
 
 	// Reposition and resize all children.
 	for i, child := range g.children {
