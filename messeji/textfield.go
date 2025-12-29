@@ -927,6 +927,21 @@ func (f *TextField) fontUpdated() {
 	}
 }
 
+// wrapContent wraps the field content to fit within the available space.
+// When word wrap is enabled, text will break at any whitespace character.
+// When word wrap is disabled, text will break at any character.
+//
+// The text wrapping algorithm works as follows:
+//
+//	Process the content of the text buffer one line at a time.
+//	Maintain three cursors into the line of text being processed: line, word and character.
+//	Starting from the line cursor, find the next whitespace character.
+//	    If a whitespace character is found, measure the text from the line cursor to the whitespace character.
+//	    If a whitespace character is not found, measure the text from the line cursor to the end of the line.
+//	If the measured text fits, add it to the wrapped text buffer and repeat the above process.
+//	If the measured text doesn't fit, measure again from the line cursor to the character cursor.
+//	    If the measured text fits, advance the character cursor until it no longer fits, or the end of the line is reached.
+//	    If the measured text doesn't fit, add the text up to the character which caused the text to no longer fit.
 func (f *TextField) wrapContent(withScrollBar bool) (wrappedChar bool) {
 	if withScrollBar != f.wrapScrollBar {
 		f.needWrap = 0
